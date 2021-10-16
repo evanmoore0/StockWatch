@@ -16,6 +16,7 @@ const Stack = createNativeStackNavigator();
 function AppStack() {
     return (
 
+        //So pages navigated to don't have a gray background
        <NavigationContainer
        theme = {{
            colors: {
@@ -23,15 +24,13 @@ function AppStack() {
            }
        }}
        >
+           {/*To remove the header from pages that are navigated to */}
            <Stack.Navigator
            screenOptions={{
                headerShown: false
            }}
            >
-               <Stack.Screen 
-               name = "Welcome" 
-               component = {Welcome}
-               />
+               <Stack.Screen name = "Welcome" component = {Welcome}/>
                <Stack.Screen name = "Login" component = {Login}/>
                <Stack.Screen name = "Register" component = {Register}/>
                <Stack.Screen name = "Stocks" component = {Stocks}/>

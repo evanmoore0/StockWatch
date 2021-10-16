@@ -89,11 +89,20 @@ class StockDisplay extends Component {
             justifyContent: 'center',
             alignItems: 'center'
         }}>
-            <View style={{flex:1, paddingTop: 200}}>
+            <View style={{flex:1, paddingTop: 50}}>
+                <Text style={{fontSize: 20}}>
+                    Description:
+                </Text>
                 <Text>
                     {/*Data from api (Description in this case) */}
                     {this.state.description}
                 </Text>
+                <Text style={{fontSize: 20, paddingTop: 10}}>For Past 100 Days</Text>
+
+                <Text style={{fontSize: 20}}>Stock Price</Text>
+                <Text>{this.state.stockChartYValues}</Text>
+                <Text style={{fontSize: 20}}>Dates</Text>
+                <Text>{this.state.stockChartYValues}</Text>
 
             </View>
 
