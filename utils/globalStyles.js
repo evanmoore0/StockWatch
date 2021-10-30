@@ -13,7 +13,13 @@ const GlobalStyles = StyleSheet.create({
     },
 
     buttonContainer: {
-        flex: normalize.setNormalize(60)
+        paddingTop: normalize.setNormalize(50)
+    },
+
+    percentChangeText: {
+        color: '#13FF00',
+        fontSize: normalize.setNormalize(25),
+        
     }
 })
 

@@ -1,11 +1,61 @@
 import React from 'react';
-import {Text, TextInput, View} from 'react-native';
+import {FlatList, Text, TextInput, View, ScrollView} from 'react-native';
 import NavBar from '../globalComponents/navBar';
+import { Ionicons } from '@expo/vector-icons';
+import normalize from '../utils/normalize';
+import { FontAwesome } from '@expo/vector-icons';
+import StockContainer from '../globalComponents/stockContainer';
+
+const stockData = [
+    {
+        stock: "Apple (APPL)",
+        percentChange: "+ 7.23%",
+        key:'1'
+    },
+    {
+        stock: "American Airlines (AAL)",
+        percentChange: "- 1.23%",
+        key:'2'
+
+    },
+    {
+        stock: "Microsoft (MSFT)",
+        percentChange: "+ 2.23%",
+        key:'3'
+
+    },
+    {
+        stock: "J.P. Morgan (JPM)",
+        percentChange: "- 3.13%",
+        key:'4'
+
+    },
+    {
+        stock: "Testla (TSLA)",
+        percentChange: "+ 10.23%",
+        key:'5'
+
+    },
+    {
+        stock: "Lucid Motors (LCID)",
+        percentChange: "+ 0.23%",
+        key: '6'
+    },
+    {
+        stock: "Apple (APPL)",
+        percentChange: "+ 7.23%",
+        key:'7'
+
+    },
+    {
+        stock: "Apple (APPL)",
+        percentChange: "+ 7.23%",
+        key:'8'
+
+    },
+];
 
 class Stocks extends React.Component {
-
-    
-    
 
 
     //Constructor to store states
@@ -17,64 +67,32 @@ class Stocks extends React.Component {
         }
     }
     
-
-    // // componentDidMount() {
-    // //     this.fetchStock();
-    // // }
-
-    
-
-    // fetchStock() {
-    //     const pointerToThis = this;
-    //     // console.log(this.state.stockSymbol)
-    //     const API_KEY = 'M8S9O6GLYM4ZUPIE';
-    //     // let StockSymbol = arguments[0]
-    //     let API_Call = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=' + pointerToThis.state.stockSymbol + '&outputsize=compact&apikey=${API_KEY}';
-    //     let stockChartXValuesFunction = [];
-    //     let stockChartYValuesFunction = [];
-    //     fetch(API_Call)
-    //         .then(
-    //             //Get data in JSON form
-    //             function(response) {
-    //                 return response.json();
-    //             }
-    //         )
-    //         .then(
-    //             //Get in data variable
-    //             function(data) {
-    //                 // console.log(data);
-
-
-    //                 for (var key in data['Time Series (Daily)']) {
-    //                     stockChartXValuesFunction.push(key);
-    //                     stockChartYValuesFunction.push(data['Time Series (Daily)'][key]['1. open']);
-    //                 }
-
-    //                 // console.log(stockChartXValuesFunction)
-    //                 pointerToThis.setState({
-    //                     stockChartXValues: stockChartXValuesFunction,
-    //                     stockChartYValues: stockChartYValuesFunction,
-
-    //                 })
-    //             }
-    //         )
-    // }
-
     render() {
         return (
             <View style={{
                 justifyContent: 'center',
                 alignItems: 'center',
-                flex: 1
+                flex: 1,
+                paddingTop: normalize.setNormalize(60),
+                paddingHorizontal: normalize.setNormalize(22),
+                backgroundColor: 'black',
             }}>
+
+                <View style={{flexDirection: 'row', width: '100%', height: 200, justifyContent: 'space-between'}}>
+                    <Text style={{fontSize: normalize.setNormalize(24), color: 'white'}}>Stocks</Text>
+                    <Ionicons name="settings-sharp" size={24} color="white" />
+                </View>
                 <View style={{
                     flex:1
                 
                 }}>
+                    
 
                     <TextInput
-                    style = {{flex:1}}
-                    placeholder = "enter stock name"
+                    style = {{backgroundColor: 'gray', height: normalize.setNormalize(32), width: normalize.setNormalize(335), borderRadius: normalize.setNormalize(50), paddingLeft: normalize.setNormalize(20), fontSize: normalize.setNormalize(18)}}
+                    placeholderTextColor= 'white'
+
+                    placeholder = "Search"
                     onChangeText = {val => {
                         this.setState({stockSymbol: val});
                     }}
@@ -91,14 +109,58 @@ class Stocks extends React.Component {
 
                     keyboardType = 'default'
                     />
-
                 </View>
-               
 
+                <Text style={{color: 'white', fontSize: normalize.setNormalize(37)}}>Trending</Text>
+               
+               {/* <View>
+
+                   <StockContainer
+                   stock = "Apple (APPL)"
+                   percentChange = "+ 7.23%"
+                   />
+                   <StockContainer
+                   stock = "Apple (APPL)"
+                   percentChange = "+ 7.23%"
+                   />
+                   <StockContainer
+                   stock = "Apple (APPL)"
+                   percentChange = "+ 7.23%"
+                   />
+                   <StockContainer
+                   stock = "Apple (APPL)"
+                   percentChange = "+ 7.23%"
+                   />
+                   
+               
+               </View> */}
+
+               {/* <ScrollView>
+
+                   <StockContainer/>
+                   <StockContainer/>
+                   <StockContainer/>
+                   <StockContainer/>
+                   <StockContainer/>
+                   <StockContainer/>
+
+               </ScrollView> */}
+               <FlatList
+               data = {stockData}
+               style={{}}
+               renderItem={({item})=>(
+                   <StockContainer
+                   stock = {item.stock}
+                   percentChange={item.percentChange}
+                   />
+               )}
+               />
+
+            
                 
                 <View style={{
-                    flex: 1,
-                    width: '100%'
+                    width: '100%',
+                    backgroundColor: 'red'
                 }}>
 
                   <NavBar/>

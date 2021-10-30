@@ -1,11 +1,13 @@
 import React, { Component } from "react";
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet, Animated, Easing} from 'react-native';
 import normalize from "../utils/normalize";
 import PageButton from "../globalComponents/button";
 import GlobalStyles from "../utils/globalStyles";
+import Graphic from "../globalComponents/graphic";
 
 
 class Welcome extends Component {
+
     render() {
         return (
             <View style={GlobalStyles.screenContainer}>
@@ -19,20 +21,19 @@ class Welcome extends Component {
                     <Text style={WelcomeStyles.subTitle}>at the click of a button</Text>
                 </View>
 
-                <View style= {
-                    WelcomeStyles.graphicContainer
-                }>
-
-                </View>
-
-                <View style={GlobalStyles.buttonContainer}>
-
-                    <PageButton
-                    title = "Get Started"
-                    route = "Register"
+                <View style={WelcomeStyles.graphicContainer}>
+                    <Graphic
+                    scale = {1}
                     />
 
+
                 </View>
+
+                <PageButton
+                title = "Get Started"
+                route = "Register"
+                />
+
 
                 
 
@@ -48,11 +49,6 @@ class Welcome extends Component {
 
 
 
-{/* 
-                <PageButton
-                title = "Get Started"
-                route = "Register"
-                /> */}
 
                 {/* <TouchableOpacity
                 onPress = {() => {
@@ -104,7 +100,8 @@ const WelcomeStyles = StyleSheet.create({
     },
 
     graphicContainer: {
-        flex: normalize.setNormalize(455)
+        flex: normalize.setNormalize(455),
+        width: '100%'
     },
 
     buttonSubtitleContainer: {
