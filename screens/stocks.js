@@ -8,47 +8,55 @@ import StockContainer from '../globalComponents/stockContainer';
 
 const stockData = [
     {
-        stock: "Apple (APPL)",
+        stock: "Apple",
+        ticker: "APPL",
         percentChange: "+ 7.23%",
         key:'1'
     },
     {
-        stock: "American Airlines (AAL)",
+        stock: "American Airlines",
+        ticker: "AAL",
         percentChange: "- 1.23%",
         key:'2'
 
     },
     {
-        stock: "Microsoft (MSFT)",
+        stock: "Microsoft",
+        ticker: "MSFT",
         percentChange: "+ 2.23%",
         key:'3'
 
     },
     {
-        stock: "J.P. Morgan (JPM)",
+        stock: "J.P. Morgan",
+        ticker: "JPM",
         percentChange: "- 3.13%",
         key:'4'
 
     },
     {
-        stock: "Testla (TSLA)",
+        stock: "Testla",
+        ticker: "TSLA",
         percentChange: "+ 10.23%",
         key:'5'
 
     },
     {
-        stock: "Lucid Motors (LCID)",
+        stock: "Lucid Motors",
+        ticker: "LCID",
         percentChange: "+ 0.23%",
         key: '6'
     },
     {
-        stock: "Apple (APPL)",
+        stock: "Apple",
+        ticker: "APPL",
         percentChange: "+ 7.23%",
         key:'7'
 
     },
     {
-        stock: "Apple (APPL)",
+        stock: "Apple",
+        ticker: "APPL",
         percentChange: "+ 7.23%",
         key:'8'
 
@@ -78,12 +86,14 @@ class Stocks extends React.Component {
                 backgroundColor: 'black',
             }}>
 
-                <View style={{flexDirection: 'row', width: '100%', height: 200, justifyContent: 'space-between'}}>
+                
+
+                <View style={{flexDirection: 'row', width: '100%', height: normalize.setNormalize(50), justifyContent: 'space-between'}}>
                     <Text style={{fontSize: normalize.setNormalize(24), color: 'white'}}>Stocks</Text>
                     <Ionicons name="settings-sharp" size={24} color="white" />
                 </View>
                 <View style={{
-                    flex:1
+                    height: normalize.setNormalize(60)
                 
                 }}>
                     
@@ -104,53 +114,21 @@ class Stocks extends React.Component {
                             ticker: this.state.stockSymbol,
                             searchId: 96
                         })
-                        // this.fetchStock()
                     }}
 
                     keyboardType = 'default'
                     />
                 </View>
 
-                <Text style={{color: 'white', fontSize: normalize.setNormalize(37)}}>Trending</Text>
-               
-               {/* <View>
-
-                   <StockContainer
-                   stock = "Apple (APPL)"
-                   percentChange = "+ 7.23%"
-                   />
-                   <StockContainer
-                   stock = "Apple (APPL)"
-                   percentChange = "+ 7.23%"
-                   />
-                   <StockContainer
-                   stock = "Apple (APPL)"
-                   percentChange = "+ 7.23%"
-                   />
-                   <StockContainer
-                   stock = "Apple (APPL)"
-                   percentChange = "+ 7.23%"
-                   />
-                   
-               
-               </View> */}
-
-               {/* <ScrollView>
-
-                   <StockContainer/>
-                   <StockContainer/>
-                   <StockContainer/>
-                   <StockContainer/>
-                   <StockContainer/>
-                   <StockContainer/>
-
-               </ScrollView> */}
+                <Text style={{color: 'white', fontSize: normalize.setNormalize(37), height: normalize.setNormalize(70)}}>Trending</Text>
+            
                <FlatList
                data = {stockData}
                style={{}}
                renderItem={({item})=>(
                    <StockContainer
                    stock = {item.stock}
+                   ticker = {item.ticker}
                    percentChange={item.percentChange}
                    />
                )}

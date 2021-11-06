@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import {View, Text} from 'react-native';
 import NavBar from "../globalComponents/navBar";
+import normalize from "../utils/normalize";
 
 
 class StockDisplay extends Component {
@@ -20,6 +21,7 @@ class StockDisplay extends Component {
     fetchStock() {
         //Allows me to access states
         const pointerToThis = this;
+        console.log(pointerToThis.props.route.params.ticker)
         //API key
         const API_KEY = 'M8S9O6GLYM4ZUPIE';
         let API_Call = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=' + pointerToThis.props.route.params.ticker + '&outputsize=compact&apikey=' + API_KEY;
@@ -89,26 +91,8 @@ class StockDisplay extends Component {
             justifyContent: 'center',
             alignItems: 'center'
         }}>
-            <View style={{flex:1, paddingTop: 50}}>
-                <Text style={{fontSize: 20}}>
-                    Description:
-                </Text>
-                <Text>
-                    {/*Data from api (Description in this case) */}
-                    {this.state.description}
-                </Text>
-                <Text style={{fontSize: 20, paddingTop: 10}}>For Past 100 Days</Text>
-
-                <Text style={{fontSize: 20}}>Stock Price</Text>
-                <Text>{this.state.stockChartYValues}</Text>
-                <Text style={{fontSize: 20}}>Dates</Text>
-                <Text>{this.state.stockChartYValues}</Text>
-
-            </View>
-
-            <View style={{flex:1, width: '100%'}}>
-                <NavBar/>
-            </View>
+            
+            <Text style={{height: normalize.setNormalize(60), fontSize: normalize.setNormalize(40)}}>{this.props.route.params.stock + " (" + this.props.route.params.ticker + ")"}</Text>
             
         
         </View>
@@ -118,5 +102,7 @@ class StockDisplay extends Component {
     
     
 }
+
+
 
 export default StockDisplay;

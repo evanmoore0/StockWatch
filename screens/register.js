@@ -112,6 +112,7 @@ const RegisterStyles = StyleSheet.create({
         width: normalize.setNormalize(300),
         paddingLeft: normalize.setNormalize(15),
         fontSize: normalize.setNormalize(20),
+        color: 'white'
     },
 
     inputContainer: {
