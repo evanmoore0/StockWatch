@@ -12,14 +12,22 @@ const GlobalStyles = StyleSheet.create({
         
     },
 
+    homePageContainer: {
+        flex: 1,
+        backgroundColor: 'black',
+        marginHorizontal: normalize.setNormalize(10),
+        marginTop: normalize.setNormalize(40)
+
+    },
+
     buttonContainer: {
         paddingTop: normalize.setNormalize(50)
     },
 
     percentChangeText: {
-        color: '#13FF00',
-        fontSize: normalize.setNormalize(25),
-        
+        color: '#6AB664',
+        fontSize: normalize.setNormalize(20),
+        fontWeight: '800'
     }
 })
 

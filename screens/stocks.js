@@ -5,6 +5,9 @@ import { Ionicons } from '@expo/vector-icons';
 import normalize from '../utils/normalize';
 import { FontAwesome } from '@expo/vector-icons';
 import StockContainer from '../globalComponents/stockContainer';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import getStockProfileData from '../utils/API/stockProfile';
+import GlobalStyles from '../utils/globalStyles';
 
 const stockData = [
     {
@@ -66,6 +69,8 @@ const stockData = [
 class Stocks extends React.Component {
 
 
+
+
     //Constructor to store states
     constructor(props) {
         super(props);
@@ -74,33 +79,36 @@ class Stocks extends React.Component {
             stockSymbol: ''
         }
     }
+
+    componentDidMount() {
+    }
     
     render() {
         return (
-            <View style={{
-                justifyContent: 'center',
-                alignItems: 'center',
-                flex: 1,
-                paddingTop: normalize.setNormalize(60),
-                paddingHorizontal: normalize.setNormalize(22),
-                backgroundColor: 'black',
-            }}>
+            <View style={GlobalStyles.homePageContainer}>
+
+                <ScrollView
+                stickyHeaderIndices = {[0]}
+                >
 
                 
-
-                <View style={{flexDirection: 'row', width: '100%', height: normalize.setNormalize(50), justifyContent: 'space-between'}}>
-                    <Text style={{fontSize: normalize.setNormalize(24), color: 'white'}}>Stocks</Text>
+                {/* <View style={{flexDirection: 'row', width: '100%', height: normalize.setNormalize(50), justifyContent: 'space-between'}}>
+                    <Text style={{fontSize: normalize.setNormalize(24), color: 'rgb(199,199,199)'}}>Stocks</Text>
                     <Ionicons name="settings-sharp" size={24} color="white" />
-                </View>
+                </View> */}
                 <View style={{
-                    height: normalize.setNormalize(60)
-                
+                    height: normalize.setNormalize(42),
+                    alignItems: 'center',
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+
                 }}>
                     
 
                     <TextInput
-                    style = {{backgroundColor: 'gray', height: normalize.setNormalize(32), width: normalize.setNormalize(335), borderRadius: normalize.setNormalize(50), paddingLeft: normalize.setNormalize(20), fontSize: normalize.setNormalize(18)}}
+                    style = {{backgroundColor: 'gray', height: normalize.setNormalize(32), width: normalize.setNormalize(335), borderRadius: normalize.setNormalize(50), paddingLeft: normalize.setNormalize(20), fontSize: normalize.setNormalize(18), color: 'white'}}
                     placeholderTextColor= 'white'
+                    selectionColor = 'white'
+                    
 
                     placeholder = "Search"
                     onChangeText = {val => {
@@ -120,11 +128,15 @@ class Stocks extends React.Component {
                     />
                 </View>
 
-                <Text style={{color: 'white', fontSize: normalize.setNormalize(37), height: normalize.setNormalize(70)}}>Trending</Text>
-            
+                <View style={{ height: normalize.setNormalize(60), paddingTop: normalize.setNormalize(10), backgroundColor: 'rgba(0, 0, 0, 0.8)', alignItems: 'center', justifyContent: 'space-between'}}>
+                    <Text style={{color: 'white', fontSize: normalize.setNormalize(25)}}>Trending</Text>
+
+                    <View style={{height: 0.2, backgroundColor: 'white', width: '100%', opacity: 0.5}}></View>
+
+                </View>
+
                <FlatList
                data = {stockData}
-               style={{}}
                renderItem={({item})=>(
                    <StockContainer
                    stock = {item.stock}
@@ -134,16 +146,7 @@ class Stocks extends React.Component {
                )}
                />
 
-            
-                
-                <View style={{
-                    width: '100%',
-                    backgroundColor: 'red'
-                }}>
-
-                  <NavBar/>
-
-                </View>
+                </ScrollView>
             </View>
         )
     }

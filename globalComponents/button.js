@@ -10,8 +10,12 @@ function PageButton(props) {
         <TouchableOpacity
         style={ButtonStyles.buttonContainer}
         onPress = {() => {
+            props.onPress()
 
-            navigation.navigate(props.route)
+
+            navigation.replace(props.route, {
+                screen: props.screen
+            })
 
 
 

@@ -1,15 +1,50 @@
-import React, { Component } from "react";
-import {View, Text, StyleSheet, TextInput} from 'react-native';
+import React, { Component, useState } from "react";
+import {View, Text, StyleSheet, TextInput, Alert, TouchableOpacity} from 'react-native';
 import LoginAndRegisterTitle from "../globalComponents/loginAndRegisterTitle";
 import normalize from "../utils/normalize";
 import GlobalStyles from "../utils/globalStyles";
-import PageButton from "../globalComponents/button";
-import RegistrationEntry from "../globalComponents/registrationEntry";
 import Graphic from "../globalComponents/graphic";
+import { auth, db } from "../utils/firebase-config";
+import PageButton from "../globalComponents/button";
+import Library from "./library";
 
 
-class Register extends Component {
-    render() {
+function Register (props) {
+
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [confirmPassowrd, setConfirmPassword] = useState('')
+
+    const handleRegister = () => {
+        auth
+        .createUserWithEmailAndPassword(email, password)
+        .then(
+            currentUser => {
+                const user = currentUser.user;
+                db.collection('users')
+                .doc(user.uid)
+                .set({email: user.email, stocks: []})
+            }
+        )
+        .catch(error => alert(error.message))
+    }
+
+    const handlePress = () => { 
+
+        if(!email) {
+            Alert.alert("Email is required");
+        } else if (!password) {
+            Alert.alert("Password is required");
+        } else if (!confirmPassowrd) {
+            Alert.alert("Confirm password is required") 
+        } else if (confirmPassowrd != password) {
+            Alert.alert('Password does not match!')
+        } else {
+            handleRegister()
+            props.navigation.replace('TabStack')
+        }
+    }
+
         return (
 
             <View style={GlobalStyles.screenContainer}>
@@ -34,8 +69,13 @@ class Register extends Component {
                         style={RegisterStyles.textInput}
                         placeholder = "enter email"
                         placeholderTextColor = "white"
+                        onChangeText = {text=>{
+
+                            setEmail(text)
+                            
+                        }}
                         onSubmitEditing = {()=> {
-                            {this.textInput.focus()}
+                            {}
                         }}
                         />
                     </View>
@@ -44,11 +84,16 @@ class Register extends Component {
                         <Text style={RegisterStyles.textInputHeader}>password</Text>
                         <TextInput
                         style={RegisterStyles.textInput}
+                        secureTextEntry
                         placeholder = "enter password"
                         placeholderTextColor = "white"
-                        ref = {(input) => {this.textInput = input}}
+                        ref = {(input) => {}}
+                        onChangeText = {text=>{
+                            setPassword(text)
+                            
+                        }}
                         onSubmitEditing = {()=> {
-                            {this.textInputTwo.focus()}
+                           
                         }}
                         />
                     </View>
@@ -57,30 +102,39 @@ class Register extends Component {
                         <Text style={RegisterStyles.textInputHeader}>confirm password</Text>
                         <TextInput
                         style={RegisterStyles.textInput}
+                        secureTextEntry
                         placeholder = "confirm password"
                         placeholderTextColor = "white"
-                        ref = {(input)=>{this.textInputTwo = input}}
+                        onChangeText = {text => {
+                            setConfirmPassword(text)
+                        }}
+                        ref = {(input)=>{}}
                         />
                     </View>
 
 
                 </View>
 
-                <View style= {GlobalStyles.buttonContainer}>
+                <TouchableOpacity
+                style={RegisterStyles.buttonContainer}
+                onPress = {() => {
 
-                    <PageButton
-                    title = 'Create Account'
-                    route = 'Stocks'
-                    />
+                    handlePress()
+                }}
+                >
+            <Text style={RegisterStyles.buttonText}>
 
-                </View>
+                Register
 
+
+            </Text>
+            </TouchableOpacity>
                 <View style={{flex: normalize.setNormalize(110)}}></View>
             </View>
 
 
         )
-    }
+    
 }
 
 export default Register;
@@ -117,6 +171,21 @@ const RegisterStyles = StyleSheet.create({
 
     inputContainer: {
         paddingBottom: normalize.setNormalize(20)
+    },
+
+    buttonContainer: {
+        height: normalize.setNormalize(65),
+        width: normalize.setNormalize(210),
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: normalize.setNormalize(50),
+        backgroundColor: '#6AB664'
+    },
+
+    buttonText: {
+
+        fontSize: normalize.setNormalize(27),
+        color: 'white'
     }
 
 })
