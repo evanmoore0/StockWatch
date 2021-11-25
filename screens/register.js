@@ -41,7 +41,6 @@ function Register (props) {
             Alert.alert('Password does not match!')
         } else {
             handleRegister()
-            props.navigation.replace('TabStack')
         }
     }
 

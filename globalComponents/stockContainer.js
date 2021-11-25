@@ -8,7 +8,7 @@ function StockContainer(props){
 
     const navigation = useNavigation();
 
-    const [percentColor, setPercentColor] = useState('');
+    const [percentColor, setPercentColor] = useState('#82C8FB');
 
     useEffect(() => {
         checkPercentGain()

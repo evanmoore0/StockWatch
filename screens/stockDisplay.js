@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import {auth, db} from '../utils/firebase-config'
 import Library from "./library";
 import {StackActions} from '@react-navigation/native'
+import Graphic from "../globalComponents/graphic";
 
 class StockDisplay extends Component {
 
@@ -19,9 +20,52 @@ class StockDisplay extends Component {
             stockChartYValues: [],
             description: '',
             name: '',
-            stocks: []
+            stocks: [],
+            color: ['#6AB664', 'black', 'black', 'black', 'black'],
+            textColor: ['white', '#6AB664', '#6AB664', '#6AB664', '#6AB664']
         }
     }
+
+    setColor(i) {
+
+        let tempColor = ['black', 'black', 'black', 'black', 'black']
+        let tempTextColor = ['#6AB664', '#6AB664', '#6AB664', '#6AB664', '#6AB664']
+
+        tempColor[i] = '#6AB664'
+        tempTextColor[i] = 'white'
+
+
+        this.setState({color: tempColor, textColor: tempTextColor})
+
+    }
+
+    // setData() {
+    //     const add = async () => {
+
+    //         const data = await db.collection('users').doc(auth.currentUser.uid).get()
+    //         // this.setState({stocks: data.data().stocks})
+    
+    //         let tempStock = data.data().stocks    
+        
+    //         tempStock.push(this.props.route.params.ticker)
+        
+    //         // console.log("AFTER PUSH " + this.state.stocks)
+        
+    //         db.collection('users').doc(auth.currentUser.uid).update({stocks: tempStock})
+
+    //         // console.log("In setData" + db.collection('users').doc(auth.currentUser.uid).get().data().stocks)
+    //         const dataTwo = await db.collection('users').doc(auth.currentUser.uid).get()
+
+    //         console.log("In setData" + dataTwo.data().stocks)
+
+
+
+
+    //         // this.setState({stocks: tempStock})
+    
+    //     }
+    //     return add()
+    // }
 
     
     //Gets data from api
@@ -87,7 +131,13 @@ class StockDisplay extends Component {
     //Once the component is loaded in, fetch the stock data
     componentDidMount() {
         this.fetchStock();
-        console.log("IN Mount")
+        // this.setData();
+        // console.log("In StockDisplay Mount " + this.props.route.params.ticker)
+    }
+
+    componentWillUnmount() {
+        // console.log("In StockDisplay Unmount")
+        // this.setData()
     }
 
 
@@ -106,10 +156,8 @@ class StockDisplay extends Component {
                         this.props.navigation.goBack()
                     }}
                     >
-                        <Ionicons name="chevron-back-outline" size={normalize.setNormalize(40)} color="white" />
+                        <Ionicons name="chevron-back-outline" size={normalize.setNormalize(30)} color="white" />
                     </TouchableOpacity>
-
-                    <Text style={{fontSize: 20, color: 'white'}}>{this.state.name}</Text>
 
                     <TouchableOpacity
                     onPress = {()=> {
@@ -128,7 +176,12 @@ class StockDisplay extends Component {
                         //         }
                         //     })
                         // )
-                        this.props.navigation.replace('TabStack', {
+
+                        // this.setData()
+
+                        
+
+                        this.props.navigation.navigate('TabStack', {
                             screen: 'Library',
                             params: {
                                 stock: {
@@ -138,26 +191,88 @@ class StockDisplay extends Component {
                         })
                     }}
                     >
-                        <Ionicons name="add" size={normalize.setNormalize(40)} color="white" />
+                        <Ionicons name="add" size={normalize.setNormalize(30)} color="white" />
                     </TouchableOpacity>
                 </View>
 
-                <View style={{width: '100%', height: normalize.setNormalize(300), backgroundColor: 'red'}}>
+                <View style={{width:'100%', alignItems: 'center'}}>
+
+                    <Text style={{fontSize: 20, color: 'white'}}>{this.state.name}</Text>
 
                 </View>
 
-                <View style={{width: '100%', height: normalize.setNormalize(50), backgroundColor: 'green', paddingBottom: normalize.setNormalize(90)}}>
+
+
+                <View style={{width: '100%', height: normalize.setNormalize(300)}}>
+                    <Graphic
+                    scale={0.6}
+                    />
 
                 </View>
 
-                <View style={{width: '100%', backgroundColor: '#3B3939', borderRadius: normalize.setNormalize(10), height: 200, padding: 10}}>
+                <View style={{width: '100%', height: normalize.setNormalize(50), paddingBottom: normalize.setNormalize(80), paddingTop: normalize.setNormalize(20),flexDirection:'row', justifyContent: 'space-between'}}>
+
+                    <TouchableOpacity
+                    onPress= {()=>{
+                        this.setColor(0)
+                    }}
+                    style={[stockDisplayStyles.buttonContainer, {backgroundColor: this.state.color[0]}]}
+                    >
+                        <Text style={[stockDisplayStyles.buttonText, {color: this.state.textColor[0]}]}>1D</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                     onPress= {()=>{
+                        this.setColor(1)
+                    }}
+                    style={[stockDisplayStyles.buttonContainer, {backgroundColor: this.state.color[1]}]}
+                    
+                    >
+                        <Text style={[stockDisplayStyles.buttonText, {color: this.state.textColor[1]}]}>1W</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                     onPress= {()=>{
+                        this.setColor(2)
+                    }}
+                    style={[stockDisplayStyles.buttonContainer, {backgroundColor: this.state.color[2]}]}
+                    
+                    >
+                        <Text style={[stockDisplayStyles.buttonText, {color: this.state.textColor[2]}]}>1M</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                     onPress= {()=>{
+                        this.setColor(3)
+                    }}
+                    style={[stockDisplayStyles.buttonContainer, {backgroundColor: this.state.color[3]}]}
+
+                    >
+                        <Text style={[stockDisplayStyles.buttonText, {color: this.state.textColor[3]}]}>1Y</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                     onPress= {()=>{
+                        this.setColor(4)
+                    }}
+                    style={[stockDisplayStyles.buttonContainer, {backgroundColor: this.state.color[4]}]}
+
+                    >
+                        <Text style={[stockDisplayStyles.buttonText, {color: this.state.textColor[4]}]}>All</Text>
+                    </TouchableOpacity>
+
+
+
+                </View>
+
+                <View style={{width: '100%', backgroundColor: '#3B3939', borderRadius: normalize.setNormalize(10), flex:1, paddingVertical: normalize.setNormalize(20), paddingHorizontal:normalize.setNormalize(10)}}>
                     <Text style={{color: 'white'}}>
                         {this.state.description}
                     </Text>
 
                 </View>
 
-                <View style={{flexDirection: 'row'}}>
+                {/* <View style={{flexDirection: 'row', width:'100%'}}>
                     <View style={{width: '50%'}}>
                         <Text style={stockDisplayStyles.tableText}>Hello</Text>
                         <Text style={stockDisplayStyles.tableText}>Hello</Text>
@@ -180,7 +295,7 @@ class StockDisplay extends Component {
                     </View>
 
 
-                </View>
+                </View> */}
 
             </ScrollView>
 
@@ -200,11 +315,24 @@ const stockDisplayStyles = StyleSheet.create({
         fontSize: normalize.setNormalize(12),
         color: 'white',
         paddingVertical: normalize.setNormalize(10),
-        borderBottomColor: 'red',
-        borderBottomWidth: 10
-        // borderWidth: 1,
-        // borderColor: 'white',
+        borderWidth: 1,
+        borderColor: 'white',
+        borderLeftColor: 'green'
 
+    },
+
+    buttonContainer: {
+        height: normalize.setNormalize(30),
+        width: normalize.setNormalize(60),
+        borderRadius: 50,
+        justifyContent:'center',
+        alignItems: 'center',
+        borderColor: 'white'
+    },
+
+    buttonText: {
+        color: 'white',
+        fontSize: normalize.setNormalize(13)
     }
 
 })

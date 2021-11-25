@@ -8,7 +8,7 @@ const GlobalStyles = StyleSheet.create({
         alignItems:'center',
         flex: normalize.setNormalize(896),
         backgroundColor: 'black',
-        paddingTop: normalize.setNormalize(50)
+        paddingTop: normalize.setNormalize(50),
         
     },
 
@@ -16,7 +16,7 @@ const GlobalStyles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'black',
         marginHorizontal: normalize.setNormalize(10),
-        marginTop: normalize.setNormalize(40)
+        marginTop: normalize.setNormalize(40),
 
     },
 

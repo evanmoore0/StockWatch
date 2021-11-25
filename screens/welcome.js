@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useEffect } from "react";
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import normalize from "../utils/normalize";
 import GlobalStyles from "../utils/globalStyles";
@@ -9,24 +9,50 @@ import { auth } from "../utils/firebase-config";
 
 
 
-class Welcome extends Component {
+function Welcome(props) {
 
     //Called when the user closes the app
-    componentDidMount() {
-        this.checkUserStatus()
+    // componentDidMount() {
+    //     this.checkUserStatus()
+
+    //     console.log("In Welcome Mount")
         
-    }
+    // }
+
+    // componentWillUnmount() {
+    //     console.log("In Welcome UnMount")
+    // }
 
     //Check to see if user is signed in -> direct to stocks page if they are
-    checkUserStatus() {
-        auth.onAuthStateChanged((user)=> {
-            if(user) {
-                this.props.navigation.replace('TabStack')
-            }
-        })
-    }
+    // checkUserStatus() {
+    //     console.log("In checkuser status")
+    //     auth.onAuthStateChanged((user)=> {
+    //         if(user) {
+    //             this.props.navigation.replace('TabStack')
+    //         }
+    //     })
+    // }
+    // const checkUserStatus = () => {
 
-    render() {
+    //     console.log("IN CHECK USER STATUS")
+
+    //     auth.onAuthStateChanged((user) => {
+    //         if(user) {
+    //             props.navigation.replace('TabStack')
+    //         }
+    //     })
+
+    // }
+
+
+    useEffect(()=> {
+
+        console.log("In welcome useEffect")
+
+        
+
+    }, [])
+
         return (
             <View style={GlobalStyles.screenContainer}>
 
@@ -49,6 +75,7 @@ class Welcome extends Component {
                  Graphic
                  */}
                 <View style={WelcomeStyles.graphicContainer}>
+                    
                     <Graphic
                     scale = {1}
                     />
@@ -63,7 +90,7 @@ class Welcome extends Component {
                 style={WelcomeStyles.buttonContainer}
                 onPress = {() => {
 
-                this.props.navigation.replace('Register')
+                props.navigation.replace('Register')
 
 
 
@@ -84,7 +111,7 @@ class Welcome extends Component {
                 style = {WelcomeStyles.buttonSubtitleContainer}
                 onPress = {() => {
 
-                    this.props.navigation.replace("Login")
+                    props.navigation.replace("Login")
                 }}
                 >
                     <Text style={WelcomeStyles.buttonSubtitle}>Already have an account?</Text>
@@ -93,7 +120,7 @@ class Welcome extends Component {
 
             </View>
         )
-    }
+    
 }
 
 export default Welcome;

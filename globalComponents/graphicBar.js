@@ -65,7 +65,7 @@ class GraphicBar extends Component{
                     <View style={{
                         
                         backgroundColor: this.props.color,
-                        width: normalize.setNormalize(10), 
+                        width: normalize.setNormalize(10) * this.props.scale, 
                         height: normalize.setNormalize(this.props.height),
                         borderRadius: normalize.setNormalize(40),
                         

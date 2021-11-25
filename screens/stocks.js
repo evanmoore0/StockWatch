@@ -1,5 +1,5 @@
 import React from 'react';
-import {FlatList, Text, TextInput, View, ScrollView} from 'react-native';
+import {FlatList, Text, TextInput, View, ScrollView, LogBox} from 'react-native';
 import NavBar from '../globalComponents/navBar';
 import { Ionicons } from '@expo/vector-icons';
 import normalize from '../utils/normalize';
@@ -8,6 +8,7 @@ import StockContainer from '../globalComponents/stockContainer';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import getStockProfileData from '../utils/API/stockProfile';
 import GlobalStyles from '../utils/globalStyles';
+import Graphic from '../globalComponents/graphic';
 
 const stockData = [
     {
@@ -61,14 +62,35 @@ const stockData = [
         stock: "Apple",
         ticker: "APPL",
         percentChange: "+ 7.23%",
-        key:'8'
+        key:'9'
+
+    },
+    {
+        stock: "Apple",
+        ticker: "APPL",
+        percentChange: "+ 7.23%",
+        key:'10'
+
+    },
+    {
+        stock: "Apple",
+        ticker: "APPL",
+        percentChange: "+ 7.23%",
+        key:'11'
+
+    },
+    {
+        stock: "Apple",
+        ticker: "APPL",
+        percentChange: "+ 7.23%",
+        key:'12'
 
     },
 ];
 
+const stockTickers = ['TSLA', 'APPL', 'DIS', 'JPM', 'AAL', 'MSFT', 'LCID', 'AMC', 'ZOM']
+
 class Stocks extends React.Component {
-
-
 
 
     //Constructor to store states
@@ -81,27 +103,41 @@ class Stocks extends React.Component {
     }
 
     componentDidMount() {
+        console.log("In stocks mount")
+        LogBox.ignoreAllLogs()
+    }
+
+    componentWillUnmount() {
+        console.log("In stocks unmount")
     }
     
     render() {
         return (
             <View style={GlobalStyles.homePageContainer}>
 
-                <ScrollView
-                stickyHeaderIndices = {[0]}
-                >
+                <View style={{position: 'absolute', top: normalize.setNormalize(100), width: '100%', height: normalize.setNormalize(800), opacity: 0.2, backgroundColor:'black'}}>
+                        <Graphic
+                        scale = {1.4}
+                        />                    
+                </View>
 
-                
+                <ScrollView
+                stickyHeaderIndices = {[1]}
+                >
                 {/* <View style={{flexDirection: 'row', width: '100%', height: normalize.setNormalize(50), justifyContent: 'space-between'}}>
                     <Text style={{fontSize: normalize.setNormalize(24), color: 'rgb(199,199,199)'}}>Stocks</Text>
                     <Ionicons name="settings-sharp" size={24} color="white" />
                 </View> */}
+                <View></View>
+                
+
                 <View style={{
                     height: normalize.setNormalize(42),
                     alignItems: 'center',
                     backgroundColor: 'rgba(0, 0, 0, 0.8)',
-
                 }}>
+
+                    
                     
 
                     <TextInput
@@ -128,13 +164,17 @@ class Stocks extends React.Component {
                     />
                 </View>
 
-                <View style={{ height: normalize.setNormalize(60), paddingTop: normalize.setNormalize(10), backgroundColor: 'rgba(0, 0, 0, 0.8)', alignItems: 'center', justifyContent: 'space-between'}}>
-                    <Text style={{color: 'white', fontSize: normalize.setNormalize(25)}}>Trending</Text>
+                <View style={{ height: normalize.setNormalize(60), paddingTop: normalize.setNormalize(10), backgroundColor: 'rgba(0, 0, 0, 0.8)', alignItems: 'center'}}>
+                    <Text style={{color: 'white', fontSize: normalize.setNormalize(20)}}>Trending</Text>
 
-                    <View style={{height: 0.2, backgroundColor: 'white', width: '100%', opacity: 0.5}}></View>
+                    <View style={{paddingTop: normalize.setNormalize(15), width: '100%'}}>
+                        <View style={{height: 0.2, backgroundColor: 'white', width: '100%', opacity: 0.5}}></View>
 
+                    </View>
                 </View>
 
+                
+                
                <FlatList
                data = {stockData}
                renderItem={({item})=>(

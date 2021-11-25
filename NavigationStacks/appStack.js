@@ -11,6 +11,7 @@ import Library from "../screens/library";
 import StockDisplay from "../screens/stockDisplay";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Entypo } from '@expo/vector-icons';
+import Loading from "../screens/loading";
 
 
 const Stack = createNativeStackNavigator();
@@ -65,6 +66,10 @@ function AppStack() {
            <Stack.Navigator
            screenOptions={{headerShown: false}}
            >
+               <Stack.Screen
+               name = "Loading" 
+               component = {Loading}
+               />
                <Stack.Screen name = "Welcome" component = {Welcome}
                 
                />
