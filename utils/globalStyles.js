@@ -15,8 +15,8 @@ const GlobalStyles = StyleSheet.create({
     homePageContainer: {
         flex: 1,
         backgroundColor: 'black',
-        marginHorizontal: normalize.setNormalize(10),
-        marginTop: normalize.setNormalize(40),
+        marginHorizontal: normalize.setNormalize(16),
+        marginTop: normalize.setNormalize(60),
 
     },
 
@@ -28,6 +28,16 @@ const GlobalStyles = StyleSheet.create({
         color: '#6AB664',
         fontSize: normalize.setNormalize(20),
         fontWeight: '800'
+    },
+
+    searchBarContainer: {
+        height: normalize.setNormalize(60),
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        justifyContent: 'center',
+        alignItems: 'stretch',
+        paddingTop: normalize.setNormalize(10),
+        paddingBottom: normalize.setNormalize(50),
     }
 })
 

@@ -20,8 +20,8 @@ export default async function getStockProfileData() {
         Alert.alert(err)
     }
 
-    return console.log(percentChange)
+    console.log(percentChange)
 
-
+    return percentChange
 
 }

@@ -10,10 +10,13 @@ import getStockProfileData from "../utils/API/stockProfile";
 import { useFocusEffect } from "@react-navigation/core";
 import { Ionicons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 
 function Library(props) {
     const [stocks, updateStocks] = useState([]);
+    const [gainers, updateGainers] = useState([]);
+    const [losers, updateLosers] = useState([]);
     const [fontWeight, setFontWeight] = useState(['700', '400', '400'])
     const [lineHeight, setLineHeight] = useState([1, 0.2, 0.2])
     const [isVisible, setVisible] = useState(false)
@@ -44,7 +47,11 @@ function Library(props) {
         try {
         const data = await db.collection('users').doc(auth.currentUser.uid).get()
         
-        let tempStock = data.data().stocks    
+        let tempStock = data.data().stocks  
+        let stockObj = {
+            ticker: props.route.params.stock.ticker,
+            percChange: props.route.params.stock.percChange
+        }  
 
         for(let i = 0; i < tempStock.length; i++) {
             if(tempStock[i] == props.route.params.stock.ticker) {
@@ -53,7 +60,7 @@ function Library(props) {
             }
         }
             
-        tempStock.push(props.route.params.stock.ticker)
+        tempStock.push(stockObj)
 
         console.log("tempStock " + tempStock)
                         
@@ -68,8 +75,6 @@ function Library(props) {
             updateStocks(data.data().stocks)
             console.log("IN CATCH")
         }
-
-        
     
     }
 
@@ -98,21 +103,20 @@ function Library(props) {
     
         return (
             <View style={GlobalStyles.homePageContainer}>
-                 <View style={{position: 'absolute', top: normalize.setNormalize(100), width: '100%', height: normalize.setNormalize(800), opacity: 0.2, zIndex: 0}}>
+                 <View style={{position: 'absolute', top: normalize.setNormalize(90), width: '100%', height: normalize.setNormalize(800), opacity: 0.2, zIndex: 0}}>
                         <Graphic
                         scale = {1.4}
                         />                    
                 </View>
-                <View style={{width: '100%', alignItems: 'flex-end', height: normalize.setNormalize(30), justifyContent: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)'}}>
+                <View style={{width: '100%', alignItems: 'flex-end', height: normalize.setNormalize(40), justifyContent: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)'}}>
 
                     <TouchableOpacity
                     onPress = {()=> {
 
-                        setVisible(true)
-                        
+                        setVisible(true)                        
                     }}
                     >
-                        <Ionicons name="ios-settings-outline" size={normalize.setNormalize(24)} color="white" />
+                        <Ionicons name="ios-settings-outline" size={normalize.setNormalize(30)} color="white" />
 
                     </TouchableOpacity>
                 </View>
@@ -154,16 +158,6 @@ function Library(props) {
                 style={{zIndex: 1}}
                 >
 
-            {/* <TouchableOpacity
-            style={{width: 100, height: 100, backgroundColor: 'green'}}
-            onPress={() => {
-                // this.handleSignOut()
-                handleSignOut()
-            }}
-            >
-
-
-            </TouchableOpacity> */}
 
                 <View style={{
                     height: normalize.setNormalize(42),
@@ -262,10 +256,11 @@ function Library(props) {
             <FlatList
             data = {stocks}
             renderItem = {({item, index}) => (
+            
                 <StockContainer
-                ticker = {item}
+                ticker = {item.ticker}
                 stock = "Apple"
-                percentChange = "+9%"
+                percentChange = {item.percChange}
                 />
             )}
 

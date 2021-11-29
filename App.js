@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import AppStack from './NavigationStacks/appStack';
 import { auth } from './utils/firebase-config';
 import {useNavigation} from '@react-navigation/native'
+import SearchContainer from './globalComponents/searchContainer';
 
 
 export default function App(props) {
