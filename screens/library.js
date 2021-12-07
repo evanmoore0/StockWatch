@@ -17,9 +17,13 @@ function Library(props) {
     const [stocks, updateStocks] = useState([]);
     const [gainers, updateGainers] = useState([]);
     const [losers, updateLosers] = useState([]);
+    const [allStocks, updateAllStocks] = useState([]);
     const [fontWeight, setFontWeight] = useState(['700', '400', '400'])
     const [lineHeight, setLineHeight] = useState([1, 0.2, 0.2])
     const [isVisible, setVisible] = useState(false)
+    const [toadysGain, setTodaysGain] = useState(0)
+
+
 
 
     // constructor(props) {
@@ -31,6 +35,20 @@ function Library(props) {
     //     }
     // }
 
+
+    const getTodaysGain = () => {
+        console.log(" IN TODAYS GAIN")
+        console.log(allStocks.length)
+        let gain = 0
+        console.log(stocks.length)
+        for(let i = 0; i < stocks.length; i++) {
+            console.log(stocks[i].percentChange)
+            gain += stocks[i].percentChange
+        }
+
+        setTodaysGain(Math.round((gain/stocks.length)*100)/100)
+    }
+
     const handleClick = (a) => {
         let tempWeight = ['400', '400', '400']
         let tempHeight = [0.2, 0.2, 0.2]
@@ -40,65 +58,116 @@ function Library(props) {
         setFontWeight(tempWeight)
         setLineHeight(tempHeight)
 
+        if(a == 0) {
+
+            updateStocks(allStocks)
+
+        } else if(a == 1) {
+
+            let tempGainers = []
+
+            for(let i = 0; i < allStocks.length; i++) {
+
+                if(allStocks[i].percentChange > 0) {
+
+                    tempGainers.push(allStocks[i])
+                    console.log(allStocks[i])
+
+                }
+
+            }
+
+            updateStocks(tempGainers)
+
+        } else if(a == 2) {
+
+            let tempLosers = []
+
+            for(let i = 0; i < allStocks.length; i++) {
+
+                if(allStocks[i].percentChange < 0) {
+
+                    tempLosers.push(allStocks[i])
+
+                }
+
+            }
+
+            updateStocks(tempLosers)
+
+        }
+
     }
 
      const add = async () => {
 
         try {
+
+            console.log("IN ADD")
         const data = await db.collection('users').doc(auth.currentUser.uid).get()
         
         let tempStock = data.data().stocks  
-        let stockObj = {
-            ticker: props.route.params.stock.ticker,
-            percChange: props.route.params.stock.percChange
-        }  
+        // let stockObj = {
+        //     ticker: props.route.params.stock.ticker,
+        //     percChange: props.route.params.stock.percChange
+        // }  
+
+
 
         for(let i = 0; i < tempStock.length; i++) {
-            if(tempStock[i] == props.route.params.stock.ticker) {
+            if(tempStock[i].ticker == props.route.params.stock.ticker) {
                 Alert.alert("This stock is already in your library")
                 throw "O no"
             }
         }
             
-        tempStock.push(stockObj)
-
-        console.log("tempStock " + tempStock)
+        console.log("WHIT")
+        tempStock.push(props.route.params.stock)
                         
+
+        // getTodaysGain()
+        
+
         db.collection('users').doc(auth.currentUser.uid).update({stocks: tempStock})
-
+       
+        tempStock.sort(function(a,b) {
+            return a.sName.localeCompare(b.sName)
+        })
         updateStocks(tempStock)
+        updateAllStocks(tempStock)
+        getTodaysGain()
+            
+        
 
-        console.log("BOTTOM OF ADD")
+
+
+        // console.log("BOTTOM OF ADD")
 
         } catch {
+            console.log("HI")
             const data = await db.collection('users').doc(auth.currentUser.uid).get()
             updateStocks(data.data().stocks)
-            console.log("IN CATCH")
+            console.log(stocks)
+            getTodaysGain()
+
+            // console.log("IN CATCH")
         }
     
     }
 
-    // const allGainersLosers = (title) => {
-    //     let i = []
-
-    //     if(title == "Gainers") {
-    //         i = stocks.filter((stock)=> {
-    //             console.log(stock)
-    //             return stock[0] == "+"
-
-    //         })
-    //     }
-    //     console.log(i)
-    // }
-
     useEffect(()=> {
-        console.log("In useEffect library")
+        console.log("IN LIBRARY")
         add()
-    }, [props])
+    }, [])
+
+    // useEffect(()=> {
+    //     getTodaysGain()
+    // }, [props])
+
+
 
     const handleSignOut = () => {
         auth.signOut();
-
     }
     
         return (
@@ -168,7 +237,7 @@ function Library(props) {
                 }}>
                     <View style={{flexDirection: 'row', backgroundColor:'gray', paddingHorizontal: 20, paddingVertical: 5, borderRadius: 10, justifyContent:'center', alignItems:'center'}}>
                         <Text style={{color: 'white', fontSize: normalize.setNormalize(16)}}>Today's Gain:</Text>
-                        <Text style={{fontSize: normalize.setNormalize(16), color: '#6AB664', fontWeight: '700'}}>{" "}+ 10%</Text>
+                        <Text style={{fontSize: normalize.setNormalize(16), color: '#6AB664', fontWeight: '700'}}>{toadysGain }</Text>
 
 
                     </View>
@@ -259,8 +328,7 @@ function Library(props) {
             
                 <StockContainer
                 ticker = {item.ticker}
-                stock = "Apple"
-                percentChange = {item.percChange}
+                sName = {item.sName}
                 />
             )}
 

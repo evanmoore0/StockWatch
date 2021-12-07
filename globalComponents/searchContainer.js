@@ -36,7 +36,7 @@ function SearchContainer(props) {
                     navigation.replace("StockDisplay", {
                         stock: {
                             sName: props.stock,
-                            ticker: props.ticker
+                            ticker: props.ticker,
                         }
                     })
                 }}

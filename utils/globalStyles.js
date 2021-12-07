@@ -33,11 +33,9 @@ const GlobalStyles = StyleSheet.create({
     searchBarContainer: {
         height: normalize.setNormalize(60),
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
         justifyContent: 'center',
         alignItems: 'stretch',
-        paddingTop: normalize.setNormalize(10),
-        paddingBottom: normalize.setNormalize(50),
+        
     }
 })
 

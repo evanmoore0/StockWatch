@@ -1,5 +1,5 @@
 import React, { Component, useEffect, useState } from "react";
-import {View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert} from 'react-native';
+import {View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, FlatList, Image} from 'react-native';
 import NavBar from "../globalComponents/navBar";
 import normalize from "../utils/normalize";
 import GlobalStyles from "../utils/globalStyles";
@@ -8,26 +8,27 @@ import {auth, db} from '../utils/firebase-config'
 import Library from "./library";
 import {StackActions} from '@react-navigation/native'
 import Graphic from "../globalComponents/graphic";
+import StockContainer from "../globalComponents/stockContainer";
 
 function StockDisplay(props) {
     const [color, setColor] = useState(['#6AB664', 'black', 'black', 'black', 'black'])
     const [textColor, setTextColor] = useState(['white', '#6AB664', '#6AB664', '#6AB664', '#6AB664'])
 
-    //Constructor to store states
-    // constructor(props) {
-    //     super(props);
+    const [description, setDescription] = useState('')
+    const [sector, setSector] = useState('')
+    const [tags, setTags] = useState([])
+    const [url, setUrl] = useState('')
+    const [hqState, setHQState] = useState('')
+    const [employees, setEmployees] = useState('')
+    const [marketCap, setMarketCap] = useState('')
+    const [ceo, setCeo] = useState('')
+    const [similar, setSimilar] = useState([])
+    const [exchange, setExchange] = useState('')
+    const [listDate, setListDate] = useState('')
+    const [phoneNumber, setPhoneNumber] = useState('')
+    const [newsData, setNewsData] = useState([])
 
-    //     this.state = {
-    //         stockChartXValues: [],
-    //         stockChartYValues: [],
-    //         description: '',
-    //         name: '',
-    //         stocks: [],
-    //         color: ['#6AB664', 'black', 'black', 'black', 'black'],
-    //         textColor: ['white', '#6AB664', '#6AB664', '#6AB664', '#6AB664'],
-    //         percentChange: 0
-    //     }
-    // }
+
 
     const setScore = async () => {
         try {
@@ -35,8 +36,6 @@ function StockDisplay(props) {
             const score = await db.collection('score').doc(props.route.params.stock.ticker).get()
 
             let tempScore = score.data().score + 1
-
-            // console.log("IN STOCK DISPLAY" + score.data().score)
 
             db.collection('score')
             .doc(props.route.params.stock.ticker)
@@ -53,6 +52,8 @@ function StockDisplay(props) {
 
     useEffect(() => {
        setScore()
+       getData()
+       getNews()
     
     }, []);
 
@@ -72,140 +73,63 @@ function StockDisplay(props) {
         
     }
 
-    // setData() {
-    //     const add = async () => {
+    const getData = async () => {
+        try {
+            await fetch('https://api.polygon.io/v1/meta/symbols/' + props.route.params.stock.ticker + '/company?apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
+            .then(
+                function(response) {
+                    return response.json();
+                }
+            )
+            .then(
+                function(data) {
+                    setDescription(data.description)
+                    setTags(data.tags)
+                    setCeo(data.ceo)
+                    setSimilar(data.similar)
+                    setHQState(data.hq_state)
+                    setMarketCap(data.marketcap)
+                    setSector(data.sector)
+                    setEmployees(data.employees)
+                    setUrl(data.url)
+                    setExchange(data.exchangeSymbol)
+                    setPhoneNumber(data.phone)
+                    setListDate(data.listdate)
 
-    //         const data = await db.collection('users').doc(auth.currentUser.uid).get()
-    //         // this.setState({stocks: data.data().stocks})
-    
-    //         let tempStock = data.data().stocks    
-        
-    //         tempStock.push(this.props.route.params.ticker)
-        
-    //         // console.log("AFTER PUSH " + this.state.stocks)
-        
-    //         db.collection('users').doc(auth.currentUser.uid).update({stocks: tempStock})
+                }
+            )
+        } catch (error) {
+            Alert.alert(error)
+        }
+    }
 
-    //         // console.log("In setData" + db.collection('users').doc(auth.currentUser.uid).get().data().stocks)
-    //         const dataTwo = await db.collection('users').doc(auth.currentUser.uid).get()
+    const getNews = async () => {
+        try {
 
-    //         console.log("In setData" + dataTwo.data().stocks)
+            await fetch('https://api.polygon.io/v2/reference/news?ticker=' + props.route.params.stock.ticker + '&apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
+            .then(
+                function(response) {
+                    return response.json();
+                }
+            )
+            .then(
+                function(data) {
 
-
-
-
-    //         // this.setState({stocks: tempStock})
-    
-    //     }
-    //     return add()
-    // }
-
-    // stockDailyPercent() {
-    //     let percentChangeOne = 0;
-    //     const pointerToThis = this
-    //     try {
-    //         fetch('https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers/AAPL?apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
-    //         .then(
-    //             function(response) {
-    //                 return response.json()
-    //             }
-    //         )
-    //         .then(
-    //             function(data) {
-    //                 // percentChangeOne = data.ticker.todaysChangePerc
-    //                 // pointerToThis.setState({percentChange: percentChangeOne})
-    //                 // console.log(percentChangeOne)
-    //                 // console.log(pointerToThis.state.percentChange)
-    //                 console.log(data.ticker)
-
-    //             }
-
-
-    //         )
-    //     } catch (err) {
-    //         Alert.alert(err)
-    //     }
-    // }
-
-    
-    // //Gets data from api
-    // fetchStock() {
-    //     //Allows me to access states
-    //     const pointerToThis = this;
-    //     //API key
-    //     const API_KEY = 'M8S9O6GLYM4ZUPIE';
-    //     let API_Call = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=' + pointerToThis.props.route.params.ticker + '&outputsize=compact&apikey=' + API_KEY;
-    //     //Temp variables to store data recieved from api
-    //     //Stock price and date
-    //     let stockChartXValuesFunction = [];
-    //     let stockChartYValuesFunction = [];
-    //     fetch(API_Call)
-    //         .then(
-    //             //Get data in JSON form 
-    //             function(response) {
-    //                 return response.json();
-    //             }
-    //         )
-    //         .then(
-    //             //Get in data variable
-    //             function(data) {
-
-    //                 //Store stock price and date 
-    //                 for (var key in data['Time Series (Daily)']) {
-    //                     stockChartXValuesFunction.push(key);
-    //                     stockChartYValuesFunction.push(data['Time Series (Daily)'][key]['1. open']);
-    //                 }
-
-    //                 //Update the state
-    //                 pointerToThis.setState({
-    //                     stockChartXValues: stockChartXValuesFunction,
-    //                     stockChartYValues: stockChartYValuesFunction,
-
-    //                 })
-    //             }
-    //         )
-
-        
-    //     //Another API call for description data, will also use this call
-    //     //for sector, dividend per share, short ratio, quarterly earnings
-    //     //growth YOY, and dividend date
-    //     let API_Overview_Call = 'https://www.alphavantage.co/query?function=OVERVIEW&symbol=' + pointerToThis.props.route.params.ticker + '&apikey=' + API_KEY
-
-    //     fetch(API_Overview_Call)
-    //         .then(
-    //             function(response) {
-    //                 return response.json();
-    //             }
-    //         )
-    //         .then(
-    //             function(data) {
-    //                 pointerToThis.setState({
-    //                     name: data["Name"],
-    //                     description: data["Description"]
-    //                 })
-                   
-    //             }
-    //         )
-    // }
-
-    // //Once the component is loaded in, fetch the stock data
-    // componentDidMount() {
-    //     this.fetchStock();
-    //     this.stockDailyPercent()
-    //     // this.setData();
-    //     // console.log("In StockDisplay Mount " + this.props.route.params.ticker)
-    // }
-
-    // componentWillUnmount() {
-    //     // console.log("In StockDisplay Unmount")
-    //     // this.setData()
-    // }
+                    setNewsData(data.results)
+                }
+            )
+            
+        } catch (error) {
+            Alert.alert(error)
+        }
+    }
 
 
     return (
 
         <View style={{justifyContent: 'center', flex: 1, marginTop: normalize.setNormalize(40), marginHorizontal: normalize.setNormalize(30)}}>
             <ScrollView
+            showsVerticalScrollIndicator = {false}
             >
 
                 <View style={{width: '100%', justifyContent: 'space-between', alignItems: 'center', paddingBottom: normalize.setNormalize(10), flexDirection: 'row'}}>
@@ -238,13 +162,13 @@ function StockDisplay(props) {
 
                         // this.setData()
 
-                        props.navigation.navigate('TabStack', {
+                        props.navigation.replace('TabStack', {
                             screen: 'Library',
                             params: {
                                 stock: {
                                     sName: props.route.params.stock.sName,
                                     ticker: props.route.params.stock.ticker,
-                                    // percChange: this.state.percentChange
+                                    percentChange: props.route.params.stock.percentChange
                                 }
                             }
                         })
@@ -257,6 +181,7 @@ function StockDisplay(props) {
                 <View style={{width:'100%', alignItems: 'center'}}>
 
                     <Text style={{fontSize: 20, color: 'white'}}>{props.route.params.stock.sName}</Text>
+                    <Text style={{color: 'gray'}}>{'$' + props.route.params.stock.ticker}</Text>
 
                 </View>
 
@@ -275,7 +200,7 @@ function StockDisplay(props) {
 
                 </View>
 
-                <View style={{width: '100%', height: normalize.setNormalize(50), paddingBottom: normalize.setNormalize(80), paddingTop: normalize.setNormalize(20),flexDirection:'row', justifyContent: 'space-between'}}>
+                <View style={{width: '100%', height: normalize.setNormalize(50), paddingTop: normalize.setNormalize(20),flexDirection:'row', justifyContent: 'space-between'}}>
 
                     <TouchableOpacity
                     onPress= {()=>{
@@ -329,40 +254,154 @@ function StockDisplay(props) {
 
 
                 </View>
+                
+                <View style={{paddingVertical: normalize.setNormalize(30)}}>
+                    <View style={{width: '100%', backgroundColor: 'white', height: 0.5, opacity: 0.2}}></View>
 
-                <View style={{width: '100%', backgroundColor: '#3B3939', borderRadius: normalize.setNormalize(10), flex:1, paddingVertical: normalize.setNormalize(20), paddingHorizontal:normalize.setNormalize(10)}}>
+                </View>
+
+                <View style={{width: '100%', alignItems: 'center', paddingBottom: normalize.setNormalize(30), flexDirection: 'row', display: 'flex'}}>
+                <FlatList
+                    data = {tags}
+                    horizontal         
+                    showsHorizontalScrollIndicator = {false}           
+                    renderItem={({item})=>(
+                    <View style={{paddingHorizontal: 10}}>
+                        <View style={{borderRadius: 30, backgroundColor: '#3B3939', paddingHorizontal: normalize.setNormalize(10), paddingVertical: normalize.setNormalize(5), justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'white'}}>
+                            <Text key={item} style={{color: 'white'}}>{item}</Text>
+                        </View>
+                    </View>
+                            
+                       
+                        
+                    )}
+                    />
+                       
+                </View>
+
+                <View style={{paddingBottom: normalize.setNormalize(30)}}>
+                    <View style={{width: '100%', backgroundColor: 'white', height: 0.5, opacity: 0.4}}></View>
+
+                </View>
+
+                <Text style={stockDisplayStyles.title}>
+                    {'About ' + props.route.params.stock.sName}
+                </Text>
+
+                <View style={{width: '100%', backgroundColor: '#3B3939', borderRadius: normalize.setNormalize(10), flex:1, padding:normalize.setNormalize(15)}}>
                     <Text style={{color: 'white'}}>
-                        {/* {this.state.description} */}
+                        {description}
                     </Text>
 
                 </View>
 
-                {/* <View style={{flexDirection: 'row', width:'100%'}}>
+                <View style={{flexDirection: 'row', width:'100%', paddingTop: normalize.setNormalize(20), paddingLeft: normalize.setNormalize(10), paddingBottom: normalize.setNormalize(20)}}>
                     <View style={{width: '50%'}}>
-                        <Text style={stockDisplayStyles.tableText}>Hello</Text>
-                        <Text style={stockDisplayStyles.tableText}>Hello</Text>
-                        <Text style={stockDisplayStyles.tableText}>Hello</Text>
-                        <Text style={stockDisplayStyles.tableText}>Hello</Text>
-                        <Text style={stockDisplayStyles.tableText}>Hello</Text>
-
-
+                        <View style={stockDisplayStyles.descriptionContainer}>
+                            <Text style={stockDisplayStyles.tableText}>{"CEO: "}</Text>
+                            <Text style={{color: 'white', fontSize: normalize.setNormalize(13)}}>{ceo}</Text>
+                        </View>
+                        <View style={stockDisplayStyles.descriptionContainer}>
+                            <Text style={stockDisplayStyles.tableText}>{"Employees: "}</Text>
+                            <Text style={{color: 'white', fontSize: normalize.setNormalize(13)}}>{employees}</Text>
+                        </View>
+                        <View style={stockDisplayStyles.descriptionContainer}>
+                            <Text style={stockDisplayStyles.tableText}>{"Sector: "}</Text>
+                            <Text style={{color: 'white', fontSize: normalize.setNormalize(13)}}>{sector}</Text>
+                        </View>
+                        <View style={stockDisplayStyles.descriptionContainer}>
+                            <Text style={stockDisplayStyles.tableText}>{"Phone Number: "}</Text>
+                            <Text style={{color: 'white', fontSize: normalize.setNormalize(13)}}>{phoneNumber}</Text>
+                        </View>
                     </View>
                     <View style={{width: '50%'}}>
-                        <Text style={stockDisplayStyles.tableText}>Hello</Text>
-                        <Text style={stockDisplayStyles.tableText}>Hello</Text>
-                        <Text style={stockDisplayStyles.tableText}>Hello</Text>
-                        <Text style={stockDisplayStyles.tableText}>Hello</Text>
-                        <Text style={stockDisplayStyles.tableText}>Hello</Text>
-
-
-
+                        <View style={stockDisplayStyles.descriptionContainer}>
+                            <Text style={stockDisplayStyles.tableText}>{"Market Cap: "}</Text>
+                            <Text style={{color: 'white', fontSize: normalize.setNormalize(13)}}>{marketCap}</Text>
+                        </View>
+                        <View style={stockDisplayStyles.descriptionContainer}>
+                            <Text style={stockDisplayStyles.tableText}>{"Headquarters: "}</Text>
+                            <Text style={{color: 'white', fontSize: normalize.setNormalize(13)}}>{hqState}</Text>
+                        </View>
+                        <View style={stockDisplayStyles.descriptionContainer}>
+                            <Text style={stockDisplayStyles.tableText}>{"Exchange: "}</Text>
+                            <Text style={{color: 'white', fontSize: normalize.setNormalize(13)}}>{exchange}</Text>
+                        </View>
+                        <View style={stockDisplayStyles.descriptionContainer}>
+                            <Text style={stockDisplayStyles.tableText}>{"List Date: "}</Text>
+                            <Text style={{color: 'white', fontSize: normalize.setNormalize(13)}}>{listDate}</Text>
+                        </View>
+                        {/* <Text style={stockDisplayStyles.tableText}>{"Market Cap: "}<Text style={{color: 'white'}}>{marketCap}</Text></Text>
+                        <Text style={stockDisplayStyles.tableText}>{"Headquarters: "}<Text style={{color: 'white'}}>{hqState}</Text></Text>
+                        <Text style={stockDisplayStyles.tableText}>{"Exchange: "}<Text style={{color: 'white'}}>{exchange}</Text></Text>
+                        <Text style={stockDisplayStyles.tableText}>{"List Date: "}<Text style={{color: 'white'}}>{}</Text></Text> */}
 
                     </View>
 
 
-                </View> */}
+                </View>
+
+                <View style={{paddingVertical: normalize.setNormalize(30)}}>
+                    <View style={{width: '100%', backgroundColor: 'white', height: 0.5, opacity: 0.4}}></View>
+
+                </View>
+
+                <Text style={stockDisplayStyles.title}>
+                    Similar Stocks
+                </Text>
+
+                <FlatList
+                    data = {similar}
+                    renderItem={({item})=>(
+
+                        <StockContainer
+                        ticker = {item}
+                        />
+                    
+                    )}
+                    />
+
+                <View style={{paddingVertical: normalize.setNormalize(30)}}>
+                    <View style={{width: '100%', backgroundColor: 'white', height: 0.5, opacity: 0.4}}></View>
+
+                </View>
+
+            <Text style={stockDisplayStyles.title}>
+                    News
+            </Text>
+
+            <FlatList
+            data = {newsData}
+            renderItem = {({item}) => (
+                <View style={{paddingBottom: normalize.setNormalize(20)}}>
+                <View style={{height: normalize.setNormalize(400), paddingHorizontal: normalize.setNormalize(20), justifyContent: 'space-evenly'}}>
+                    <Text style={{color: 'white', fontWeight: 'bold', fontSize: normalize.setNormalize(12)}}>
+
+                        {item.publisher.name}
+
+
+                    </Text>
+
+                    <Text style={{color: 'white'}}>
+                        {item.title}
+                    </Text>
+
+                    <Image
+                    style={{height: normalize.setNormalize(230), borderRadius: 10}}
+                    source = {{
+                        uri: item.image_url
+                    }}
+                    />
+
+                    <View style={{backgroundColor: 'white', width: '100%', height: 0.5, top: normalize.setNormalize(20), opacity: 0.3}}></View>
+                </View>
+                </View>
+            )}
+            />
 
             </ScrollView>
+
+
 
         </View>
             
@@ -377,12 +416,9 @@ function StockDisplay(props) {
 const stockDisplayStyles = StyleSheet.create({
 
     tableText: {
-        fontSize: normalize.setNormalize(12),
-        color: 'white',
+        fontSize: normalize.setNormalize(13),
+        color: 'gray',
         paddingVertical: normalize.setNormalize(10),
-        borderWidth: 1,
-        borderColor: 'white',
-        borderLeftColor: 'green'
 
     },
 
@@ -398,6 +434,18 @@ const stockDisplayStyles = StyleSheet.create({
     buttonText: {
         color: 'white',
         fontSize: normalize.setNormalize(13)
+    },
+
+    title: {
+
+        color: 'white', 
+        fontSize: 20, 
+        paddingBottom: normalize.setNormalize(20)
+
+    },
+
+    descriptionContainer: {
+        paddingBottom: normalize.setNormalize(5)
     }
 
 })

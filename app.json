@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "NewUI?4",
-    "slug": "newui4",
+    "name": "GainersLosers",
+    "slug": "gainerslosers",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
