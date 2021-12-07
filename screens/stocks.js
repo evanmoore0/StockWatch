@@ -1,7 +1,7 @@
 
 //React Imports
 import React, { useEffect, useRef, useState } from 'react';
-import {FlatList, Text, TextInput, View, ScrollView, LogBox, Modal, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Alert, Animated, Keyboard} from 'react-native';
+import {FlatList, Text, TextInput, View, ScrollView, LogBox, Modal, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Alert, Animated, Keyboard, RefreshControl} from 'react-native';
 
 //Icon imports
 import { Ionicons } from '@expo/vector-icons';
@@ -22,6 +22,10 @@ import GlobalStyles from '../utils/globalStyles';
 import {auth, db} from '../utils/firebase-config'
 
 
+const wait = (timeout) => {
+    return new Promise(resolve => setTimeout(resolve, timeout))
+}
+
 function Stocks(props) {
 
     //Hooks
@@ -41,9 +45,13 @@ function Stocks(props) {
     //Value for animation
     const animatedValue = useRef(new Animated.Value(99)).current
 
+    const [refreshing, setRefreshing] = useState(false)
+
+    //Regex for cleaning stock name
+    const clean = /.Com|mon|Ltd|Brands|Corp|(DE)|Common|Stock|Inc|[,.()]|oration|Class A|Shares|Holdings|Group| I | Ordinary| Wordwide| Class| A | common stock |/g
+
     //Shrinking animation
     const animate = () => {
-        console.log("in animate")
         Animated.timing(animatedValue, {
             toValue: 82,
             duration: 100,
@@ -66,16 +74,24 @@ function Stocks(props) {
         outputRange: ['0%', '100%'],
     })
 
-    //If the user is not searching a stock display the 
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        getTrending();
+        wait(2000).then(() => setRefreshing(false))
+    }, [])
+
+    //If the user is not searching a stock display the trending page, otherwise
+    //display search page
     const stockComponent = () => {
         if(!visible) {
+            // console.log("IN STOCK COMPONENT")
             return(
                 
                 <FlatList
                data = {trendingData}
                showsVerticalScrollIndicator = {false}
                style ={{zIndex: 0}}
-               renderItem={({item})=>(
+               renderItem={({item}) => (
                        
                    <StockContainer
                    sName = {item.sName}
@@ -88,9 +104,9 @@ function Stocks(props) {
         } else {
             return(
                 <FlatList
-               data = {searchData}
-               showsVerticalScrollIndicator = {false}
-               renderItem={({item})=>(
+                data = {searchData}
+                showsVerticalScrollIndicator = {false}
+                renderItem={({item}) => (
                    <SearchContainer
                    stock = {item.name}
                    ticker = {item.ticker}
@@ -103,100 +119,13 @@ function Stocks(props) {
         }
     }
 
-    const getTrending = async () => {
-        console.log("TOP OF GET")
-        let tempTrending = []
-        let tempPercChange = []
-        await db.collection('score')
-            .orderBy('score', 'desc')
-            .limit(20)
-            .get()
-            .then(querySnapshot => {
-                // console.log(querySnapshot.docs)
-                querySnapshot.forEach(documentSnapshot => {
-                    // console.log("ASLSDF")
-                    // console.log("UP HERE")
-                    
-
-                    // const getPercentChange = async () => {
-                    //     // console.log("IN here")
-                    //     await fetch('https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers/' + documentSnapshot.id + '?apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
-                    //     .then(
-                    //         function(response) {
-                    //             return response.json();
-                    //         }
-                    //     )
-                    //     .then(
-                    //         function(data) {
-                    //         //    console.log(data.results)
-                    //             // console.log(documentSnapshot.id)
-
-                    //             // console.log("STOCK TICKER " + documentSnapshot.id)
-                    //             // console.log(data.ticker.todaysChangePerc)
-                    //             // tempPercChange.push({ticker: documentSnapshot.id, percChange: data.ticker.todaysChangePerc})
-                    //             // setPercData(tempPercChange)
-                    //             // console.log(tempTrending[documentSnapshot.id])
-                    //             // console.log(data.ticker.todaysChangePerc)
-                    //             // console.log(tempPercChange)
-                    //             // console.log("IN ")
-                               
-                    //         }
-                    //     )
-                    // }
-                    
-                    
-                    // // console.log(tempPercChange)
-                    // getPercentChange()
-                    let cleanedName = documentSnapshot.data().sName.replace(/.Com|mon|Ltd|Brands|Corp|(DE)|Common|Stock|Inc|[,.()]|oration|Class A|Shares|Holdings|Group| I | Ordinary| Wordwide| Class| A | common stock |/g, "").replace(/[,.]/g, "").trim()
 
 
-                    tempTrending.push({ticker: documentSnapshot.id, sName: cleanedName})
-                    // console.log("OUT")
-                })
-
-            })
-
-        setTrendingData(tempTrending)
-        // console.log("OUT OUT")
-        // console.log(trendingData)
-
-    }
-
-   
-    useEffect(() => {
-        getTrending()
-       
-    }, []);
-
-    const cleanData = (bruh) => {
-
-        if(bruh != undefined) {
-            for(let i = 0; i < bruh.length; i++) {
-        
-                bruh[i].name = bruh[i].name.replace(/Corp|Common|Stock|Inc|[,.]|oration|Class A|Shares|Holdings|Group| I | Ordinary| Wordwide| Class| A | common stock/g, "").replace(/[,.]/g, "").trim()
-                
-                
-            }
-
-            setSearchData(bruh)
-
-        } else {
-            setSearchData([])
-        }
-        
-        // bruh[0].name = bruh[0].name.replace(/Corp|Common|Stock/, "")
-        // // console.log(bruh[0].name.replace(/Common|Stock/, ""))
-        // console.log(bruh[0].name)
-
-
-        
-
-    }
-
-    const getTickers = () => {
+    //Get tickers to be displayed on the search page
+    const getTickers = async () => {
 
         try {
-            fetch('https://api.polygon.io/v3/reference/tickers?type=CS&market=stocks&exchange=XNAS&search=' + stockSymbol + '&active=true&sort=ticker&order=asc&limit=20&apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
+            await fetch('https://api.polygon.io/v3/reference/tickers?type=CS&market=stocks&exchange=XNAS&search=' + stockSymbol + '&active=true&sort=ticker&order=asc&limit=20&apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
             .then(
                 function(response) {
                     return response.json();
@@ -205,11 +134,13 @@ function Stocks(props) {
             .then(
                 function(data) {
                
-                cleanData(data.results)
+                    //Clean the names of the stocks recieved from the API
+                    // console.log(data.results)
 
-                // setSearchData(data.results)
+                    
 
-                //    console.log(data.results)
+                    cleanData(data.results)
+
                 }
             )
         } catch (err) {
@@ -217,34 +148,128 @@ function Stocks(props) {
         }
     }
 
-    useEffect(() => {
+    //Get top 20 stocks with the highest score
+    const getTrending = async () => {
+        console.log("TOP OF GET asjkdjsTRENDINGS")
+        let tempTrending = []
 
-        getTickers()
+        //Access score collection and get 20 stocks with the highest score
+        await db.collection('score')
+            .orderBy('score', 'desc')
+            .limit(5)
+            .get()
+            .then(querySnapshot => {
+                querySnapshot.forEach(documentSnapshot => {
+                   
+                    //Clean the name from the database
+                    let cleanedName = documentSnapshot.data().sName.replace(clean, "").trim()
+
+                    //Store the trending data in a temp variable
+                    tempTrending.push({ticker: documentSnapshot.id, sName: cleanedName})
+                    console.log("in getTrending")
+
+                })
+
+            })
+            
+        //Set temp trending hook
+        setTrendingData(tempTrending)
+    }
+
+    //Cleans the stock names using a regex
+    const cleanData = (searchData) => {
+
+        //Make sure search bar isn't empty
+        if(searchData != undefined) {
+            for(let i = 0; i < searchData.length; i++) {
         
-    
+                //Clean the name
+                searchData[i].name = searchData[i].name.replace(clean, "").trim()
+            }
+
+            //Update the data
+            setSearchData(searchData)
+
+        } else {
+            //If the search bar is empty set the data to be an empty array
+            setSearchData([])
+        }
+    }
+
+    //Called every time the component is mounted
+    useEffect(() => {
+       
+        getTrending()
+    }, []);
+
+
+    //Called everytime the stockSymbol hook is updated (When the user types in the search bar)
+    useEffect(() => {
+        getTickers()
     }, [stockSymbol]);
 
+    // if(rendering) {
+    //     console.log("IN RENDINERISJDF")
+    //     return(
+    //         <View style={{flex:1, justifyContent: 'center', alignItems: 'center'}}>
+    //             <Text style={{color: 'red'}}>
+    //                 Loading...
+    //             </Text>
+    //         </View>
+    //     )
+    // }
+    return (
 
+        //Container for whole screen
+        //Allows user to view full list of data when keyboard is up
+        <KeyboardAvoidingView 
+        style = {GlobalStyles.homePageContainer}
+        keyboardVerticalOffset = {10}
+        behavior = 'padding'
+        >
+            
+            {/*
+            Graphic that is displayed under trending 
+             */}
+            <View 
+            style = {
+                {
+                    position: 'absolute', 
+                    top: normalize.setNormalize(60), 
+                    width: '100%', 
+                    height: normalize.setNormalize(800), 
+                    opacity: 0.04, 
+                    backgroundColor:'black'
+                }
+            }>
 
-        return (
-            <KeyboardAvoidingView style={GlobalStyles.homePageContainer}
-            keyboardVerticalOffset = {10}
-            behavior = 'padding'
-            >
+                    <Graphic
+                    scale = {1.4}
+                    />       
 
-                <View style={{position: 'absolute', top: normalize.setNormalize(60), width: '100%', height: normalize.setNormalize(800), opacity: 0.04, backgroundColor:'black'}}>
-                        <Graphic
-                        scale = {1.4}
-                        />                    
-                </View>
+            </View>
                 
-
-                <ScrollView
-                stickyHeaderIndices = {[2]}
-                showsVerticalScrollIndicator = {false}
-                keyboardShouldPersistTaps='always'
-                keyboardDismissMode = 'on-drag'
-                >
+            {/*
+            Scroll View for the whole page, allows trending title and info icon to scroll.
+            StickyHeaderIndices - keeps the search bar at the top of the page when the user scrolls.
+            KeyboardSouldPersistTaps - Allows user to press on button when the keyboard is up.
+            KeyboardDismissMode - Dismisses keyboard when the user drags
+             */}
+            <ScrollView
+            stickyHeaderIndices = {[2]}
+            showsVerticalScrollIndicator = {false}
+            keyboardShouldPersistTaps='always'
+            keyboardDismissMode = 'on-drag'
+            refreshControl = {
+                <RefreshControl
+                refreshing = {refreshing}
+                onRefresh = {onRefresh}
+                progressBackgroundColor = 'red'
+                title = 'REFRESHING'
+                titleColor = 'white'
+                />
+            }
+            >
                     {/* <Modal
                     visible = {displayInfoTwo}
                     presentationStyle = "overFullScreen"
@@ -272,108 +297,211 @@ function Stocks(props) {
 
                     </Modal> */}
 
-                    <Modal
-                    visible = {displayInfoOne}
-                    presentationStyle = "overFullScreen"
-                    transparent = {true}
-                    animationType = 'fade'
-                    
-                    >
-                        
-                        <TouchableOpacity style= {{flex:1}}
-                        onPress = {()=> {
-                            setDisplayInfoOne(false)    
-                            console.log('here')                      
-                        }}
-                        >
-                            <Ionicons name="chatbox-sharp" size={normalize.setNormalize(130)} color="#3B3939" style={{left:normalize.setNormalize(20), top: normalize.setNormalize(165), position: 'absolute'}}/>
-                            <Text style={{color:'white', position: 'absolute', left: normalize.setNormalize(40), top: normalize.setNormalize(186), fontSize: normalize.setNormalize(12), width: normalize.setNormalize(90), height: normalize.setNormalize(150) }}>
-                                A stocks score is the number of times it has been searched on this app!
-                            
-                            </Text>
-                        </TouchableOpacity>
-
-                    </Modal>
-
-                    
-                {/* <View style={{flexDirection: 'row', width: '100%', height: normalize.setNormalize(50), justifyContent: 'space-between'}}>
-                    <Text style={{fontSize: normalize.setNormalize(24), color: 'rgb(199,199,199)'}}>Stocks</Text>
-                    <Ionicons name="settings-sharp" size={24} color="white" />
-                </View> */}
-                <View style={{width: '100%', flexDirection: 'row', justifyContent: 'space-between'}}>
-
-                    <Text style={{color:'white', fontWeight: 'bold'}}>Trending</Text>
-
-                    <TouchableOpacity
-                    onPress = {()=> {
-                        setDisplayInfoOne(true)
-                        console.log('in inf button')
+                {/*
+                Chat bubble that is displayed when the info button is pressed
+                */}
+                <Modal
+                visible = {displayInfoOne}
+                presentationStyle = "overFullScreen"
+                transparent = {true}
+                animationType = 'fade' 
+                >
+                    {/*
+                    Allows user to press anywhere on the screen to dismiss the modal
+                    */}
+                    <TouchableOpacity 
+                    style = {
+                        {
+                            flex:1
+                        }
+                    }
+                    onPress = {() => {
+                        setDisplayInfoOne(false)    
                     }}
                     >
-                        <MaterialIcons name="info-outline" size={normalize.setNormalize(24)} color="white" />
+                        {/*
+                        Chat icon
+                        */}
+                        <Ionicons 
+                        name = "chatbox-sharp" 
+                        size = {normalize.setNormalize(130)} 
+                        color = "#3B3939" 
+                        style = {
+                            {
+                                left:normalize.setNormalize(20), 
+                                top: normalize.setNormalize(165), 
+                                position: 'absolute'
+                            }
+                        }/>
+
+                        {/*
+                        Text inside chat icon
+                        */}
+                        <Text 
+                        style = {
+                            {
+                                color:'white', 
+                                position: 'absolute', 
+                                left: normalize.setNormalize(40), 
+                                top: normalize.setNormalize(186), 
+                                fontSize: normalize.setNormalize(12), 
+                                width: normalize.setNormalize(90), 
+                                height: normalize.setNormalize(150) 
+                            }
+                        }>
+                            A stocks score is the number of times it has been searched on this app!
+                        
+                        </Text>
+
+                    </TouchableOpacity>
+
+                </Modal>
+
+                {/*
+                Trending title and info button container
+                */}
+                <View 
+                style = {
+                    {
+                        width: '100%', 
+                        flexDirection: 'row', 
+                        justifyContent: 'space-between'
+                    }
+                }>
+
+                    {/*
+                    Trending title
+                    */}
+                    <Text 
+                    style = {
+                        {
+                            color:'white', 
+                            fontWeight: 'bold'
+                        }
+                    }>
+                        Trending
+                    </Text>
+
+                    {/*
+                    Info button
+                    */}
+                    <TouchableOpacity
+                    onPress = {() => {
+                        setDisplayInfoOne(true)
+                    }}>
+                        <MaterialIcons 
+                        name="info-outline" 
+                        size={normalize.setNormalize(24)} 
+                        color="white" 
+                        />
                     </TouchableOpacity>
                     
                 </View>
+
+                {/*
+                Container for search bar and cancel button (without it sticky header indices messes up)
+                */}
                 <View>
-                <View style={{paddingTop: normalize.setNormalize(10),
-        paddingBottom: normalize.setNormalize(15), backgroundColor: 'rgba(0, 0, 0, 0.8)', flexDirection: 'row', alignItems: 'center'
-                }}>
+
+                    {/*
+                    Actual container for search bar and cancel button
+                    */}
+                    <View 
+                    style = {
+                        {
+                            paddingTop: normalize.setNormalize(10),
+                            paddingBottom: normalize.setNormalize(15), 
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)', 
+                            flexDirection: 'row', 
+                            alignItems: 'center'
+                        }
+                    }>
              
-                <Animated.View style={[GlobalStyles.searchBarContainer], {
-                    width: width
-                }}>
+                        {/*
+                        Allows me to shirnk/expand the search bar
+                        */}
+                        <Animated.View 
+                        style = {
+                            [GlobalStyles.searchBarContainer], 
+                            { width: width }
+                        }>
+                            
+                            {/*
+                            Search bar
+                            */}
+                            <TextInput
+                            style = {
+                                {
+                                    backgroundColor: 'gray', 
+                                    height: normalize.setNormalize(32), 
+                                    width: '100%', 
+                                    borderRadius: normalize.setNormalize(10), 
+                                    paddingLeft: normalize.setNormalize(20), 
+                                    fontSize: normalize.setNormalize(18), 
+                                    color: 'white'
+                                }}
 
-                    <TextInput
-                    style = {{backgroundColor: 'gray', height: normalize.setNormalize(32), width: '100%', borderRadius: normalize.setNormalize(10), paddingLeft: normalize.setNormalize(20), fontSize: normalize.setNormalize(18), color: 'white'}}
-                    placeholderTextColor= 'white'
-                    selectionColor = 'white'       
-                    clearButtonMode = "always" 
-                    
-                
-                    placeholder = {"Search"}
- 
-                    blurOnSubmit = {false}
+                            placeholderTextColor = 'white'
+                            placeholder = {"Search"}
+                            selectionColor = 'white'       
+                            clearButtonMode = "always" 
+                            blurOnSubmit = {false}
+                            
+                            //When the user clicks on the search bar, show the animation
+                            onFocus = {() => {
+                                animate()
+                            }}
+                            
+                            //Update the stock hook and show the stock page when the user types
+                            onChangeText = {val => {
+                                setStockSymbol(val)     
+                                setVisible(true)
+                            }}
 
-                    onFocus = {() => {
-                        animate()
-                        // setShowClose(350)
-                    }}
-                    
-                    onChangeText = {val => {
-                        setStockSymbol(val)     
-                        setVisible(true)
-                    }}
+                            keyboardType = 'default'
+                            />
 
-                    keyboardType = 'default'
-                    />
-                </Animated.View>
-                <TouchableOpacity
-                    onPress = {()=>{
+                        </Animated.View>
+
+                        {/*
+                        Cancel button
+                         */}
+                        <TouchableOpacity
+
+                        //When the cancel button is press display the trending page, expand animation, and dismiss the keyboard
+                        onPress = {() => {
                         setVisible(false)
                         animateIncreaseWidth()
-                        // setShowClose(10000)
                         Keyboard.dismiss()
-                    }}
-                    style={{ alignItems: 'flex-end', width: normalize.setNormalize(70)}}
-                    >
-                        <Text style={{color: 'gray', fontSize: normalize.setNormalize(16)}}>Cancel</Text>
-                    </TouchableOpacity>
-                </View>
+                        }}
+
+                        style = {
+                            { 
+                                alignItems: 'flex-end', 
+                                width: normalize.setNormalize(70)
+                            }}>
+
+                            <Text 
+                            style = {
+                                {
+                                    color: 'gray', 
+                                    fontSize: normalize.setNormalize(16)
+                                }}>
+                                    Cancel
+                            </Text>
+
+                        </TouchableOpacity>
+                    </View>
                 </View>
                
+               {/*
+               Either trending page or stock page
+                */}
                {stockComponent()}
 
                 </ScrollView>
             </KeyboardAvoidingView>
         )
-}
-
-const StockStyles = StyleSheet.create({
-
-    searchBar: {
-        backgroundColor: 'gray', height: normalize.setNormalize(32), width: '100%', borderRadius: normalize.setNormalize(30), paddingLeft: normalize.setNormalize(20), fontSize: normalize.setNormalize(18), color: 'white'
     }
-
-})
 
 export default Stocks;

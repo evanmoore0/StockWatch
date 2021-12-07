@@ -1,5 +1,5 @@
 import React, { Component, useEffect, useState } from "react";
-import {View,Text, TouchableOpacity} from 'react-native'
+import {View,Text, TouchableOpacity, Alert} from 'react-native'
 import normalize from "../utils/normalize";
 import GlobalStyles from "../utils/globalStyles";
 import {useNavigation} from '@react-navigation/native'
@@ -11,6 +11,7 @@ function SearchContainer(props) {
 
     const [score, setScore] = useState(0)
     const navigation = useNavigation()
+    const [display, setDisplay] = useState(false)
 
     const getScore = async () => {
         try {
@@ -23,11 +24,47 @@ function SearchContainer(props) {
         }
     }
 
+
+    const shouldDisiplay = async () => {
+        // console.log(props.ticker)
+        try {
+
+            await fetch('https://api.polygon.io/v1/meta/symbols/' + props.ticker + '/company?apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
+            .then(
+                function(response) {
+                    return response.json();
+                }
+            )
+            .then(
+                function(data) {
+                    // console.log(data.error)
+                    if(data.error != undefined) {
+                        throw "O no"
+                    } else {
+                        setDisplay(true)
+                    }
+                    
+                 }
+            )
+        } catch (error) {
+            setDisplay(false)
+        }
+    }
+
     useEffect(() => {
+        shouldDisiplay()
+
         getScore()
 
     }, [props]);
 
+    if(!display) {
+        return(
+            <View>
+
+            </View>
+        )
+    }
     return(
         <TouchableOpacity
                 style={{}}

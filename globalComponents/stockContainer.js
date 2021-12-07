@@ -1,5 +1,5 @@
 import React, { Component, useEffect, useState } from "react";
-import {View,Text, TouchableOpacity, Image} from 'react-native'
+import {View,Text, TouchableOpacity, Image, Alert} from 'react-native'
 import normalize from "../utils/normalize";
 import GlobalStyles from "../utils/globalStyles";
 import {useNavigation} from '@react-navigation/native'
@@ -16,6 +16,8 @@ function StockContainer(props){
     const [stockName, setStockName] = useState(props.sName)
     const [logo, setLogo] = useState('')
 
+    const [display, setDisplay] = useState(false);
+
     const [percentColor, setPercentColor] = useState('white');
 
 
@@ -28,21 +30,29 @@ function StockContainer(props){
     }
 
     const getPercentChange = async () => {
-        // console.log("IN here")
-        await fetch('https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers/' + props.ticker + '?apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
-        .then(
-            function(response) {
-                return response.json();
-            }
-        )
-        .then(
-            function(data) {
+        // console.log("IN get Percent change" + props.ticker)
+        try {
+            await fetch('https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers/' + props.ticker + '?apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
+            .then(
+                function(response) {
+                    return response.json();
+                }
+            )
+            .then(
+                function(data) {
+                
+                    setPercentChange(Math.round(data.ticker.todaysChangePerc * 100)/100)
+                    checkPercentGain(data.ticker.todaysChangePerc)
+                    setDisplay(true)
+                   
+                }
+            )
             
-                setPercentChange(Math.round(data.ticker.todaysChangePerc *100)/100)
-                checkPercentGain(data.ticker.todaysChangePerc)
-               
-            }
-        )
+        } catch (error) {
+
+            
+        }
+       
     }
 
     const getSimilarName = async () => {
@@ -78,13 +88,19 @@ function StockContainer(props){
     }
 
     useEffect(() => {
+        console.log("UP SHERLKSDF")
+        getSimilarName()
         getScore()
         getPercentChange()
-        getSimilarName()
-
-
-
     }, [props]);
+
+    if(!display) {
+        return(
+            <View>
+
+            </View>
+        )
+    }
   
         return(
 

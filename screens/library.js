@@ -1,52 +1,55 @@
-import React, { Component, useCallback, useEffect, useState } from "react";
-import {View, Text, TouchableOpacity, FlatList, ScrollView, TextInput, TouchableHighlightBase, Alert, Modal} from 'react-native';
-import NavBar from "../globalComponents/navBar";
+//React imports
+import React, { useEffect, useState } from "react";
+import {View, Text, TouchableOpacity, FlatList, ScrollView, Alert, Modal} from 'react-native';
+
+//Firebase imports
 import { auth, db } from "../utils/firebase-config";
+
+//Components
 import StockContainer from "../globalComponents/stockContainer";
-import GlobalStyles from "../utils/globalStyles";
 import Graphic from "../globalComponents/graphic";
+
+//Styles
+import GlobalStyles from "../utils/globalStyles";
+
+//Normalize function
 import normalize from "../utils/normalize";
-import getStockProfileData from "../utils/API/stockProfile";
-import { useFocusEffect } from "@react-navigation/core";
+
+//Icons
 import { Ionicons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
-import { SafeAreaView } from "react-native-safe-area-context";
 
 
 function Library(props) {
+
+    //Stocks the user has
     const [stocks, updateStocks] = useState([]);
-    const [gainers, updateGainers] = useState([]);
-    const [losers, updateLosers] = useState([]);
+
+    //All of the users stocks (used for gainers/losers)
     const [allStocks, updateAllStocks] = useState([]);
+
+    //All/Gainers/Losers buttons
     const [fontWeight, setFontWeight] = useState(['700', '400', '400'])
     const [lineHeight, setLineHeight] = useState([1, 0.2, 0.2])
+
+    //Whether modal should be shown
     const [isVisible, setVisible] = useState(false)
+
+
     const [toadysGain, setTodaysGain] = useState(0)
 
 
-
-
-    // constructor(props) {
-    //     super(props);
-    //     this.state = {
-    //         stocks: [],
-    //         fontWeight: ['700', '400', '400'],
-    //         lineHeight: [1, 0.2, 0.2]
-    //     }
-    // }
-
-
-    const getTodaysGain = () => {
-        console.log(" IN TODAYS GAIN")
-        console.log(allStocks.length)
+    const getTodaysGain = (stockData) => {
         let gain = 0
         console.log(stocks.length)
-        for(let i = 0; i < stocks.length; i++) {
-            console.log(stocks[i].percentChange)
-            gain += stocks[i].percentChange
+        for(let i = 0; i < stockData.length; i++) {
+            console.log(stockData[i].percentChange)
+            gain += stockData[i].percentChange
         }
 
-        setTodaysGain(Math.round((gain/stocks.length)*100)/100)
+        console.log("GAIN " + gain)
+
+        setTodaysGain(Math.round((gain/stockData.length)*100)/100)
     }
 
     const handleClick = (a) => {
@@ -107,12 +110,6 @@ function Library(props) {
         const data = await db.collection('users').doc(auth.currentUser.uid).get()
         
         let tempStock = data.data().stocks  
-        // let stockObj = {
-        //     ticker: props.route.params.stock.ticker,
-        //     percChange: props.route.params.stock.percChange
-        // }  
-
-
 
         for(let i = 0; i < tempStock.length; i++) {
             if(tempStock[i].ticker == props.route.params.stock.ticker) {
@@ -135,20 +132,15 @@ function Library(props) {
         })
         updateStocks(tempStock)
         updateAllStocks(tempStock)
-        getTodaysGain()
+        // getTodaysGain(tempStock)
             
-        
-
-
-
-        // console.log("BOTTOM OF ADD")
 
         } catch {
             console.log("HI")
             const data = await db.collection('users').doc(auth.currentUser.uid).get()
             updateStocks(data.data().stocks)
-            console.log(stocks)
-            getTodaysGain()
+            console.log(data.data().stocks)
+            // getTodaysGain(data.data().stocks)
 
             // console.log("IN CATCH")
         }
@@ -237,7 +229,7 @@ function Library(props) {
                 }}>
                     <View style={{flexDirection: 'row', backgroundColor:'gray', paddingHorizontal: 20, paddingVertical: 5, borderRadius: 10, justifyContent:'center', alignItems:'center'}}>
                         <Text style={{color: 'white', fontSize: normalize.setNormalize(16)}}>Today's Gain:</Text>
-                        <Text style={{fontSize: normalize.setNormalize(16), color: '#6AB664', fontWeight: '700'}}>{toadysGain }</Text>
+                        <Text style={{fontSize: normalize.setNormalize(16), color: '#6AB664', fontWeight: '700'}}>{" " + toadysGain }</Text>
 
 
                     </View>
