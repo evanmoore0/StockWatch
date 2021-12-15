@@ -49,8 +49,6 @@ function Welcome(props) {
 
         console.log("In welcome useEffect")
 
-        
-
     }, [])
 
         return (

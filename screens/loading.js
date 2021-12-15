@@ -6,7 +6,7 @@ function Loading(props) {
 
        const checkUserStatus = () => {
 
-        console.log("IN CHECK USER STATUS")
+        // console.log("IN CHECK USER STATUS")
 
         auth.onAuthStateChanged((user) => {
             if(user) {
@@ -22,8 +22,7 @@ function Loading(props) {
     useEffect(()=> {
 
         checkUserStatus()
-        console.log("HERE")
-
+        console.log("In loading useEffect")
     }, [])
 
     return(

@@ -70,6 +70,7 @@ function AppStack() {
                name = "Loading" 
                component = {Loading}
                />
+               
                <Stack.Screen name = "Welcome" component = {Welcome}
                 
                />

@@ -106,7 +106,7 @@ function StockDisplay(props) {
 
     //Get the stock data from polygon API for the searched stock
     const getData = async () => {
-        console.log("AT GET DATA")
+        // console.log("AT GET DATA")
         try {
             await fetch('https://api.polygon.io/v1/meta/symbols/' + props.route.params.stock.ticker + '/company?apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
             .then(
@@ -161,7 +161,8 @@ function StockDisplay(props) {
 
     //Set the score, get data, get news when the component is mounted
     useEffect(() => {
-        console.log("in getData call")
+        // console.log("in getData call")
+        console.log("in StockDisplay")
         getData()
         getNews()
      
@@ -234,7 +235,7 @@ function StockDisplay(props) {
                         //Update the score of the stock when someone adds it to their library
                         setScore()
                         //Navigate to library page and pass it percent change, ticker, stock name
-                        props.navigation.replace('TabStack', {
+                        props.navigation.navigate('TabStack', {
                             screen: 'Library',
                             params: {
                                 stock: {
@@ -367,6 +368,7 @@ function StockDisplay(props) {
                 </View>
 
                 <View style={{width: '100%', alignItems: 'center', paddingBottom: normalize.setNormalize(30), flexDirection: 'row', display: 'flex'}}>
+                
                 <FlatList
                     data = {tags}
                     horizontal         

@@ -3,6 +3,7 @@ import {View,Text, Animated, StyleSheet} from 'react-native';
 import normalize from "../utils/normalize";
 import GraphicBar from "./graphicBar";
 
+
 class Graphic extends Component{
 
     // constructor(props) {

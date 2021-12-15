@@ -1,5 +1,5 @@
 //React imports
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {View, Text, TouchableOpacity, FlatList, ScrollView, Alert, Modal} from 'react-native';
 
 //Firebase imports
@@ -18,9 +18,18 @@ import normalize from "../utils/normalize";
 //Icons
 import { Ionicons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
 
+import {Swipeable} from 'react-native-gesture-handler'
+
+function useForceUpdate() {
+    const [value, setValue] = useState(0);
+    return () => setValue(value => value+1)
+}
 
 function Library(props) {
+
+    const forceUpdate = useForceUpdate();
 
     //Stocks the user has
     const [stocks, updateStocks] = useState([]);
@@ -38,16 +47,63 @@ function Library(props) {
 
     const [toadysGain, setTodaysGain] = useState(0)
 
+    const [removeIndex, setRemoveIndex] = useState(0)
+
+    const swipeableRef = useRef(null);
+
+    const rightActions = () => {
+        return (
+            <TouchableOpacity style={{alignItems: 'center', justifyContent: 'center', paddingHorizontal: normalize.setNormalize(10), paddingBottom: normalize.setNormalize(20)}}
+            onPress = {() => {
+                remove(removeIndex)
+                // closeSwipeable()
+            }}
+            >
+                
+                {/* <Text style={{color: 'red'}}>
+                    Remove
+                </Text> */}
+                <FontAwesome name="remove" size={24} color="red" />
+            </TouchableOpacity>
+        )
+    }
+
+    const remove = async (removeIndex) => {
+
+        // console.log("in remove")
+
+        stocks.splice(removeIndex, 1)
+
+        let tempStocks = stocks
+
+        await db.collection('users').doc(auth.currentUser.uid).update({stocks: tempStocks})
+        .then(
+            function(data) {
+                // console.log(data)
+            }
+        )
+
+        updateAllStocks(tempStocks)
+        updateStocks([])
+        updateStocks(tempStocks)
+
+        // console.log(stocks)
+        forceUpdate()
+    }
+
+    const closeSwipeable = () => {
+        swipeableRef.current.close()
+    }
 
     const getTodaysGain = (stockData) => {
         let gain = 0
-        console.log(stocks.length)
+        // console.log(stocks.length)
         for(let i = 0; i < stockData.length; i++) {
             console.log(stockData[i].percentChange)
             gain += stockData[i].percentChange
         }
 
-        console.log("GAIN " + gain)
+        // console.log("GAIN " + gain)
 
         setTodaysGain(Math.round((gain/stockData.length)*100)/100)
     }
@@ -74,7 +130,7 @@ function Library(props) {
                 if(allStocks[i].percentChange > 0) {
 
                     tempGainers.push(allStocks[i])
-                    console.log(allStocks[i])
+                    // console.log(allStocks[i])
 
                 }
 
@@ -106,7 +162,7 @@ function Library(props) {
 
         try {
 
-            console.log("IN ADD")
+            // console.log("IN ADD")
         const data = await db.collection('users').doc(auth.currentUser.uid).get()
         
         let tempStock = data.data().stocks  
@@ -118,13 +174,9 @@ function Library(props) {
             }
         }
             
-        console.log("WHIT")
+        // console.log("WHIT")
         tempStock.push(props.route.params.stock)
                         
-
-        // getTodaysGain()
-        
-
         db.collection('users').doc(auth.currentUser.uid).update({stocks: tempStock})
        
         tempStock.sort(function(a,b) {
@@ -136,10 +188,11 @@ function Library(props) {
             
 
         } catch {
-            console.log("HI")
+            // console.log("HI")
             const data = await db.collection('users').doc(auth.currentUser.uid).get()
+
             updateStocks(data.data().stocks)
-            console.log(data.data().stocks)
+            // console.log(data.data().stocks)
             // getTodaysGain(data.data().stocks)
 
             // console.log("IN CATCH")
@@ -148,15 +201,18 @@ function Library(props) {
     }
 
     useEffect(()=> {
-        console.log("IN LIBRARY")
+        console.log("In library useEffect")
         add()
     }, [])
 
+    useEffect(()=>{
+        console.log(
+            "IN props useeefec"
+        )
+    }, [props])
     // useEffect(()=> {
     //     getTodaysGain()
     // }, [props])
-
-
 
     const handleSignOut = () => {
         auth.signOut();
@@ -318,10 +374,19 @@ function Library(props) {
             data = {stocks}
             renderItem = {({item, index}) => (
             
-                <StockContainer
-                ticker = {item.ticker}
-                sName = {item.sName}
-                />
+                <Swipeable
+                ref = {swipeableRef}
+                renderRightActions = {rightActions}
+                onSwipeableRightOpen = {()=>{
+                    setRemoveIndex(index)
+                }}
+                // key = {index}
+                >
+                    <StockContainer
+                    ticker = {item.ticker}
+                    sName = {item.sName}
+                    />
+                </Swipeable>
             )}
 
             keyExtractor = {(item, index) => index.toString()}

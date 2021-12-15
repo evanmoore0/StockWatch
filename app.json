@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "GainersLosers",
-    "slug": "gainerslosers",
+    "name": "FixedNavigation",
+    "slug": "fixednavigation",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

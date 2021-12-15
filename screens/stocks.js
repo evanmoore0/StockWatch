@@ -46,9 +46,9 @@ function Stocks(props) {
     const animatedValue = useRef(new Animated.Value(99)).current
 
     const [refreshing, setRefreshing] = useState(false)
-
     //Regex for cleaning stock name
-    const clean = /.Com|mon|Ltd|Brands|Corp|(DE)|Common|Stock|Inc|[,.()]|oration|Class A|Shares|Holdings|Group| I | Ordinary| Wordwide| Class| A | common stock |/g
+    // const clean = /.Com|mon|Ltd|Brands|Corp|(DE)|Common|Stock|Inc|[,.()]|oration|Class A|Shares|Holdings|Group| I | Ordinary| Wordwide| Class| A | common stock |/g
+    const clean = /Brands/g
 
     //Shrinking animation
     const animate = () => {
@@ -84,9 +84,7 @@ function Stocks(props) {
     //display search page
     const stockComponent = () => {
         if(!visible) {
-            // console.log("IN STOCK COMPONENT")
             return(
-                
                 <FlatList
                data = {trendingData}
                showsVerticalScrollIndicator = {false}
@@ -96,6 +94,8 @@ function Stocks(props) {
                    <StockContainer
                    sName = {item.sName}
                    ticker = {item.ticker}
+                   score = {item.score}
+                   percentChange = {item.percentChange}
                    />
                    
                )}
@@ -108,8 +108,8 @@ function Stocks(props) {
                 showsVerticalScrollIndicator = {false}
                 renderItem={({item}) => (
                    <SearchContainer
-                   stock = {item.name}
-                   ticker = {item.ticker}
+                   sName = {item.Name}
+                   ticker = {item.Symbol}
                    
                    />
                )}
@@ -122,85 +122,152 @@ function Stocks(props) {
 
 
     //Get tickers to be displayed on the search page
-    const getTickers = async () => {
+    // const getTickers = async () => {
+    //     try {
+    //         await fetch('https://api.polygon.io/v3/reference/tickers?type=CS&market=stocks&exchange=XNAS&search=' + stockSymbol + '&active=true&sort=ticker&order=asc&limit=20&apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
+    //         .then(
+    //             function(response) {
+    //                 return response.json();
+    //             }
+    //         )
+    //         .then(
+    //             function(data) {
+                    
 
+    //                 // cleanData(data.results)
+
+    //             }
+    //         )
+    //     } catch (err) {
+    //         Alert.alert(err)
+    //     }
+    // }
+
+    const getTickers = async () => {
         try {
-            await fetch('https://api.polygon.io/v3/reference/tickers?type=CS&market=stocks&exchange=XNAS&search=' + stockSymbol + '&active=true&sort=ticker&order=asc&limit=20&apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
+            await fetch('https://pkgstore.datahub.io/core/s-and-p-500-companies/constituents_json/data/297344d8dc0a9d86b8d107449c851cc8/constituents_json.json')
             .then(
                 function(response) {
-                    return response.json();
+                    return response.json()
                 }
             )
             .then(
                 function(data) {
-               
-                    //Clean the names of the stocks recieved from the API
-                    // console.log(data.results)
-
-                    
-
-                    cleanData(data.results)
-
+                    setSearchData(data.filter(value =>  value.Name.replace(/Technologies| Technology/g, "").includes(stockSymbol)))
+            
                 }
             )
-        } catch (err) {
-            Alert.alert(err)
+        } catch (error) {
+            
         }
     }
 
     //Get top 20 stocks with the highest score
     const getTrending = async () => {
-        console.log("TOP OF GET asjkdjsTRENDINGS")
+        // console.log("TOP OF GET asjkdjsTRENDINGS")
         let tempTrending = []
+
+        let listStocks = ""
 
         //Access score collection and get 20 stocks with the highest score
         await db.collection('score')
             .orderBy('score', 'desc')
-            .limit(5)
+            .limit(10)
             .get()
             .then(querySnapshot => {
+                // console.log("IN FIRST THEN")
+                
                 querySnapshot.forEach(documentSnapshot => {
+
+                    listStocks = listStocks + documentSnapshot.id + ","
                    
                     //Clean the name from the database
                     let cleanedName = documentSnapshot.data().sName.replace(clean, "").trim()
 
+                    // console.log(documentSnapshot.data().score)
                     //Store the trending data in a temp variable
-                    tempTrending.push({ticker: documentSnapshot.id, sName: cleanedName})
-                    console.log("in getTrending")
+                    tempTrending.push({ticker: documentSnapshot.id, sName: cleanedName, score: documentSnapshot.data().score, percentChange: 0})
+                    // console.log("in getTrending")
 
                 })
 
             })
+            .then(
+                async function() {
+                    try {
+                        await fetch('https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=' + listStocks +'&apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
+                        .then(
+                            function(response) {
+                                return response.json()
+                            }
+                        )
+                        .then(
+                            function(data) {
+                                // console.log("HERE")
+                                data.tickers.forEach((stock, index) => {
+                                    tempTrending.forEach((trendingStock) => {
+                                        if(trendingStock.ticker == stock.ticker) {
+                                            trendingStock.percentChange = stock.todaysChangePerc
+                                        }
+                                    })
+                                })
+                                // console.log(tempTrending)
+                                setTrendingData(tempTrending)
+
+
+                            } 
+                        )
+                    } catch (error) {
+                        
+                    }
+                }
+            )
             
         //Set temp trending hook
-        setTrendingData(tempTrending)
     }
+
+    
 
     //Cleans the stock names using a regex
-    const cleanData = (searchData) => {
+    // const cleanData = (searchData) => {
 
-        //Make sure search bar isn't empty
-        if(searchData != undefined) {
-            for(let i = 0; i < searchData.length; i++) {
+    //     //Make sure search bar isn't empty
+    //     if(searchData != undefined) {
+    //         for(let i = 0; i < searchData.length; i++) {
         
-                //Clean the name
-                searchData[i].name = searchData[i].name.replace(clean, "").trim()
-            }
+    //             //Clean the name
+    //             searchData[i].name = searchData[i].name.replace(clean, "").trim()
+    //         }
 
-            //Update the data
-            setSearchData(searchData)
+    //         //Update the data
+    //         setSearchData(searchData)
 
-        } else {
-            //If the search bar is empty set the data to be an empty array
-            setSearchData([])
-        }
-    }
+    //     } else {
+    //         //If the search bar is empty set the data to be an empty array
+    //         setSearchData([])
+    //     }
+    // }
 
     //Called every time the component is mounted
     useEffect(() => {
-       
+        console.log("In stocks useEffect")
         getTrending()
+
     }, []);
+
+    // const test = async () => {
+
+    //     console.log("In test")
+    //     setSearchData(await StockList())
+    // }
+
+    // useEffect(()=>{
+    //     test()
+    // }, [props])
+
+    useEffect(() => {
+        console.log("IN props useef")
+    }, [props])
 
 
     //Called everytime the stockSymbol hook is updated (When the user types in the search bar)
@@ -441,6 +508,7 @@ function Stocks(props) {
                                     color: 'white'
                                 }}
 
+                            spellCheck = {false}
                             placeholderTextColor = 'white'
                             placeholder = {"Search"}
                             selectionColor = 'white'       
