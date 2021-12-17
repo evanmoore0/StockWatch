@@ -67,7 +67,7 @@ function SearchContainer(props) {
                 style={{}}
                 onPress = {()=>{
 
-                    navigation.replace("StockDisplay", {
+                    navigation.navigate("StockDisplay", {
                         stock: {
                             sName: props.sName,
                             ticker: props.ticker,

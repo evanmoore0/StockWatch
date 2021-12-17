@@ -15,7 +15,6 @@ function Loading(props) {
                 props.navigation.replace("Welcome")
             }
         })
-
     }
 
 

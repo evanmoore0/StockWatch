@@ -18,7 +18,27 @@ function StockContainer(props){
 
     // const [display, setDisplay] = useState(false);
 
+    const [score, setScore] = useState(0)
+
     const [percentColor, setPercentColor] = useState('white');
+
+
+    const getScore = async () => {
+
+
+        if(props.score == undefined) {
+            try {
+
+                    let tempScore = await db.collection('score').doc(props.ticker).get()
+                    setScore(tempScore.data().score)
+        
+            } catch (error) {
+                
+            }
+        } else {
+            setScore(props.score)
+        }
+    }
 
 
     const checkPercentGain = () => {
@@ -89,6 +109,7 @@ function StockContainer(props){
 
     useEffect(() => {
        checkPercentGain()
+       getScore()
     }, []);
 
     // if(!display) {
@@ -108,7 +129,7 @@ function StockContainer(props){
                     stock: {
                         sName: props.sName,
                         ticker: props.ticker,
-                        // percentChange: percentChange 
+                        percentChange: props.percentChange 
                     }
                 })
             }}
@@ -121,7 +142,7 @@ function StockContainer(props){
         fontWeight: '800', color: percentColor}}>{props.sName}</Text>
 
                         <Text style={{color: 'white', fontSize: normalize.setNormalize(12)}}>{props.ticker}</Text>
-                        <Text style={{color: 'gray', fontSize: normalize.setNormalize(12)}}>{props.score}</Text>
+                        <Text style={{color: 'gray', fontSize: normalize.setNormalize(12)}}>{score}</Text>
 
                         {/* <View style={{width: 200, height: 100, backgroundColor: 'red'}}></View> */}
 

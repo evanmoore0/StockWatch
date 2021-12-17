@@ -255,6 +255,8 @@ function Stocks(props) {
 
     }, []);
 
+    
+
     // const test = async () => {
 
     //     console.log("In test")

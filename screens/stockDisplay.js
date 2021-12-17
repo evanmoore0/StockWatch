@@ -44,6 +44,10 @@ function StockDisplay(props) {
     const [phoneNumber, setPhoneNumber] = useState('')
     const [newsData, setNewsData] = useState([])
 
+    const [percentChange, setPercentChange] = useState(0)
+
+    const [score, setPropsScore] = useState(0)
+
     const isInitialMount = useRef(true);
 
     //Sets the text color/ background color of a stock button
@@ -91,16 +95,19 @@ function StockDisplay(props) {
 
             let tempScore = score.data().score + 1
 
+            setPropsScore(tempScore)
             //Update the score
             db.collection('score')
             .doc(props.route.params.stock.ticker)
             .update({score: tempScore})
+
     
         } catch {
             //If the stock doesn't have a score set it equal to one
             db.collection('score')
             .doc(props.route.params.stock.ticker)
             .set({score: 1, sName: props.route.params.stock.sName})
+            setPropsScore(1)
         }
     }
 
@@ -137,6 +144,38 @@ function StockDisplay(props) {
         }
     }
 
+    const getPercentChange = async () => {
+        console.log("props")
+        console.log(props.route.params.stock.percentChange)
+
+        if(props.route.params.stock.percentChange == undefined) {
+
+            try {
+
+                await fetch('https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers/'+ props.route.params.stock.ticker +'?apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
+                .then(
+                    function(response) {
+                        return response.json()
+                    }
+                )
+                .then(
+                    function(data) {
+                        console.log("PERCENT CHANGE")
+                        console.log(data.tickers.todaysChangePerc)
+                        setPercentChange(data.tickers.todaysChangePerc)
+                    }
+                )
+                
+            } catch (error) {
+                
+            }
+
+        } else {
+            setPercentChange(props.route.params.stock.percentChange)
+        }
+        
+    }
+
     //Get news for the searched stock from polygon API
     const getNews = async () => {
         try {
@@ -165,10 +204,10 @@ function StockDisplay(props) {
         console.log("in StockDisplay")
         getData()
         getNews()
+        getPercentChange()
+        setScore()
      
-     }, []);
-
-
+     }, [props]);
 
     if(render) {
         return(
@@ -233,7 +272,6 @@ function StockDisplay(props) {
                     <TouchableOpacity
                     onPress = {() => {
                         //Update the score of the stock when someone adds it to their library
-                        setScore()
                         //Navigate to library page and pass it percent change, ticker, stock name
                         props.navigation.navigate('TabStack', {
                             screen: 'Library',
@@ -241,6 +279,8 @@ function StockDisplay(props) {
                                 stock: {
                                     sName: props.route.params.stock.sName,
                                     ticker: props.route.params.stock.ticker,
+                                    score: score,
+                                    percentChange: percentChange
                                     // percentChange: props.route.params.stock.percentChange
                                 }
                             }
@@ -286,6 +326,10 @@ function StockDisplay(props) {
                         }
                     }>
                         {'$' + props.route.params.stock.ticker}
+                    </Text>
+
+                    <Text style={{color:'red'}}>
+                        {percentChange}
                     </Text>
 
                 </View>
