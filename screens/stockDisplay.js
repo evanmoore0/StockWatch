@@ -23,7 +23,7 @@ class StockDisplay extends Component {
         const pointerToThis = this;
         console.log(pointerToThis.props.route.params.ticker)
         //API key
-        const API_KEY = 'M8S9O6GLYM4ZUPIE';
+        const API_KEY = '';
         let API_Call = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=' + pointerToThis.props.route.params.ticker + '&outputsize=compact&apikey=' + API_KEY;
         //Temp variables to store data recieved from api
         //Stock price and date
