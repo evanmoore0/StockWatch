@@ -1,7 +1,9 @@
 import React from "react";
+import {View, Text} from 'react-native'
 import {NavigationContainer} from '@react-navigation/native'
 import {createNativeStackNavigator} from '@react-navigation/native-stack'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import {BottomTabBar, createBottomTabNavigator} from '@react-navigation/bottom-tabs'
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
 
 import Welcome from "../screens/welcome";
 import Login from "../screens/login";
@@ -12,16 +14,51 @@ import StockDisplay from "../screens/stockDisplay";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Entypo } from '@expo/vector-icons';
 import Loading from "../screens/loading";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import normalize from "../utils/normalize";
 
 
 const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
+const Tab = createMaterialTopTabNavigator();
+
+// const Tab = createMaterialTopTabNavigator();
+
+function TAB() {
+    return(
+        <View style = {{flex:1}}>
+            <Text>
+
+                Hi
+
+            </Text>
+        </View>
+    )
+}
 
 function TabStack() {
     return(
-        <Tab.Navigator
+            <Tab.Navigator
+        
         initialRouteName = "Stock"
-        screenOptions={({ route }) =>({
+
+        // style = {{paddingTop: 50}}
+        
+        
+        // tabBarPosition = ""
+        tabBarPosition = "bottom"
+        // tabBarPosition = "Bottom"
+        // TabBarBottom = {true}
+
+        
+        
+        
+        screenOptions={({ route }) =>(
+            
+            {
+                
+                tabBarStyle: {paddingBottom: normalize.setNormalize(20)},
+                
+            
             tabBarIcon: ({ focused, color, size }) => {
                 let iconName;
 
@@ -41,12 +78,44 @@ function TabStack() {
             headerShown: false,
             tabBarShowLabel: false,
             tabBarActiveBackgroundColor: 'black',
-            tabBarInactiveBackgroundColor: 'black'
-        })}
+            tabBarInactiveBackgroundColor: 'black',
+            
+            
+            
+            
+            
+
+        }
+        
+        )}
+        
         >
-                <Tab.Screen name = "Stock" component = {Stocks}/>
+                <Tab.Screen name = "Stock" component = {Stocks}
+                
+                />
                 <Tab.Screen name = "Library" component={Library}/>
         </Tab.Navigator>
+
+        
+
+        // <Tab.Navigator
+
+        // // tabBarPosition = "Bottom"
+        // // TabBarShowIcon = {true}
+
+        // // tabBar = {}
+
+        // // TabBarItemStyle = {{alignItems: 'center'}}
+        // tabBar = {<TAB/>}
+        
+        // >
+
+        //     <Tab.Screen name = "Stock" component = {Stocks}/>
+
+        //     <Tab.Screen name = "Library" component = {Library}/>
+
+        // </Tab.Navigator>
+        
     )
 }
 
@@ -54,7 +123,8 @@ function TabStack() {
 function AppStack() {
     return (
 
-        //So pages navigated to don't have a gray background
+        <SafeAreaProvider>
+
        <NavigationContainer
        theme = {{
            colors: {
@@ -72,6 +142,7 @@ function AppStack() {
                />
                
                <Stack.Screen name = "Welcome" component = {Welcome}
+               
                 
                />
                <Stack.Screen name = "Login" component = {Login}
@@ -89,6 +160,8 @@ function AppStack() {
            </Stack.Navigator>
 
        </NavigationContainer>
+       </SafeAreaProvider>
+
 
     )
 }

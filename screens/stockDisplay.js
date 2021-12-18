@@ -1,7 +1,11 @@
 
 //React imports
 import React, { useEffect, useRef, useState } from "react";
-import {View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, FlatList, Image} from 'react-native';
+import {View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions, Alert, FlatList, Image, ActivityIndicator} from 'react-native';
+
+
+import {VictoryLine, VictoryGroup, VictoryLabel, createContainer, LineSegment, VictoryTooltip, VictoryCursorContainer, VictoryContainer} from 'victory-native'
+
 
 //Normailize function
 import normalize from "../utils/normalize";
@@ -15,6 +19,7 @@ import {auth, db} from '../utils/firebase-config';
 //Components
 import Graphic from "../globalComponents/graphic";
 import StockContainer from "../globalComponents/stockContainer";
+
 
 
 function StockDisplay(props) {
@@ -44,11 +49,24 @@ function StockDisplay(props) {
     const [phoneNumber, setPhoneNumber] = useState('')
     const [newsData, setNewsData] = useState([])
 
+    const [open, setOpen] = useState(0);
+
+    
+
     const [percentChange, setPercentChange] = useState(0)
+
+    const [prevPoint, setPrevPoint] = useState(0)
 
     const [score, setPropsScore] = useState(0)
 
+    const [loading, setLoading] = useState(true)
+    const [graphData, setGraphData] = useState([])
+
     const isInitialMount = useRef(true);
+
+    const [scroll, setScroll] = useState(true);
+
+    const Container = createContainer("voronoi", "cursor")
 
     //Sets the text color/ background color of a stock button
     const handleColor = (i) => {
@@ -64,6 +82,11 @@ function StockDisplay(props) {
         setTextColor(tempTextColor)
         
     }
+
+    const {
+        height: SCREEN_HEIGHT,
+        width: SCREEN_WIDTH,
+    } = Dimensions.get('window')
 
     // const stockComponentRender = () => {
     //     if(render) {
@@ -145,8 +168,8 @@ function StockDisplay(props) {
     }
 
     const getPercentChange = async () => {
-        console.log("props")
-        console.log(props.route.params.stock.percentChange)
+        // console.log("props")
+        // console.log(props.route.params.stock.percentChange)
 
         if(props.route.params.stock.percentChange == undefined) {
 
@@ -201,13 +224,165 @@ function StockDisplay(props) {
     //Set the score, get data, get news when the component is mounted
     useEffect(() => {
         // console.log("in getData call")
-        console.log("in StockDisplay")
+        // console.log("in StockDisplay")
         getData()
         getNews()
         getPercentChange()
         setScore()
+        getGraphData()
      
      }, [props]);
+
+     const getGraphData = async() => {
+         let ok = []
+        //  console.log(props.route.params.ticker)
+        try {
+            await fetch('https://api.polygon.io/v2/aggs/ticker/' + props.route.params.stock.ticker + '/range/1/day/2021-11-01/2021-12-01?adjusted=true&sort=asc&limit=120&apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
+            .then(
+                function(response) {
+                    return response.json()
+                }
+            )
+            .then(
+
+                function(data) {
+                    setOpen(data.results[0].h)
+                    for(let date in data.results) {
+                        
+                        ok.push(
+                            {
+                                x: date,
+                                y: data.results[date].h
+                                // open: data.results[date].o,
+                                // close: data.results[date].c,
+                                // high: data.results[date].h,
+                                // low: data.results[date].l
+                                
+                            }
+                        )
+                    }
+                    setGraphData(ok)
+
+
+                }
+
+            )
+        } catch (error) {
+
+
+            
+        } finally {
+            setLoading(false)
+        }
+     }
+
+     const updatePercentChange = (y) => {
+        //  let bro = y
+        //  console.log("in updatePercent")
+        // setPrevPoint(bro)
+        const hi = ((y-open)/open)*100
+        fuckMe(hi)
+     }
+
+     const fuckMe = (hi) => {
+        setPrevPoint(hi)
+     }
+
+     const graph = () => {
+        if(loading) {
+            return (<ActivityIndicator
+                color = "white"
+                size = {20}
+                />)
+            
+        } else {
+            return(
+               
+          
+
+                // <VictoryContainer
+
+                // width = {SCREEN_WIDTH}
+                // padding = {0}
+               
+                
+                // containerComponent = {
+                //     <Container
+
+                //     // labelComponent = {<VictoryLabel style={{fill:"red"}}/>}
+                   
+                //     voronoiDimension = "x"
+                //     // cursorDimension = "x"
+                //     // labelComponent={<LineSegment style={{stroke:"white"}}/>}
+                    
+                   
+                //     // labels = {(point) => ()=> <LineSegment style={{stroke:"white"}}/>}
+                //     // standAlone = {false}
+
+                //     // mouseFollowToolTips
+                //     // activateData = {true}
+                //     onActivated = {(points, props) => setPrevPoint(points[0].y)}
+                //     // onMouseMove = {(value) => console.log(value)}
+                //     // onCursorChange = {(value) => console.log(value)}
+                //     // onDeactivated = {()=> console.log("hi")}
+                //     // labelComponent={<VictoryLabel style={{fill:"red"}}/>}
+                //     // cursorLabel = {(point)=> point.datum.y}
+                  
+                //     />}
+                // >
+                    <VictoryLine data = {graphData}
+                    padding = {{top: normalize.setNormalize(40)}}
+                    style = {{
+                        data: {stroke: '#6AB664', strokeWidth: 1}
+                    }}
+                    containerComponent = {
+                        <Container
+                            cursorComponent={<LineSegment style={{stroke:"white", strokeWidth: 0.3}}/>}
+                            // onActivated = {(points) => updatePercentChange(points[0].y)}
+                            labels = {(point)=> "% " + (Math.round((((point.datum.y-open)/open)*100)*100)/100).toString()}
+                            cursorDimension = "x"
+                            defaultCursorValue = {1}
+
+                            labelComponent = {
+                                <VictoryTooltip
+                                style={{fill:'white', fontFamily: 'system font', fontSize: normalize.setNormalize(13)}}
+                                flyoutStyle = {{fill: 'black', strokeWidth: 0}}
+                                center = {{x:normalize.setNormalize(30), y: normalize.setNormalize(10)}}
+                                pointerLength = {0}
+                                
+                                />
+                            }
+                            // onDeactivated = {(points) => updatePercentChange(points[0].y)}
+                        
+                        />
+                    }
+
+                    // width = {SCREEN_WIDTH}
+                    
+                    // padding = {0}
+                    
+
+                    // padding = {{top:40}}
+                   
+
+                
+                    
+                   
+                    >
+                        
+
+                    </VictoryLine>
+//                     {/* <VictoryAxis style={{ 
+//     axis: {stroke: "transparent", width:0, height:0}, 
+//     ticks: {stroke: "transparent"},
+//     tickLabels: { fill:"transparent"} 
+// }}/> */}
+//                     </VictoryContainer>
+
+                
+            )
+        }
+     }
 
     if(render) {
         return(
@@ -222,12 +397,13 @@ function StockDisplay(props) {
 
         //Container for page
         <View 
+        
         style = {
             {
                 justifyContent: 'center', 
                 flex: 1, 
                 marginTop: normalize.setNormalize(40), 
-                marginHorizontal: normalize.setNormalize(30)
+                // marginHorizontal: normalize.setNormalize(30)
             }
         }>
             {/*
@@ -235,6 +411,8 @@ function StockDisplay(props) {
             */}
             <ScrollView
             showsVerticalScrollIndicator = {false}
+            scrollEnabled = {scroll}
+            
             >
 
                 {/*
@@ -329,22 +507,27 @@ function StockDisplay(props) {
                     </Text>
 
                     <Text style={{color:'red'}}>
-                        {percentChange}
+                        {prevPoint}
                     </Text>
 
                 </View>
 
                 
-                <View style={{width: '100%', height: normalize.setNormalize(300)}}>
-                    <Graphic
-                    scale={0.6}
-                    />
+                {/* <View style={{width: '100%', height: normalize.setNormalize(400), justifyContent: 'center', alignItems: 'center'}}> */}
+                    
+                    <View style={{flex:1, justifyContent:'center', alignItems:'center', paddingTop: normalize.setNormalize(20)}}
+                    >
+                    {graph()}
+                    </View>
+                       
 
-                </View>
+
+                {/* </View> */}
 
                 {/* 
                 Graph buttons
                 */}
+                <View style={{flex:1, justifyContent:'center', marginHorizontal: normalize.setNormalize(30)}}>
                 <View 
                 style = {
                     {
@@ -352,7 +535,8 @@ function StockDisplay(props) {
                         height: normalize.setNormalize(50), 
                         paddingTop: normalize.setNormalize(20),
                         flexDirection:'row', 
-                        justifyContent: 'space-between'
+                        justifyContent: 'space-between',
+                        // marginHorizontal: normalize.setNormalize(30)
                     }
                 }>
 
@@ -577,6 +761,7 @@ function StockDisplay(props) {
                 </View>
             )}
             />
+            </View>
 
             </ScrollView>
 

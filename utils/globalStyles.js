@@ -13,10 +13,11 @@ const GlobalStyles = StyleSheet.create({
     },
 
     homePageContainer: {
-        flex: 1,
+       
         backgroundColor: 'black',
         marginHorizontal: normalize.setNormalize(16),
         marginTop: normalize.setNormalize(60),
+    
 
     },
 
