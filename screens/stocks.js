@@ -20,6 +20,7 @@ import GlobalStyles from '../utils/globalStyles';
 
 //Firebase imports
 import {auth, db} from '../utils/firebase-config'
+import config from '../config';
 
 
 const wait = (timeout) => {
@@ -124,7 +125,7 @@ function Stocks(props) {
     //Get tickers to be displayed on the search page
     // const getTickers = async () => {
     //     try {
-    //         await fetch('https://api.polygon.io/v3/reference/tickers?type=CS&market=stocks&exchange=XNAS&search=' + stockSymbol + '&active=true&sort=ticker&order=asc&limit=20&apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
+    //         await fetch('https://api.polygon.io/v3/reference/tickers?type=CS&market=stocks&exchange=XNAS&search=' + stockSymbol + '&active=true&sort=ticker&order=asc&limit=20&apiKey=')
     //         .then(
     //             function(response) {
     //                 return response.json();
@@ -145,7 +146,7 @@ function Stocks(props) {
 
     const getTickers = async () => {
         try {
-            await fetch('https://pkgstore.datahub.io/core/s-and-p-500-companies/constituents_json/data/297344d8dc0a9d86b8d107449c851cc8/constituents_json.json')
+            await fetch(config.TICKERS_API_URL)
             .then(
                 function(response) {
                     return response.json()
@@ -195,7 +196,7 @@ function Stocks(props) {
             .then(
                 async function() {
                     try {
-                        await fetch('https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=' + listStocks +'&apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
+                        await fetch('https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=' + listStocks +'&apiKey=' + config.POLYGON_API_KEY)
                         .then(
                             function(response) {
                                 return response.json()

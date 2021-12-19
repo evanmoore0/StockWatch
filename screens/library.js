@@ -23,6 +23,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 
 import {Swipeable} from 'react-native-gesture-handler'
+import config from "../config";
 
 function useForceUpdate() {
     const [value, setValue] = useState(0);
@@ -475,7 +476,7 @@ function Library(props) {
 
                 console.log("IN GET PERCENT GAIN")
 
-                await fetch('https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=' + listStocks +'&apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
+                await fetch('https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=' + listStocks +'&apiKey=' + config.POLYGON_API_KEY)
                 .then(
                     function(response) {
                         return response.json()
