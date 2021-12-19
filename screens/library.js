@@ -1,6 +1,6 @@
 //React imports
 import React, { useEffect, useState, useRef } from "react";
-import {View, Text, TouchableOpacity, FlatList, ScrollView, Alert, Modal, AsyncStorage, ActivityIndicator, Dimensions} from 'react-native';
+import {View, Text, TouchableOpacity, FlatList, ScrollView, Alert, Modal, AsyncStorage, ActivityIndicator, Dimensions, AppState} from 'react-native';
 
 //Firebase imports
 import { auth, db } from "../utils/firebase-config";
@@ -41,11 +41,58 @@ function Library(props) {
 
     const forceUpdate = useForceUpdate();
 
+    const appState = useRef(AppState.currentState);
+
+    const [appStateVisible, setAppStateVisible] = useState(appState.current)
+
+
+
+    useEffect(() => {
+        const subscription = AppState.addEventListener("change", (nextAppState)=> {
+            // if(appState.current.match(/inactive|background/) === "inactive") {
+                // console.log("App has come to the foreground!")
+                // console.log("IN APP INAC")
+                // console.log(allData)
+                // console.log("FInal data")
+                // console.log(finalData)
+                // updateDB()
+            // } 
+            // console.log("IN subscriptino")
+            appState.current = nextAppState
+            setAppStateVisible(appState.current)
+            if(nextAppState !== 'active') {
+                return;
+            }
+           
+            // subscription.remove()
+        });
+
+        return () => {
+
+            console.log("out subscription")
+            
+            
+        }
+    }, [])
+
+    useEffect(()=> {
+        // console.log("IN update askldfj x asdf ")
+        if(appState.current == "inactive") {
+            updateDB()
+        }
+    }, [appStateVisible])
+
+    // const updateDB = async () => {
+    //     if(appStateVisible == "inactive") {
+
+    //     }
+    // }
+
     //Stocks the user has
-    const [stocks, updateStocks] = useState([]);
+    // const [stocks, updateStocks] = useState([]);
 
     //All of the users stocks (used for gainers/losers)
-    const [allStocks, updateAllStocks] = useState([]);
+    // const [allStocks, updateAllStocks] = useState([]);
 
     //All/Gainers/Losers buttons
     const [fontWeight, setFontWeight] = useState(['700', '400', '400'])
@@ -61,6 +108,8 @@ function Library(props) {
 
     const [userData, setUserData] = useState([])
 
+    const [allData, setAllData] = useState([])
+
     const [finalData, setFinalData] = useState([])
 
     const swipeableRef = useRef(null);
@@ -74,6 +123,8 @@ function Library(props) {
     const [loading, setLoading] = useState(true)
 
     const [opacity, setOpacity] = useState(0)
+
+    const [updateScore, setUpdateScore] = useState(false)
 
     const {
         height: SCREEN_HEIGHT,
@@ -131,18 +182,7 @@ function Library(props) {
         } else {
             return(
 
-                // <Swipeable
-                
-                // renderRightActions = {gainersLosersRightAction}
-                // ref = {swipeableRef}
-                // containerStyle = {{flex:1}}
-                // overshootFriction = {7}
-                // rightThreshold = {10}
-                // >
-                // <View
-                    //  style={{paddingHorizontal: normalize.setNormalize(30)}}>
-                    
-                    <FlatList
+                <FlatList
                 data = {finalData}
                 renderItem = {({item, index}) => (
 
@@ -161,6 +201,7 @@ function Library(props) {
                     ticker = {item.ticker}
                     sName = {item.sName}
                     percentChange = {item.percentChange}
+                    score = {item.score}
                     />
                 </Swipeable>
                 
@@ -168,6 +209,19 @@ function Library(props) {
 
             keyExtractor = {(item, index) => index.toString()}
             />
+
+                // <Swipeable
+                
+                // renderRightActions = {gainersLosersRightAction}
+                // ref = {swipeableRef}
+                // containerStyle = {{flex:1}}
+                // overshootFriction = {7}
+                // rightThreshold = {10}
+                // >
+                // <View
+                    //  style={{paddingHorizontal: normalize.setNormalize(30)}}>
+                    
+                   
             /* </View>
 
             </Swipeable> */
@@ -221,6 +275,7 @@ function Library(props) {
             <TouchableOpacity style={{alignItems: 'center', justifyContent: 'center', paddingHorizontal: normalize.setNormalize(10), paddingBottom: normalize.setNormalize(20)}}
             onPress = {() => {
                 remove(removeIndex)
+                handleClick(0)
                 // closeSwipeable()
             }}
             >
@@ -235,9 +290,9 @@ function Library(props) {
 
     const remove = async (removeIndex) => {
 
-        // console.log("in remove")
+        console.log("in remove")
 
-        finalData.splice(removeIndex, 1)
+        allData.splice(removeIndex, 1)
 
         // let tempStocks = stocks
 
@@ -254,7 +309,7 @@ function Library(props) {
 
         // // console.log(stocks)
         forceUpdate()
-        closeSwipeable()
+        // closeSwipeable()
     }
 
     const closeSwipeable = () => {
@@ -263,14 +318,23 @@ function Library(props) {
 
     const getTodaysGain = (stockData) => {
         let gain = 0
+
+
         // console.log(stocks.length)
+        
         for(let i = 0; i < stockData.length; i++) {
             gain += stockData[i].percentChange
         }
 
         // console.log("GAIN " + gain)
+        console.log(gain)
+        if(gain == 0) {
+            setTodaysGain(0)
+        } else {
+            setTodaysGain(Math.round((gain/stockData.length)*100)/100)
 
-        setTodaysGain(Math.round((gain/stockData.length)*100)/100)
+
+        }
     }
 
     const handleClick = (a) => {
@@ -282,43 +346,60 @@ function Library(props) {
         setFontWeight(tempWeight)
         setLineHeight(tempHeight)
 
+        let t = allData
+
         if(a == 0) {
 
-            updateStocks(allStocks)
+            setFinalData(allData)
+            setLoading(false)
+            getTodaysGain(allData)
+
 
         } else if(a == 1) {
 
-            let tempGainers = []
+            // let tempGainers = []
 
-            for(let i = 0; i < allStocks.length; i++) {
+            // for(let i = 0; i < allStocks.length; i++) {
 
-                if(allStocks[i].percentChange > 0) {
+            //     if(allStocks[i].percentChange > 0) {
 
-                    tempGainers.push(allStocks[i])
-                    // console.log(allStocks[i])
+            //         tempGainers.push(allStocks[i])
+            //         // console.log(allStocks[i])
+            
 
-                }
+            //     }
 
-            }
+            // }
 
-            updateStocks(tempGainers)
+            // updateStocks(tempGainers)
+
+            // let tempGainers = []
+          
+            let tempGain = t.filter((stock) => stock.percentChange > 0)
+            getTodaysGain(tempGain)
+            setFinalData(tempGain)
+
+            
 
         } else if(a == 2) {
 
-            let tempLosers = []
+            // let tempLosers = []
 
-            for(let i = 0; i < allStocks.length; i++) {
+            // for(let i = 0; i < allStocks.length; i++) {
 
-                if(allStocks[i].percentChange < 0) {
+            //     if(allStocks[i].percentChange < 0) {
 
-                    tempLosers.push(allStocks[i])
+            //         tempLosers.push(allStocks[i])
 
-                }
+            //     }
 
-            }
+            // }
 
-            updateStocks(tempLosers)
-
+            // updateStocks(tempLosers)
+         
+            let tempLose = t.filter((stock) => stock.percentChange <= 0)
+            getTodaysGain(tempLose)
+            setFinalData(tempLose)
         }
 
     }
@@ -384,10 +465,10 @@ function Library(props) {
 
         tempData.forEach((stock) => {
             listStocks = listStocks + stock.ticker + ","
-            console.log(listStocks)
+           
         })
 
-        console.log("list stocks " + userData)
+        // console.log("list stocks " + userData)
 
         if(listStocks != "") {
             try {
@@ -403,7 +484,6 @@ function Library(props) {
                 .then(
                     function(data) {
     
-                        console.log(data.tickers)
                                    
                         for(let stock in tempData) {
                            for(let stockApi in data.tickers) {
@@ -413,13 +493,20 @@ function Library(props) {
                            }
                         }
     
-                        if(componentMounted.current) {
+                        // if(componentMounted.current) {
     
+                            setAllData(tempData)
                             setFinalData(tempData)
+                            
                             // getTodaysGain(tempData)
-                            addStock()
-    
-                        }
+                            addStock()  
+                              
+                            setUpdateScore(true)
+                            getScore(tempData.sort(function(a,b) {
+                                        return a.sName.localeCompare(b.sName)
+                                    }))
+
+                        // }
            
                         
                         // setGainersLoser(tempData)
@@ -429,6 +516,8 @@ function Library(props) {
                 
             } catch (error) {
                 
+            } finally {
+                // setLoading(false)
             }
 
         }
@@ -437,6 +526,23 @@ function Library(props) {
         
 
     }
+
+    const getScore = async(data) => {
+
+       
+
+        for(let stock in data) {
+         
+            let score = await db.collection('score').doc(data[stock].ticker).get()
+            data[stock].score = score.data().score
+        }
+
+        setAllData(data)
+        setLoading(false)
+
+
+    }
+
 
     const setGainersLoser = () => {
         let tempGainers = []
@@ -463,19 +569,13 @@ function Library(props) {
         let listStocks = ""
 
         if(componentMounted.current) {
-            console.log("In updateUser")
             setUserData(data)
-            console.log(userData)
 
 
             // data.forEach((stock) => {
             //     listStocks = listStocks + stock.ticker + ","
             // })
-    
-            // console.log(listStocks)
-    
             // getPercentChange(listStocks)
-
 
         }
     }
@@ -493,9 +593,8 @@ function Library(props) {
     const getStocks = async () => {
         try {
 
-            // console.log(auth.currentUser.uid)
-            console.log("LOADING " + loading)
-            let listStocks = ""
+          
+        
 
             await db
             .collection('users')
@@ -504,6 +603,7 @@ function Library(props) {
             .then(
                 function(response) {
                     updateUserData(response.data().stocks)
+                 
                 }
             )
             
@@ -528,13 +628,10 @@ function Library(props) {
             //         // setUserData(querySnapshot.data().stocks)
                    
             //         getPercentChange(listStocks)
-            //         console.log("User data in get stocks ")
-            //         console.log(userData)
-
+            //       
             //     }
             // )
             // .then(
-            //     // console.log("getPercentChange")
             //     // getPercentChange(listStocks)
 
             // )
@@ -557,73 +654,95 @@ function Library(props) {
         // }
     }
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        setGainersLoser()
+    //     setGainersLoser()
 
-    }, [finalData])
+    // }, [finalData])
 
-    const addStock = () => {
+    const addStock = async () => {
 
-        // console.log("user data in add stock ")
-        // console.log(userData)
+
         
         if(props.route.params != undefined) {
 
-            console.log("IN ADD")
-
+            
             let shouldAdd = true
 
-            userData.forEach((stock) => {
+            allData.forEach((stock) => {
                 if(stock.ticker == props.route.params.stock.ticker) {
                     shouldAdd = false
                 }
             })
 
+
             if(shouldAdd) {
-                setFinalData(oldUserData => [...oldUserData, {
+                let temp = allData
+                temp.push({
                     percentChange: props.route.params.stock.percentChange,
                     sName: props.route.params.stock.sName,
                     ticker: props.route.params.stock.ticker,
                     score: props.route.params.stock.score
-                }].sort(function(a,b) {return a.sName.localeCompare(b.sName)}))
+                    
+                })
+                // setFinalData(oldUserData => [...oldUserData, {
+                //     percentChange: props.route.params.stock.percentChange,
+                //     sName: props.route.params.stock.sName,
+                //     ticker: props.route.params.stock.ticker,
+                //     score: props.route.params.stock.score
+                // }])
+                // setFinalData(temp)
+              
+                setAllData(temp)
+                handleClick(0)
+
+                // try {
+
+                //     await db.collection("users").doc(auth.currentUser.uid).update({stocks:allData})
+                    
+                // } catch (error) {
+                    
+                // }
+
             }
+
+
+            
             
         }
+
     }
 
     useEffect(()=> {
         addStock()
-
-        // return () => {
-        //     setUserData([])
-        // }
     }, [props])
 
     useEffect(()=> {
-        // console.log("In library useEffect")
-        // updateCache()
 
         setLoading(true)
         
         getStocks()
-        setLoading(false)
-
-        return () => {
-            
-            componentMounted.current = false
-
-            updateDatabase()
-
-
-        }
+        // setLoading(false)
 
         
 
-        // return async () => {
-
+        // return () => {
             
-        //     cleanUp()
+        //     // updateDatabase()
+
+        //     componentMounted.current = false
+
+        //     // console.log("IN UNSUBSCRIBE")
+
+
+
+        // }
+
+        
+
+        // return () => {
+
+        //     updateDB()
             
         // }
 
@@ -631,18 +750,32 @@ function Library(props) {
 
     }, [])
 
-    const updateDatabase = async() => {
-
+    const updateDB = async() => {
+        console.log("IN update db")
+        console.log(allData)
         try {
-
-            await db.collection('users').doc(auth.currentUser.uid).update({stocks: userData})
-
-            
+            await db.collection("users").doc(auth.currentUser.uid).update({stocks:allData})
         } catch (error) {
             
-        }
+        } 
 
     }
+
+    // const updateDatabase = async() => {
+
+    //     console.log("update database")
+    //     console.log(finalData)
+
+    //     try {
+
+    //         await db.collection('users').doc(auth.currentUser.uid).update({stocks: finalData})
+
+            
+    //     } catch (error) {
+            
+    //     }
+
+    // }
 
     // const cleanUp = async () => {
     //     setUserData([])
@@ -674,7 +807,10 @@ function Library(props) {
         //     console.log("IN AUTH SINGOUT")
         //     await auth.signOut();
         // }
+        updateDB()
+        // props.navigation.popToTop()
         await auth.signOut();
+
 
     }
     
@@ -833,9 +969,6 @@ function Library(props) {
 
 
                 {stockContainers()}
-            
-
-
             
 
             </ScrollView>
