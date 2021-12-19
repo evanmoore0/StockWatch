@@ -4,9 +4,11 @@ import React, { useEffect, useRef, useState } from "react";
 import {View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions, Alert, FlatList, Image, ActivityIndicator} from 'react-native';
 
 
-import {VictoryLine, VictoryGroup, VictoryLabel, createContainer, LineSegment, VictoryTooltip, VictoryCursorContainer, VictoryContainer} from 'victory-native'
+import {VictoryLine, VictoryGroup, VictoryAxis, createContainer, LineSegment, VictoryTooltip, VictoryCursorContainer, VictoryContainer, VictoryVoronoiContainer} from 'victory-native'
 
 import config from "../config";
+
+import * as Linking from 'expo-linking'
 //Normailize function
 import normalize from "../utils/normalize";
 
@@ -50,7 +52,6 @@ function StockDisplay(props) {
     const [newsData, setNewsData] = useState([])
 
     const [open, setOpen] = useState(0);
-
     
 
     const [percentChange, setPercentChange] = useState(0)
@@ -66,6 +67,13 @@ function StockDisplay(props) {
 
     const [scroll, setScroll] = useState(true);
 
+    const [dateString, setDateString] = useState("")
+
+    const [weekData, setWeekData] = useState([])
+    const [monthData, setMonthData] = useState([])
+    const [yearData, setYearData] = useState([])
+    const [dayData, setDayData] = useState([])
+
     const Container = createContainer("voronoi", "cursor")
 
     //Sets the text color/ background color of a stock button
@@ -80,8 +88,48 @@ function StockDisplay(props) {
 
         setColor(tempColor)
         setTextColor(tempTextColor)
-        
+
+        // if(i == 0) {
+        //     setGraphData(dayData)
+        // } else if (i == 1 && weekData == []) {
+        //     getGraphData()
+        // }
     }
+
+    const getOtherGraphData = (i) => {
+        let date = new Date()
+        let day = date.getDate()
+        let month = date.getMonth()
+        let year = date.getFullYear()
+
+
+        if(i == 0) {
+
+            getGraphData(year.toString() + "-" + month.toString() + "-" + (day-1).toString(), year.toString() + "-" + month.toString() + "-" + day.toString(), "minute", "1")
+
+
+        } else if (i == 1) {
+            getGraphData(year.toString() + "-" + month.toString() + "-" + (day-7).toString(), year.toString() + "-" + month.toString() + "-" + day.toString(), "minute", "1")
+
+        } else if(i==2){
+            getGraphData(year.toString() + "-" + (month-1).toString() + "-" + day.toString(), year.toString() + "-" + month.toString() + "-" + day.toString(), "day", "1")
+
+        } else {
+            getGraphData((year-1).toString() + "-" + month.toString() + "-" + (day-7).toString(), year.toString() + "-" + month.toString() + "-" + day.toString(), "week", "1")
+
+
+        }
+    }
+
+    // const setOtherGraphData = (i) => {
+    //     if(i == 1) {
+    //         setGraphData(weekData)
+    //     } else if (i==2) {
+    //         setGraphData(monthData)
+    //     } else {
+    //         setGraphData(yearD)
+    //     }
+    // }
 
     const {
         height: SCREEN_HEIGHT,
@@ -111,14 +159,14 @@ function StockDisplay(props) {
 
     //Updates the score of the stock
     const setScore = async () => {
+        let tempScore = 0
 
         try {
             //Get the current score
             const score = await db.collection('score').doc(props.route.params.stock.ticker).get()
 
-            let tempScore = score.data().score + 1
+            tempScore = score.data().score + 1
 
-            setPropsScore(tempScore)
             //Update the score
             db.collection('score')
             .doc(props.route.params.stock.ticker)
@@ -131,12 +179,15 @@ function StockDisplay(props) {
             .doc(props.route.params.stock.ticker)
             .set({score: 1, sName: props.route.params.stock.sName})
             setPropsScore(1)
+        } finally {
+            setPropsScore(tempScore)
         }
     }
 
     //Get the stock data from polygon API for the searched stock
     const getData = async () => {
         // console.log("AT GET DATA")
+        
         try {
             await fetch('https://api.polygon.io/v1/meta/symbols/' + props.route.params.stock.ticker + '/company?apiKey=' + config.POLYGON_API_KEY)
             .then(
@@ -183,8 +234,8 @@ function StockDisplay(props) {
                 )
                 .then(
                     function(data) {
-                        console.log("PERCENT CHANGE")
-                        console.log(data.tickers.todaysChangePerc)
+                        // console.log("PERCENT CHANGE")
+                        // console.log(data.tickers.todaysChangePerc)
                         setPercentChange(data.tickers.todaysChangePerc)
                     }
                 )
@@ -213,6 +264,7 @@ function StockDisplay(props) {
                 function(data) {
 
                     setNewsData(data.results)
+                    // console.log(data.results)
                 }
             )
             
@@ -225,17 +277,30 @@ function StockDisplay(props) {
     useEffect(() => {
         // console.log("in getData call")
         // console.log("in StockDisplay")
+
+        let date = new Date()
+        let day = date.getDate()
+        let month = date.getMonth().toString()
+        let year = date.getFullYear().toString()
+
+        setDateString(year + "-" + month + "-" + day)
+
+
+    //    setDateString(year + "-" + month + "-" + day)
+    //    console.log(dateString)
         getData()
         getNews()
         getPercentChange()
         setScore()
-        getGraphData()
+        getGraphData(year + "-" + month + "-" + (day-1).toString(),year + "-" + month + "-" + day.toString(), "minute", "1")
      
      }, [props]);
 
-     const getGraphData = async() => {
+     const getGraphData = async(startDate, endDate, timespan, multiplier) => {
          let ok = []
         //  console.log(props.route.params.ticker)
+        console.log("IN get data")
+        console.log(dateString)
         try {
             await fetch('https://api.polygon.io/v2/aggs/ticker/' + props.route.params.stock.ticker + '/range/1/day/2021-11-01/2021-12-01?adjusted=true&sort=asc&limit=120&apiKey=' + config.POLYGON_API_KEY)
             .then(
@@ -263,6 +328,16 @@ function StockDisplay(props) {
                     }
                     setGraphData(ok)
 
+                    if(timespan == "day") {
+                        setDayData(ok)
+                    } else if (timespan == "week") {
+                        setWeekData(ok)
+                    } else if (timespan == "month") {
+                        setMonthData(ok)
+                    } else {
+                        setYearData(ok)
+                    }
+ 
 
                 }
 
@@ -276,17 +351,7 @@ function StockDisplay(props) {
         }
      }
 
-     const updatePercentChange = (y) => {
-        //  let bro = y
-        //  console.log("in updatePercent")
-        // setPrevPoint(bro)
-        const hi = ((y-open)/open)*100
-        fuckMe(hi)
-     }
-
-     const fuckMe = (hi) => {
-        setPrevPoint(hi)
-     }
+    
 
      const graph = () => {
         if(loading) {
@@ -337,11 +402,18 @@ function StockDisplay(props) {
                     }}
                     containerComponent = {
                         <Container
-                            cursorComponent={<LineSegment style={{stroke:"white", strokeWidth: 0.3}}/>}
+                            cursorComponent={<LineSegment style={{stroke:"white", strokeWidth: 1}}/>}
                             // onActivated = {(points) => updatePercentChange(points[0].y)}
                             labels = {(point)=> "% " + (Math.round((((point.datum.y-open)/open)*100)*100)/100).toString()}
                             cursorDimension = "x"
-                            defaultCursorValue = {1}
+                            voronoiDimension = "x"
+                            // defaultCursorValue = {1}
+                            // onCursorChange = {()=> {
+                            //     setScroll(false)
+                            // }}
+                            // onDeactivated = {()=> {
+                            //     setScroll(true)
+                            // }}
 
                             labelComponent = {
                                 <VictoryTooltip
@@ -355,6 +427,13 @@ function StockDisplay(props) {
                             // onDeactivated = {(points) => updatePercentChange(points[0].y)}
                         
                         />
+                        // <VictoryVoronoiContainer
+                        // labels = {(point) => point.datum.y}
+                        // onActivated = {()=> {console.log("false")}}
+                        // onDeactivated = {()=> {console.log("true")}}
+                        // voronoiDimension = "x"
+
+                        // />
                     }
 
                     // width = {SCREEN_WIDTH}
@@ -370,14 +449,9 @@ function StockDisplay(props) {
                    
                     >
                         
+                        </VictoryLine>
+                        
 
-                    </VictoryLine>
-//                     {/* <VictoryAxis style={{ 
-//     axis: {stroke: "transparent", width:0, height:0}, 
-//     ticks: {stroke: "transparent"},
-//     tickLabels: { fill:"transparent"} 
-// }}/> */}
-//                     </VictoryContainer>
 
                 
             )
@@ -449,6 +523,7 @@ function StockDisplay(props) {
                     */}
                     <TouchableOpacity
                     onPress = {() => {
+                        
                         //Update the score of the stock when someone adds it to their library
                         //Navigate to library page and pass it percent change, ticker, stock name
                         props.navigation.navigate('TabStack', {
@@ -510,6 +585,8 @@ function StockDisplay(props) {
                         {"HI"}
                     </Text>
 
+                    
+
                 </View>
 
                 
@@ -543,6 +620,8 @@ function StockDisplay(props) {
                     <TouchableOpacity
                     onPress= {()=>{
                         handleColor(0)
+                        getOtherGraphData(0)
+                        
                     }}
                     style={[stockDisplayStyles.buttonContainer, {backgroundColor: color[0]}]}
                     >
@@ -552,6 +631,9 @@ function StockDisplay(props) {
                     <TouchableOpacity
                      onPress= {()=>{
                         handleColor(1)
+                       
+                            getOtherGraphData(1)
+                        
                     }}
                     style={[stockDisplayStyles.buttonContainer, {backgroundColor: color[1]}]}
                     
@@ -562,6 +644,9 @@ function StockDisplay(props) {
                     <TouchableOpacity
                      onPress= {()=>{
                         handleColor(2)
+                        
+                            getOtherGraphData(2)
+                        
                     }}
                     style={[stockDisplayStyles.buttonContainer, {backgroundColor: color[2]}]}
                     
@@ -572,6 +657,9 @@ function StockDisplay(props) {
                     <TouchableOpacity
                      onPress= {()=>{
                         handleColor(3)
+                        
+                            getOtherGraphData(3)
+                        
                     }}
                     style={[stockDisplayStyles.buttonContainer, {backgroundColor: color[3]}]}
 
@@ -737,15 +825,23 @@ function StockDisplay(props) {
             data = {newsData}
             renderItem = {({item}) => (
                 <View style={{paddingBottom: normalize.setNormalize(20)}}>
-                <View style={{height: normalize.setNormalize(400), paddingHorizontal: normalize.setNormalize(20), justifyContent: 'space-evenly'}}>
-                    <Text style={{color: 'white', fontWeight: 'bold', fontSize: normalize.setNormalize(12)}}>
+                <TouchableOpacity style={{paddingHorizontal: normalize.setNormalize(20), justifyContent: 'space-evenly'}}
+                onPress = {() => {
+                    try {
+                        Linking.openURL(item.article_url)
+                    } catch (error) {
+                        Alert.alert(error)
+                    }
+                }}
+                >
+                    <Text style={{color: 'white', fontWeight: 'bold', fontSize: normalize.setNormalize(12), paddingVertical: normalize.setNormalize(20)}}>
 
                         {item.publisher.name}
 
 
                     </Text>
 
-                    <Text style={{color: 'white'}}>
+                    <Text style={{color: 'white', paddingBottom: normalize.setNormalize(15)}}>
                         {item.title}
                     </Text>
 
@@ -756,8 +852,13 @@ function StockDisplay(props) {
                     }}
                     />
 
+                    <Text numberOfLines = {3} style={{color:'white', paddingVertical: normalize.setNormalize(15)}}>{item.description}</Text>
+
+
+                    {/* <Text style={{color:'white'}}>{item.published_utc}</Text> */}
+
                     <View style={{backgroundColor: 'white', width: '100%', height: 0.5, top: normalize.setNormalize(20), opacity: 0.3}}></View>
-                </View>
+                </TouchableOpacity>
                 </View>
             )}
             />

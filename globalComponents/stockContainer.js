@@ -18,31 +18,37 @@ function StockContainer(props){
 
     // const [display, setDisplay] = useState(false);
 
-    const [score, setScore] = useState(0)
+    // const [score, setScore] = useState(0)
 
     const [percentColor, setPercentColor] = useState('white');
 
 
-    const getScore = async () => {
+    // const getScore = async () => {
+    //     // console.log(props.score)
 
 
-        if(props.score == undefined) {
-            try {
+    //     if(props.score == undefined) {
+    //         try {
 
-                    let tempScore = await db.collection('score').doc(props.ticker).get()
-                    setScore(tempScore.data().score)
+
+
+    //             // console.log(props.score)
+
+    //                 let tempScore = await db.collection('score').doc(props.ticker).get()
+    //                 setScore(tempScore.data().score)
         
-            } catch (error) {
+    //         } catch (error) {
                 
-            }
-        } else {
-            setScore(props.score)
-        }
-    }
+    //         }
+    //     } else {
+
+    //         setScore(props.score)
+    //     }
+    // }
 
 
     const checkPercentGain = () => {
-        if(props.percentChange < 0) {
+        if(props.percentChange <= 0) {
             setPercentColor('#82C8FB')
         } else {
             setPercentColor('#6AB664')
@@ -109,8 +115,13 @@ function StockContainer(props){
 
     useEffect(() => {
        checkPercentGain()
-       getScore()
-    }, []);
+    //    if(props.update) {
+    //        getScore()
+    //    } else {
+    //        setScore(props.score)
+    //    }
+    //    getScore()
+    }, [props]);
 
     // if(!display) {
     //     return(
@@ -129,7 +140,8 @@ function StockContainer(props){
                     stock: {
                         sName: props.sName,
                         ticker: props.ticker,
-                        percentChange: props.percentChange 
+                        percentChange: props.percentChange,
+                        // score: props.score
                     }
                 })
             }}
@@ -142,7 +154,7 @@ function StockContainer(props){
         fontWeight: '800', color: percentColor}}>{props.sName}</Text>
 
                         <Text style={{color: 'white', fontSize: normalize.setNormalize(12)}}>{props.ticker}</Text>
-                        <Text style={{color: 'gray', fontSize: normalize.setNormalize(12)}}>{score}</Text>
+                        <Text style={{color: 'gray', fontSize: normalize.setNormalize(12)}}>{props.score}</Text>
 
                         {/* <View style={{width: 200, height: 100, backgroundColor: 'red'}}></View> */}
 
