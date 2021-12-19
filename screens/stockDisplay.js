@@ -6,7 +6,7 @@ import {View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions, Alert,
 
 import {VictoryLine, VictoryGroup, VictoryLabel, createContainer, LineSegment, VictoryTooltip, VictoryCursorContainer, VictoryContainer} from 'victory-native'
 
-
+import config from "../config";
 //Normailize function
 import normalize from "../utils/normalize";
 
@@ -138,7 +138,7 @@ function StockDisplay(props) {
     const getData = async () => {
         // console.log("AT GET DATA")
         try {
-            await fetch('https://api.polygon.io/v1/meta/symbols/' + props.route.params.stock.ticker + '/company?apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
+            await fetch('https://api.polygon.io/v1/meta/symbols/' + props.route.params.stock.ticker + '/company?apiKey=' + config.POLYGON_API_KEY)
             .then(
                 function(response) {
                     return response.json();
@@ -175,7 +175,7 @@ function StockDisplay(props) {
 
             try {
 
-                await fetch('https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers/'+ props.route.params.stock.ticker +'?apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
+                await fetch('https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers/'+ props.route.params.stock.ticker +'?apiKey=' + config.POLYGON_API_KEY)
                 .then(
                     function(response) {
                         return response.json()
@@ -203,7 +203,7 @@ function StockDisplay(props) {
     const getNews = async () => {
         try {
 
-            await fetch('https://api.polygon.io/v2/reference/news?ticker=' + props.route.params.stock.ticker + '&apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
+            await fetch('https://api.polygon.io/v2/reference/news?ticker=' + props.route.params.stock.ticker + '&apiKey=' + config.POLYGON_API_KEY)
             .then(
                 function(response) {
                     return response.json();
@@ -237,7 +237,7 @@ function StockDisplay(props) {
          let ok = []
         //  console.log(props.route.params.ticker)
         try {
-            await fetch('https://api.polygon.io/v2/aggs/ticker/' + props.route.params.stock.ticker + '/range/1/day/2021-11-01/2021-12-01?adjusted=true&sort=asc&limit=120&apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
+            await fetch('https://api.polygon.io/v2/aggs/ticker/' + props.route.params.stock.ticker + '/range/1/day/2021-11-01/2021-12-01?adjusted=true&sort=asc&limit=120&apiKey=' + config.POLYGON_API_KEY)
             .then(
                 function(response) {
                     return response.json()
@@ -507,7 +507,7 @@ function StockDisplay(props) {
                     </Text>
 
                     <Text style={{color:'red'}}>
-                        {prevPoint}
+                        {"HI"}
                     </Text>
 
                 </View>
