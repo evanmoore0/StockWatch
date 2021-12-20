@@ -1,3 +1,15 @@
+
+
+
+
+
+//NOTES: NOT SETTING FINALDATA IN GET SCORE, ONLY ALLDATA
+
+
+
+
+
+
 //React imports
 import React, { useEffect, useState, useRef } from "react";
 import {View, Text, TouchableOpacity, FlatList, ScrollView, Alert, Modal, AsyncStorage, ActivityIndicator, Dimensions, AppState} from 'react-native';
@@ -38,6 +50,17 @@ const cache = new Cache({
     backend: AsyncStorage
 })
 
+// export const useIsMounted = () => {
+//     const ref = React.useRef(false)
+//     const [, setIsMounted] = React.useState(false)
+//     React.useEffect(() => {
+//       ref.current = true
+//       setIsMounted(true)
+//       return () => (ref.current = false)
+//     }, [])
+//     return () => ref.current
+//   }
+
 function Library(props) {
 
     const forceUpdate = useForceUpdate();
@@ -46,35 +69,43 @@ function Library(props) {
 
     const [appStateVisible, setAppStateVisible] = useState(appState.current)
 
+    // const [isMounted, setIsMounted] = us(false)
+    const [mounted, setMounted] = useState(false)
 
 
-    useEffect(() => {
-        const subscription = AppState.addEventListener("change", (nextAppState)=> {
-            // if(appState.current.match(/inactive|background/) === "inactive") {
-                // console.log("App has come to the foreground!")
-                // console.log("IN APP INAC")
-                // console.log(allData)
-                // console.log("FInal data")
-                // console.log(finalData)
-                // updateDB()
-            // } 
-            // console.log("IN subscriptino")
-            appState.current = nextAppState
-            setAppStateVisible(appState.current)
-            if(nextAppState !== 'active') {
-                return;
-            }
+    // useEffect(() => {
+    //     const subscription = AppState.addEventListener("change", (nextAppState)=> {
+    //         // if(appState.current.match(/inactive|background/) === "inactive") {
+               
+    //             // updateDB()
+    //         // } 
+    //         // console.log("IN subscriptino")
+
+    //         if(mounted) {
+    //             console.log("IN subscription")
+
+
+    //             appState.current = nextAppState
+    //             setAppStateVisible(appState.current)
+    //             if(nextAppState !== 'active') {
+    //             return;
+    //         }
+
+    //         }
+            
            
-            // subscription.remove()
-        });
+    //         // subscription.remove()
+    //     });
 
-        return () => {
+    //     return () => {
 
-            console.log("out subscription")
+    //         console.log("Out subscription")
+
             
             
-        }
-    }, [])
+            
+    //     }
+    // }, [])
 
     useEffect(()=> {
         // console.log("IN update askldfj x asdf ")
@@ -121,11 +152,15 @@ function Library(props) {
 
     const componentMounted = useRef(true);
 
+    const isMounted = useRef(false)
+
     const [loading, setLoading] = useState(true)
 
     const [opacity, setOpacity] = useState(0)
 
     const [updateScore, setUpdateScore] = useState(false)
+
+    const [color, setColor] = useState("white")
 
     const {
         height: SCREEN_HEIGHT,
@@ -235,7 +270,6 @@ function Library(props) {
 
     const gainersLosersRightAction = () => {
 
-        console.log(gainers)
 
         return (
 
@@ -291,7 +325,6 @@ function Library(props) {
 
     const remove = async (removeIndex) => {
 
-        console.log("in remove")
 
         allData.splice(removeIndex, 1)
 
@@ -328,13 +361,18 @@ function Library(props) {
         }
 
         // console.log("GAIN " + gain)
-        console.log(gain)
         if(gain == 0) {
             setTodaysGain(0)
         } else {
             setTodaysGain(Math.round((gain/stockData.length)*100)/100)
 
 
+        }
+
+        if(gain > 0) {
+            setColor('#6AB664')
+        } else {
+            setColor('#82C8FB')
         }
     }
 
@@ -474,7 +512,6 @@ function Library(props) {
         if(listStocks != "") {
             try {
 
-                console.log("IN GET PERCENT GAIN")
 
                 await fetch('https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=' + listStocks +'&apiKey=' + config.POLYGON_API_KEY)
                 .then(
@@ -502,7 +539,6 @@ function Library(props) {
                             // getTodaysGain(tempData)
                             addStock()  
                               
-                            setUpdateScore(true)
                             getScore(tempData.sort(function(a,b) {
                                         return a.sName.localeCompare(b.sName)
                                     }))
@@ -539,7 +575,8 @@ function Library(props) {
         }
 
         setAllData(data)
-        setLoading(false)
+        getTodaysGain(data)
+        // setLoading(false)
 
 
     }
@@ -567,10 +604,10 @@ function Library(props) {
     
 
     const updateUserData = (data) => {
-        let listStocks = ""
 
         if(componentMounted.current) {
             setUserData(data)
+
 
 
             // data.forEach((stock) => {
@@ -718,11 +755,41 @@ function Library(props) {
         addStock()
     }, [props])
 
+    useEffect(() => {
+        const subscription = AppState.addEventListener("change", (nextAppState)=> {
+            // if(appState.current.match(/inactive|background/) === "inactive") {
+               
+                // updateDB()
+            // } 
+            // console.log("IN subscriptino")
+
+            if(isMounted.current) {
+                console.log("IN subscription")
+                console.log(isMounted.current)
+
+
+                appState.current = nextAppState
+                setAppStateVisible(appState.current)
+                if(nextAppState !== 'active') {
+                return;
+            }
+
+            }
+            
+           
+            // subscription.remove()
+        });
+    }, [])
+
     useEffect(()=> {
 
         setLoading(true)
+        console.log("IN use effect")
+        isMounted.current = true;
         
         getStocks()
+        setLoading(false)
+
         // setLoading(false)
 
         
@@ -741,24 +808,29 @@ function Library(props) {
 
         
 
-        // return () => {
+        return () => {
 
-        //     updateDB()
+            console.log("IN set mounted")
+
+            isMounted.current = false
             
-        // }
+        }
 
 
 
     }, [])
 
     const updateDB = async() => {
-        console.log("IN update db")
-        console.log(allData)
+       
         try {
             await db.collection("users").doc(auth.currentUser.uid).update({stocks:allData})
         } catch (error) {
             
-        } 
+        } finally {
+            // setAllData({})
+            // setFinalData({})
+            // set
+        }
 
     }
 
@@ -816,18 +888,20 @@ function Library(props) {
     }
     
         return (
-            <View style={{
-                flex: 1,
-        backgroundColor: 'black',
-       
-        marginTop: normalize.setNormalize(60),
-            }}>
+            <View style={
+                GlobalStyles.homePageContainer
+            }>
                  <View style={{position: 'absolute', top: normalize.setNormalize(90), width: '100%', height: normalize.setNormalize(800), opacity: 0.2, zIndex: 0}}>
                         <Graphic
                         scale = {1.4}
                         />                    
                 </View>
-                <View style={{width: '100%', alignItems: 'flex-end', height: normalize.setNormalize(40), justifyContent: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)'}}>
+                <View style={{width: '100%', justifyContent: 'space-between', flexDirection: 'row'}}>
+
+
+                    <Text style={{color:'white', 
+                            fontWeight: 'bold'}}>Library</Text>
+
 
                     <TouchableOpacity
                     onPress = {()=> {
@@ -835,7 +909,7 @@ function Library(props) {
                         setVisible(true)                        
                     }}
                     >
-                        <Ionicons name="ios-settings-outline" size={normalize.setNormalize(30)} color="white" />
+                        <Ionicons name="ios-settings-outline" size={normalize.setNormalize(24)} color="white" />
 
                     </TouchableOpacity>
                 </View>
@@ -879,15 +953,16 @@ function Library(props) {
 
 
                 <View style={{
-                    height: normalize.setNormalize(42),
                     alignItems: 'center',
                     backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    width: '100%'
+                    width: '100%',
+                    paddingBottom: normalize.setNormalize(15),
+                    paddingTop: normalize.setNormalize(10), 
 
                 }}>
-                    <View style={{flexDirection: 'row', backgroundColor:'gray', paddingHorizontal: 20, paddingVertical: 5, borderRadius: 10, justifyContent:'center', alignItems:'center'}}>
-                        <Text style={{color: 'white', fontSize: normalize.setNormalize(16)}}>Today's Gain:</Text>
-                        <Text style={{fontSize: normalize.setNormalize(16), color: '#6AB664', fontWeight: '700'}}>{" " + toadysGain }</Text>
+                    <View style={{flex:1, flexDirection: 'row', backgroundColor:'gray',  justifyContent:'center', alignItems:'center',borderRadius: normalize.setNormalize(10), height: normalize.setNormalize(32), paddingHorizontal: normalize.setNormalize(5)}}>
+                        <Text style={{color: 'white', fontSize: normalize.setNormalize(14)}}>Today's Gain:</Text>
+                        <Text style={{fontSize: normalize.setNormalize(14), color: color, fontWeight: '700'}}>{" " + toadysGain }</Text>
 
 
                     </View>

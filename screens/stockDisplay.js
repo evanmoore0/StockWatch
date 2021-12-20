@@ -302,7 +302,7 @@ function StockDisplay(props) {
         console.log("IN get data")
         console.log(dateString)
         try {
-            await fetch('https://api.polygon.io/v2/aggs/ticker/' + props.route.params.stock.ticker + '/range/1/day/2021-11-01/2021-12-01?adjusted=true&sort=asc&limit=120&apiKey=' + config.POLYGON_API_KEY)
+            await fetch('https://api.polygon.io/v2/aggs/ticker/' + props.route.params.stock.ticker + '/range/' + multiplier + '/'+ timespan + '/' + startDate + '/' + endDate + '?adjusted=true&sort=asc&limit=120&apiKey=' + config.POLYGON_API_KEY)
             .then(
                 function(response) {
                     return response.json()
