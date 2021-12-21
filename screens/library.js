@@ -12,7 +12,7 @@
 
 //React imports
 import React, { useEffect, useState, useRef } from "react";
-import {View, Text, TouchableOpacity, FlatList, ScrollView, Alert, Modal, AsyncStorage, ActivityIndicator, Dimensions, AppState} from 'react-native';
+import {View, Text, TouchableOpacity, FlatList, ScrollView, Alert, Modal, ActivityIndicator, StyleSheet, AppState} from 'react-native';
 
 //Firebase imports
 import { auth, db } from "../utils/firebase-config";
@@ -24,8 +24,6 @@ import Graphic from "../globalComponents/graphic";
 //Styles
 import GlobalStyles from "../utils/globalStyles";
 
-import { Cache } from 'react-native-cache'
-
 //Normalize function
 import normalize from "../utils/normalize";
 
@@ -35,96 +33,28 @@ import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 
 import {Swipeable} from 'react-native-gesture-handler'
-import config from "../config";
 
+//Config file
+import config from "../config";
+import Constants from "../Constants";
+
+//Custom hook to update page
 function useForceUpdate() {
     const [value, setValue] = useState(0);
     return () => setValue(value => value+1)
 }
 
-const cache = new Cache({
-    namespace: "UserStocks",
-    policy: {
-        maxEntries: 50000
-    },
-    backend: AsyncStorage
-})
-
-// export const useIsMounted = () => {
-//     const ref = React.useRef(false)
-//     const [, setIsMounted] = React.useState(false)
-//     React.useEffect(() => {
-//       ref.current = true
-//       setIsMounted(true)
-//       return () => (ref.current = false)
-//     }, [])
-//     return () => ref.current
-//   }
-
 function Library(props) {
 
     const forceUpdate = useForceUpdate();
 
+    //Hooks
+    //Gets the current state of the app
+    //Whether the user is on the app, background, or the app is "inactive"
     const appState = useRef(AppState.currentState);
 
+    //Get the app state
     const [appStateVisible, setAppStateVisible] = useState(appState.current)
-
-    // const [isMounted, setIsMounted] = us(false)
-    const [mounted, setMounted] = useState(false)
-
-
-    // useEffect(() => {
-    //     const subscription = AppState.addEventListener("change", (nextAppState)=> {
-    //         // if(appState.current.match(/inactive|background/) === "inactive") {
-               
-    //             // updateDB()
-    //         // } 
-    //         // console.log("IN subscriptino")
-
-    //         if(mounted) {
-    //             console.log("IN subscription")
-
-
-    //             appState.current = nextAppState
-    //             setAppStateVisible(appState.current)
-    //             if(nextAppState !== 'active') {
-    //             return;
-    //         }
-
-    //         }
-            
-           
-    //         // subscription.remove()
-    //     });
-
-    //     return () => {
-
-    //         console.log("Out subscription")
-
-            
-            
-            
-    //     }
-    // }, [])
-
-    useEffect(()=> {
-        // console.log("IN update askldfj x asdf ")
-        if(appState.current == "inactive") {
-            updateDB()
-        }
-    }, [appStateVisible])
-
-    // const updateDB = async () => {
-    //     if(appStateVisible == "inactive") {
-
-    //     }
-    // }
-
-    //Stocks the user has
-    // const [stocks, updateStocks] = useState([]);
-
-    //All of the users stocks (used for gainers/losers)
-    // const [allStocks, updateAllStocks] = useState([]);
 
     //All/Gainers/Losers buttons
     const [fontWeight, setFontWeight] = useState(['700', '400', '400'])
@@ -133,249 +63,146 @@ function Library(props) {
     //Whether modal should be shown
     const [isVisible, setVisible] = useState(false)
 
-
+    //Todays Gain
     const [toadysGain, setTodaysGain] = useState(0)
 
+    //Index of stock that needs to be removed
     const [removeIndex, setRemoveIndex] = useState(0)
 
+    //Data initially fetched from the database for the user
     const [userData, setUserData] = useState([])
 
+    //Store all of the data
     const [allData, setAllData] = useState([])
 
+    //Final data, set when user presses All?Gainers/Losers
     const [finalData, setFinalData] = useState([])
+
 
     const swipeableRef = useRef(null);
     const swipeableFirstRef = useRef(null);
 
-    const [gainers, setGainers] = useState([])
-    const [losers, setLosers] = useState([])
-
-    const componentMounted = useRef(true);
-
+    //Use to check if app is mounted before updating appstate
     const isMounted = useRef(false)
 
+    //Display activity indicator when data is loading in
     const [loading, setLoading] = useState(true)
 
-    const [opacity, setOpacity] = useState(0)
-
-    const [updateScore, setUpdateScore] = useState(false)
-
+    //Todays gain color
     const [color, setColor] = useState("white")
 
-    const {
-        height: SCREEN_HEIGHT,
-        width: SCREEN_WIDTH,
-    } = Dimensions.get('window')
 
-   
-    const allGainersLosers = (data, renderRightActions, renderLeftActions) => {
-        <Swipeable      
-        renderRightActions = {renderRightActions}
-        renderLeftActions = {renderLeftActions}
-        ref = {swipeableRef}
-        containerStyle = {{flex:1}}
-        overshootFriction = {7}
-        rightThreshold = {10}
-        >
-            <View
-            style={{paddingHorizontal: normalize.setNormalize(30)}}>
-                 
+    const allGainersLosers = (index, text) => {
+        return(
+                <View style={{ width: '33%', alignItems: 'center'}}>
+                    <TouchableOpacity
+                    style={{width:'100%', alignItems:'center'}}
+                    onPress = {()=> {
+                        handleClick(index)
+                        }
+                    }>
+                            <Text style={[libraryStyles.allGainersLosersText, {fontWeight: fontWeight[index]}]}>{text}</Text>
+                        <View style={libraryStyles.linePadding}>
+                            <View style={[libraryStyles.line, {height: lineHeight[index]}]}></View>
+                        </View>
+                    </TouchableOpacity>
+                        
+                </View>
+        )
+
+    }
+
+
+    //Show activity indicator when data is loading, display stock containers when done
+    const stockContainers = () => {
+        if(loading) {
+            return (<ActivityIndicator
+            color = {Constants.THEME_COLOR.blue}
+            size = 'large'
+            />)
+        } else {
+            return(
+    
                 <FlatList
-                data = {data}
+                data = {finalData}
                 renderItem = {({item, index}) => (
 
                     <Swipeable
                     ref = {swipeableRef}
                     renderRightActions = {rightActions}
+                    
                     onSwipeableRightOpen = {()=>{
                         setRemoveIndex(index)
                     }}
                     >
-
-                    <StockContainer
-                    ticker = {item.ticker}
-                    sName = {item.sName}
-                    percentChange = {item.percentChange}
-                    />
+                        <StockContainer
+                        ticker = {item.ticker}
+                        sName = {item.sName}
+                        percentChange = {item.percentChange}
+                        score = {item.score}
+                        />
                 </Swipeable>
                 
             )}
 
             keyExtractor = {(item, index) => index.toString()}
             />
-        </View>
-
-        </Swipeable>
-    }
-
-    const stockContainers = () => {
-        if(loading) {
-            return <ActivityIndicator
-            color = 'red'
-            size = {200}
-            
-            />
-        } else {
-            return(
-
-                <FlatList
-                data = {finalData}
-                renderItem = {({item, index}) => (
-
-                <Swipeable
-                ref = {swipeableRef}
-                renderRightActions = {rightActions}
-                
-                
-                onSwipeableRightOpen = {()=>{
-                    setRemoveIndex(index)
-                }}
-                // key = {index}
-                >
-
-                    <StockContainer
-                    ticker = {item.ticker}
-                    sName = {item.sName}
-                    percentChange = {item.percentChange}
-                    score = {item.score}
-                    />
-                </Swipeable>
-                
-            )}
-
-            keyExtractor = {(item, index) => index.toString()}
-            />
-
-                // <Swipeable
-                
-                // renderRightActions = {gainersLosersRightAction}
-                // ref = {swipeableRef}
-                // containerStyle = {{flex:1}}
-                // overshootFriction = {7}
-                // rightThreshold = {10}
-                // >
-                // <View
-                    //  style={{paddingHorizontal: normalize.setNormalize(30)}}>
-                    
-                   
-            /* </View>
-
-            </Swipeable> */
-
-                
-               
             )
         }
     }
 
-    const gainersLosersRightAction = () => {
-
-
-        return (
-
-            <View style={{opacity: opacity}}>
-                <FlatList
-            data = {gainers}
-            renderItem = {({item, index}) => (
-
-            <Swipeable
-            ref = {swipeableRef}
-            renderRightActions = {rightActions}
-            onSwipeableRightOpen = {()=>{
-                setRemoveIndex(index)
-            }}
-            // key = {index}
-            >
-
-                <StockContainer
-                ticker = {item.ticker}
-                sName = {item.sName}
-                percentChange = {item.percentChange}
-                />
-            </Swipeable>
-            
-        )}
-
-        keyExtractor = {(item, index) => index.toString()}
-        />
-
-            </View>
-            
-        )
-        
-    }
-
+    //Red X that is displayed when user swipes on stock container
     const rightActions = () => {
         return (
-            <TouchableOpacity style={{alignItems: 'center', justifyContent: 'center', paddingHorizontal: normalize.setNormalize(10), paddingBottom: normalize.setNormalize(20)}}
+            <TouchableOpacity style={libraryStyles.removeContainer}
             onPress = {() => {
                 remove(removeIndex)
                 handleClick(0)
-                // closeSwipeable()
             }}
             >
-                
-                {/* <Text style={{color: 'red'}}>
-                    Remove
-                </Text> */}
-                <FontAwesome name="remove" size={24} color="red" />
+                <FontAwesome 
+                name="remove" 
+                size={normalize.setNormalize(24)} 
+                color="red" 
+                />
             </TouchableOpacity>
         )
     }
 
     const remove = async (removeIndex) => {
 
-
         allData.splice(removeIndex, 1)
-
-        // let tempStocks = stocks
-
-        // await db.collection('users').doc(auth.currentUser.uid).update({stocks: tempStocks})
-        // .then(
-        //     function(data) {
-        //         // console.log(data)
-        //     }
-        // )
-
-        // updateAllStocks(tempStocks)
-        // updateStocks([])
-        // updateStocks(tempStocks)
-
-        // // console.log(stocks)
+        console.log(allData)
+       
         forceUpdate()
-        // closeSwipeable()
     }
 
     const closeSwipeable = () => {
         swipeableRef.current.close()
     }
 
+    //Calculate users gain based on whether they are in All/Gainers/Losers
     const getTodaysGain = (stockData) => {
         let gain = 0
-
-
-        // console.log(stocks.length)
         
         for(let i = 0; i < stockData.length; i++) {
             gain += stockData[i].percentChange
         }
 
-        // console.log("GAIN " + gain)
         if(gain == 0) {
             setTodaysGain(0)
         } else {
             setTodaysGain(Math.round((gain/stockData.length)*100)/100)
-
-
         }
 
         if(gain > 0) {
-            setColor('#6AB664')
+            setColor(Constants.THEME_COLOR.green)
         } else {
-            setColor('#82C8FB')
+            setColor(Constants.THEME_COLOR.blue)
         }
     }
 
+    //Updates the title/data
     const handleClick = (a) => {
         let tempWeight = ['400', '400', '400']
         let tempHeight = [0.2, 0.2, 0.2]
@@ -395,24 +222,6 @@ function Library(props) {
 
 
         } else if(a == 1) {
-
-            // let tempGainers = []
-
-            // for(let i = 0; i < allStocks.length; i++) {
-
-            //     if(allStocks[i].percentChange > 0) {
-
-            //         tempGainers.push(allStocks[i])
-            //         // console.log(allStocks[i])
-            
-
-            //     }
-
-            // }
-
-            // updateStocks(tempGainers)
-
-            // let tempGainers = []
           
             let tempGain = t.filter((stock) => stock.percentChange > 0)
             getTodaysGain(tempGain)
@@ -421,20 +230,6 @@ function Library(props) {
             
 
         } else if(a == 2) {
-
-            // let tempLosers = []
-
-            // for(let i = 0; i < allStocks.length; i++) {
-
-            //     if(allStocks[i].percentChange < 0) {
-
-            //         tempLosers.push(allStocks[i])
-
-            //     }
-
-            // }
-
-            // updateStocks(tempLosers)
          
             let tempLose = t.filter((stock) => stock.percentChange <= 0)
             getTodaysGain(tempLose)
@@ -443,60 +238,8 @@ function Library(props) {
 
     }
 
-    //  const add = async () => {
-
-    //     try {
-
-    //         // console.log("IN ADD")
-    //     const data = await db.collection('users').doc(auth.currentUser.uid).get()
-        
-    //     let tempStock = data.data().stocks  
-
-    //     for(let i = 0; i < tempStock.length; i++) {
-    //         if(tempStock[i].ticker == props.route.params.stock.ticker) {
-    //             Alert.alert("This stock is already in your library")
-    //             throw "O no"
-    //         }
-    //     }
-            
-    //     // console.log("WHIT")
-    //     tempStock.push(props.route.params.stock)
-                        
-    //     db.collection('users').doc(auth.currentUser.uid).update({stocks: tempStock})
-       
-    //     tempStock.sort(function(a,b) {
-    //         return a.sName.localeCompare(b.sName)
-    //     })
-    //     updateStocks(tempStock)
-    //     updateAllStocks(tempStock)
-    //     // getTodaysGain(tempStock)
-            
-
-    //     } catch {
-    //         // console.log("HI")
-    //         const data = await db.collection('users').doc(auth.currentUser.uid).get()
-
-    //         updateStocks(data.data().stocks)
-    //         // console.log(data.data().stocks)
-    //         // getTodaysGain(data.data().stocks)
-
-    //         // console.log("IN CATCH")
-    //     }
-    
-    // }
-
-    // const hello = async (stock) => {
-
-    //     let bro = await db.collection('score').doc(stock).get()
-        
-    //     setUserData(arr => [...arr, bro.data().score])
-        
-    // }
-
-
-
+    //Get the percent change for all of the users stocks
     const getPercentChange = async () => {
-
 
         let tempData = userData
 
@@ -507,12 +250,9 @@ function Library(props) {
            
         })
 
-        // console.log("list stocks " + userData)
-
+        //Pass in list of stocks so its only 1 api call
         if(listStocks != "") {
             try {
-
-
                 await fetch('https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=' + listStocks +'&apiKey=' + config.POLYGON_API_KEY)
                 .then(
                     function(response) {
@@ -521,8 +261,7 @@ function Library(props) {
                 )
                 .then(
                     function(data) {
-    
-                                   
+
                         for(let stock in tempData) {
                            for(let stockApi in data.tickers) {
                                if(data.tickers[stockApi].ticker == tempData[stock].ticker) {
@@ -530,23 +269,14 @@ function Library(props) {
                                }
                            }
                         }
-    
-                        // if(componentMounted.current) {
-    
-                            setAllData(tempData)
-                            setFinalData(tempData)
-                            
-                            // getTodaysGain(tempData)
-                            addStock()  
-                              
-                            getScore(tempData.sort(function(a,b) {
-                                        return a.sName.localeCompare(b.sName)
-                                    }))
-
-                        // }
-           
-                        
-                        // setGainersLoser(tempData)
+                        setAllData(tempData)
+                        setFinalData(tempData)
+                        //Call add stock here just in case the user 
+                        //REMOVE? THIS COMPONENT ALREADY MOUNTS BEFORE USER CAN ADD A STOCK???
+                        addStock()  
+                        getScore(tempData.sort(function(a,b) {
+                                    return a.sName.localeCompare(b.sName)
+                        }))
                     }
                 )
     
@@ -554,19 +284,13 @@ function Library(props) {
             } catch (error) {
                 
             } finally {
-                // setLoading(false)
             }
 
         }
-        
-        
-        
-
     }
 
+    //Get the score for each stock in the users library
     const getScore = async(data) => {
-
-       
 
         for(let stock in data) {
          
@@ -576,49 +300,10 @@ function Library(props) {
 
         setAllData(data)
         getTodaysGain(data)
-        // setLoading(false)
-
-
     }
-
-
-    const setGainersLoser = () => {
-        let tempGainers = []
-        let tempLosers = []
-        let data = finalData
-        for(let stock in data) {
-            if(data[stock].percentChange >= 0) {
-
-                tempGainers.push(data[stock])
-
-            } else {
-                tempLosers.push(data[stock])
-
-            }
-        }
-        setLosers(tempLosers)
-        setGainers(tempGainers)
-    
-    }
-
-    
 
     const updateUserData = (data) => {
-
-        if(componentMounted.current) {
             setUserData(data)
-
-
-
-            // data.forEach((stock) => {
-            //     listStocks = listStocks + stock.ticker + ","
-            // })
-            // getPercentChange(listStocks)
-
-        }
-    }
-
-    const getListStocks = (data) => {
     }
 
     useEffect(() => {
@@ -631,9 +316,6 @@ function Library(props) {
     const getStocks = async () => {
         try {
 
-          
-        
-
             await db
             .collection('users')
             .doc(auth.currentUser.uid)
@@ -645,58 +327,10 @@ function Library(props) {
                 }
             )
             
-            
-            // .then(
-            //     getListStocks(uh.data().stocks)
-            // )
-
-            // updateUserData(uh.data().stocks)
-
-
-            // uh.data().stocks
-
-            
-            
-            // .then(
-            //     querySnapshot => {
-            //         querySnapshot.data().stocks.forEach((stock) => {
-            //             listStocks = listStocks + stock.ticker + ","
-
-            //         })
-            //         // setUserData(querySnapshot.data().stocks)
-                   
-            //         getPercentChange(listStocks)
-            //       
-            //     }
-            // )
-            // .then(
-            //     // getPercentChange(listStocks)
-
-            // )
-         
-            // .sort(function(a,b) {
-            //     return a.sName.localeCompare(b.sName)
-
-            // })
-            
         } catch (error) {
             console.log(error)
         } 
-
-
-        // } finally {
-
-        //     console.log("finally loading " + loading)
-
-        //     // setLoading(false)
-        // }
     }
-
-    // useEffect(() => {
-
-    //     setGainersLoser()
-
-    // }, [finalData])
 
     const addStock = async () => {
 
@@ -775,11 +409,15 @@ function Library(props) {
             }
 
             }
-            
-           
-            // subscription.remove()
         });
     }, [])
+
+     //When the user swipes out of the app update the database
+     useEffect(()=> {
+        if(appState.current == "inactive") {
+            updateDB()
+        }
+    }, [appStateVisible])
 
     useEffect(()=> {
 
@@ -821,6 +459,8 @@ function Library(props) {
     }, [])
 
     const updateDB = async() => {
+
+        console.log("IN update db")
        
         try {
             await db.collection("users").doc(auth.currentUser.uid).update({stocks:allData})
@@ -891,48 +531,73 @@ function Library(props) {
             <View style={
                 GlobalStyles.homePageContainer
             }>
-                 <View style={{position: 'absolute', top: normalize.setNormalize(90), width: '100%', height: normalize.setNormalize(800), opacity: 0.2, zIndex: 0}}>
+                 <View style={libraryStyles.graphicContainer}>
                         <Graphic
                         scale = {1.4}
                         />                    
                 </View>
-                <View style={{width: '100%', justifyContent: 'space-between', flexDirection: 'row'}}>
+
+                <View style={libraryStyles.headerContainer}>
 
 
-                    <Text style={{color:'white', 
-                            fontWeight: 'bold'}}>Library</Text>
+                    <Text 
+                    style = {
+                        {
+                            color:'white', 
+                            fontWeight: 'bold'
+                        }
+                    }>
+                        Library
+                    </Text>
 
-
+                    {/**
+                     * Settings icon
+                     */}
                     <TouchableOpacity
                     onPress = {()=> {
 
                         setVisible(true)                        
                     }}
                     >
-                        <Ionicons name="ios-settings-outline" size={normalize.setNormalize(24)} color="white" />
+                        <Ionicons 
+                        name="ios-settings-outline" 
+                        size={normalize.setNormalize(24)} 
+                        color="white" 
+                        />
 
                     </TouchableOpacity>
                 </View>
 
+                {/**
+                 * Sign out modal
+                 * 
+                 * Maybe make this a component?
+                 */}
                 <Modal
                 visible = {isVisible}
                 presentationStyle = "overFullScreen"
                 transparent = {true}
                 animationType = "slide"
                 >
-                    <View style={{flex:1, justifyContent: 'center', alignItems: 'center'}}>
-                        <View style={{height: normalize.setNormalize(200), width: normalize.setNormalize(200), backgroundColor: 'gray', borderRadius: 50, justifyContent: 'space-between', alignItems: 'center'}}>
-                            <View style={{width: '100%', paddingLeft: normalize.setNormalize(20), paddingTop: normalize.setNormalize(20)}}>
-                                <TouchableOpacity style={{backgroundColor: '#6AB664', borderRadius: 50, width: normalize.setNormalize(50), height: normalize.setNormalize(50), justifyContent: 'center', alignItems: 'center'}}
+                    <View style={libraryStyles.modalScreenContainer}>
+                        <View style={libraryStyles.modalContainer}>
+                            <View style={libraryStyles.modalXButtonContainer}>
+                                <TouchableOpacity style={libraryStyles.modalXButton}
                                 onPress= {()=> {
                                     setVisible(false)
                                 }}
                                 >
-                                    <AntDesign name="close" size={normalize.setNormalize(24)} color="white" />
+                                    <AntDesign 
+                                    name="close" 
+                                    size={normalize.setNormalize(24)} 
+                                    color="white" 
+                                    />
+
                                 </TouchableOpacity>
                             </View>
+
                             <View style={{paddingBottom: normalize.setNormalize(40)}}>
-                                <TouchableOpacity style={{backgroundColor: '#6AB664', padding: normalize.setNormalize(20), borderRadius: 50}}
+                                <TouchableOpacity style={libraryStyles.modalTextContainer}
                                 onPress = {()=>{
                                     handleSignOut()
                                 }}
@@ -946,103 +611,32 @@ function Library(props) {
                     </View>
 
                 </Modal>
+
                 <ScrollView
                 stickyHeaderIndices = {[1]}
                 style={{zIndex: 1}}
                 >
 
-
-                <View style={{
-                    alignItems: 'center',
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    width: '100%',
-                    paddingBottom: normalize.setNormalize(15),
-                    paddingTop: normalize.setNormalize(10), 
-
-                }}>
-                    <View style={{flex:1, flexDirection: 'row', backgroundColor:'gray',  justifyContent:'center', alignItems:'center',borderRadius: normalize.setNormalize(10), height: normalize.setNormalize(32), paddingHorizontal: normalize.setNormalize(5)}}>
+                <View style={libraryStyles.todaysGainContainer}>
+                    <View style={libraryStyles.todaysGainBackground}>
                         <Text style={{color: 'white', fontSize: normalize.setNormalize(14)}}>Today's Gain:</Text>
                         <Text style={{fontSize: normalize.setNormalize(14), color: color, fontWeight: '700'}}>{" " + toadysGain }</Text>
-
-
                     </View>
 
-                
-                
                 </View>
 
-                <View style={{ height: normalize.setNormalize(60), paddingTop: normalize.setNormalize(10), backgroundColor: 'rgba(0, 0, 0, 0.8)', justifyContent: 'space-between', zIndex: 100}}>
-                    <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
+                <View style={libraryStyles.allGainersLosersBackground}>
 
-                        <View style={{ width: '33%', alignItems: 'center'}}>
-                            <TouchableOpacity
-                        style={{width:'100%', alignItems:'center'}}
+                    <View style={libraryStyles.allGainersLosersContainer}>
 
-                            onPress = {()=> {
-                            handleClick(0)
-                            }}
-                            >
-                                <Text style={{color: 'white', fontSize: normalize.setNormalize(20), paddingRight: normalize.setNormalize(15), fontWeight: fontWeight[0]}}>All</Text>
-                                <View style={{paddingTop: normalize.setNormalize(15), width: '100%'}}>
-                                    <View style={{height: lineHeight[0], backgroundColor: 'white', width: '100%', opacity: 0.5}}></View>
-
-                                </View>
-
-                            </TouchableOpacity>
-
-                            
-
-                        </View>
-
-                        <View style={{ width: '34%', alignItems: 'center'}}>
-                            <TouchableOpacity
-
-                            style={{width:'100%', alignItems:'center'}}
-
-                            onPress = {()=> {
-                                handleClick(1)
-                                // allGainersLosers("Gainers")
-                               
-                            }}
-
-                            >
-                            <Text style={{color: 'white', fontSize: normalize.setNormalize(20), fontWeight: fontWeight[1]}}>Gainers</Text>
-                            <View style={{paddingTop: normalize.setNormalize(15), width: '100%'}}>
-                                    <View style={{height: lineHeight[1], backgroundColor: 'white', width: '100%', opacity: 0.5}}></View>
-
-                                </View>
-
-                            </TouchableOpacity>
-                        </View>
-
-
-                        <View style={{ width: '33%', alignItems: 'center'}}>
-
-                        <TouchableOpacity
-                        
-                        style={{width:'100%', alignItems:'center'}}
-                        onPress = {()=> {
-                            handleClick(2)
-                        }}
-                        >
-                            <Text style={{color: 'white', fontSize: normalize.setNormalize(20), paddingLeft: normalize.setNormalize(15), fontWeight: fontWeight[2]}}>Losers</Text>
-                            <View style={{paddingTop: normalize.setNormalize(15), width: '100%'}}>
-                                    <View style={{height: lineHeight[2], backgroundColor: 'white', width: '100%', opacity: 0.5}}></View>
-
-                                </View>
-
-                        </TouchableOpacity>
-
-
-                        </View>
-
-
+                        {allGainersLosers(0, "All")}
+                        {allGainersLosers(1, "Gainers")}
+                        {allGainersLosers(2, "Losers")}
 
                     </View>
 
                     
                 </View>
-
 
                 {stockContainers()}
             
@@ -1050,9 +644,118 @@ function Library(props) {
             </ScrollView>
 
 
-            </View>
-        )
-    // }
+        </View>
+    )
 }
 
 export default Library;
+
+const libraryStyles = StyleSheet.create({
+    removeContainer: {
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        paddingHorizontal: normalize.setNormalize(10), 
+        paddingBottom: normalize.setNormalize(20)
+    }, 
+    graphicContainer: {
+        position: 'absolute', 
+        top: normalize.setNormalize(90), 
+        width: '100%', 
+        height: normalize.setNormalize(800), 
+        opacity: 0.06, 
+        zIndex: 0
+    },
+
+    headerContainer: {
+        width: '100%', 
+        justifyContent: 'space-between', 
+        flexDirection: 'row'
+    },
+
+    modalScreenContainer: {
+        flex:1, 
+        justifyContent: 'center', 
+        alignItems: 'center'
+    },
+
+    modalContainer: {
+        height: normalize.setNormalize(200), 
+        width: normalize.setNormalize(200), 
+        backgroundColor: 'gray', 
+        borderRadius: 50, 
+        justifyContent: 'space-between', 
+        alignItems: 'center'
+    },
+
+    modalXButtonContainer: {
+        width: '100%', 
+        paddingLeft: normalize.setNormalize(20), 
+        paddingTop: normalize.setNormalize(20)
+    },
+
+    modalXButton: {
+        backgroundColor: '#6AB664', 
+        borderRadius: 50, 
+        width: normalize.setNormalize(50), 
+        height: normalize.setNormalize(50), 
+        justifyContent: 'center', 
+        alignItems: 'center'
+    },
+
+    modalTextContainer: {
+        backgroundColor: '#6AB664', 
+        padding: normalize.setNormalize(20), 
+        borderRadius: 50
+    },
+
+    todaysGainContainer: {
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        width: '100%',
+        paddingBottom: normalize.setNormalize(15),
+        paddingTop: normalize.setNormalize(10), 
+    },
+
+    todaysGainBackground: {
+        flex:1, 
+        flexDirection: 'row', 
+        backgroundColor:'gray',  
+        justifyContent:'center', 
+        alignItems:'center',
+        borderRadius: normalize.setNormalize(10), 
+        height: normalize.setNormalize(32), 
+        paddingHorizontal: normalize.setNormalize(5)
+    },
+
+    allGainersLosersBackground: { 
+        height: normalize.setNormalize(60), 
+        paddingTop: normalize.setNormalize(10), 
+        backgroundColor: 'rgba(0, 0, 0, 0.8)', 
+        justifyContent: 'space-between'
+    },
+
+    allGainersLosersContainer: {
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        width: '100%'
+    },
+
+    allGainersLosersText: {
+        color: 'white', 
+        fontSize: normalize.setNormalize(20), 
+        paddingRight: normalize.setNormalize(15), 
+       
+    },
+
+    linePadding: {
+        paddingTop: normalize.setNormalize(15), 
+        width: '100%'
+    },
+
+    line: {
+       backgroundColor: 'white', 
+       width: '100%', 
+       opacity: 0.5
+    }
+    
+})

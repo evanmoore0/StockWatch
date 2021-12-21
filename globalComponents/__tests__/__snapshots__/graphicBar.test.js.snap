@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<GraphicBar/> renders correctly 1`] = `
+<View
+  style={
+    Object {
+      "top": NaN,
+      "transform": Array [
+        Object {
+          "scale": 50,
+        },
+      ],
+    }
+  }
+>
+  <View
+    style={
+      Object {
+        "backgroundColor": undefined,
+        "borderRadius": 56,
+        "height": NaN,
+        "width": NaN,
+      }
+    }
+  />
+</View>
+`;

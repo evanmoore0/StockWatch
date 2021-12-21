@@ -18,7 +18,6 @@ const GlobalStyles = StyleSheet.create({
         marginHorizontal: normalize.setNormalize(16),
         marginTop: normalize.setNormalize(60),
     
-
     },
 
     buttonContainer: {
@@ -37,7 +36,26 @@ const GlobalStyles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'stretch',
         
-    }
+    },
+    stockContainer: {
+        width: '100%', 
+        justifyContent: 'space-between', 
+        flexDirection: 'row', 
+        alignItems: 'flex-start', 
+        backgroundColor: 'rgba(82,82,82,0.3)', 
+        borderRadius: 30, 
+        paddingHorizontal: normalize.setNormalize(20), 
+        alignItems: 'center',
+        paddingVertical: normalize.setNormalize(16)
+    },
+    graphicContainer: {
+        position: 'absolute', 
+        top: normalize.setNormalize(60), 
+        width: '100%', 
+        height: normalize.setNormalize(800), 
+        opacity: 0.04, 
+        backgroundColor:'black'
+    },
 })
 
 export default GlobalStyles;

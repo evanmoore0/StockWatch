@@ -3,12 +3,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import {View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions, Alert, FlatList, Image, ActivityIndicator} from 'react-native';
 
+//Victory Native components (Graph)
+import {VictoryLine, createContainer, LineSegment, VictoryTooltip} from 'victory-native'
 
-import {VictoryLine, VictoryGroup, VictoryAxis, createContainer, LineSegment, VictoryTooltip, VictoryCursorContainer, VictoryContainer, VictoryVoronoiContainer} from 'victory-native'
-
+//Config file (API Key)
 import config from "../config";
 
+//Linking
 import * as Linking from 'expo-linking'
+
 //Normailize function
 import normalize from "../utils/normalize";
 
@@ -16,18 +19,17 @@ import normalize from "../utils/normalize";
 import { Ionicons } from '@expo/vector-icons';
 
 //Firebase imports
-import {auth, db} from '../utils/firebase-config';
+import {db} from '../utils/firebase-config';
 
 //Components
-import Graphic from "../globalComponents/graphic";
 import StockContainer from "../globalComponents/stockContainer";
-
+import Constants from "../Constants";
+import GlobalStyles from "../utils/globalStyles";
 
 
 function StockDisplay(props) {
 
     //Hooks
-
     //Background color of stock buttons
     const [color, setColor] = useState(['#6AB664', 'black', 'black', 'black', 'black'])
 
@@ -37,43 +39,34 @@ function StockDisplay(props) {
     const [render, setRender] = useState(true)
 
     //Data for the stock from polygon API
-    const [description, setDescription] = useState('')
-    const [sector, setSector] = useState('')
-    const [tags, setTags] = useState([])
-    const [url, setUrl] = useState('')
-    const [hqState, setHQState] = useState('')
-    const [employees, setEmployees] = useState('')
-    const [marketCap, setMarketCap] = useState('')
-    const [ceo, setCeo] = useState('')
-    const [similar, setSimilar] = useState([])
-    const [exchange, setExchange] = useState('')
-    const [listDate, setListDate] = useState('')
-    const [phoneNumber, setPhoneNumber] = useState('')
+    const [infoData, setInfoData] = useState([])
+  
+    //News data for stock
     const [newsData, setNewsData] = useState([])
 
+    //Open price
     const [open, setOpen] = useState(0);
     
-
+    //Get the percentChange for the stock if I haven't already gotten it
     const [percentChange, setPercentChange] = useState(0)
 
-    const [prevPoint, setPrevPoint] = useState(0)
-
+    //Update the score for the stock
     const [score, setPropsScore] = useState(0)
 
+    //Whether the component is loading or not
     const [loading, setLoading] = useState(true)
+
+    //Data for the graph
     const [graphData, setGraphData] = useState([])
 
-    const isInitialMount = useRef(true);
-
-    const [scroll, setScroll] = useState(true);
-
-    const [dateString, setDateString] = useState("")
-
+    //Data for week/month/year/day -> so I don't have to get the data again if user
+    //switches back on graph
     const [weekData, setWeekData] = useState([])
     const [monthData, setMonthData] = useState([])
     const [yearData, setYearData] = useState([])
     const [dayData, setDayData] = useState([])
 
+    //Container cursor/voronoi container for graph
     const Container = createContainer("voronoi", "cursor")
 
     //Sets the text color/ background color of a stock button
@@ -89,74 +82,65 @@ function StockDisplay(props) {
         setColor(tempColor)
         setTextColor(tempTextColor)
 
-        // if(i == 0) {
-        //     setGraphData(dayData)
-        // } else if (i == 1 && weekData == []) {
-        //     getGraphData()
-        // }
     }
 
-    const getOtherGraphData = (i) => {
-        let date = new Date()
-        let day = date.getDate()
-        let month = date.getMonth()
-        let year = date.getFullYear()
-
-
-        if(i == 0) {
-
-            getGraphData(year.toString() + "-" + month.toString() + "-" + (day-1).toString(), year.toString() + "-" + month.toString() + "-" + day.toString(), "minute", "1")
-
-
-        } else if (i == 1) {
-            getGraphData(year.toString() + "-" + month.toString() + "-" + (day-7).toString(), year.toString() + "-" + month.toString() + "-" + day.toString(), "minute", "1")
-
-        } else if(i==2){
-            getGraphData(year.toString() + "-" + (month-1).toString() + "-" + day.toString(), year.toString() + "-" + month.toString() + "-" + day.toString(), "day", "1")
-
+    //If missing data in info set the text to be No Data
+    const checkInfoData = (result) => {
+        if(result == undefined) {
+            return "No Data"
         } else {
-            getGraphData((year-1).toString() + "-" + month.toString() + "-" + (day-7).toString(), year.toString() + "-" + month.toString() + "-" + day.toString(), "week", "1")
-
-
+            return result
         }
     }
 
-    // const setOtherGraphData = (i) => {
-    //     if(i == 1) {
-    //         setGraphData(weekData)
-    //     } else if (i==2) {
-    //         setGraphData(monthData)
-    //     } else {
-    //         setGraphData(yearD)
-    //     }
-    // }
+    //Displays add button if supposed to
+    const addButton = () => {
+        if(props.route.params.stock.display) {
+            return(
+                <TouchableOpacity
+                style = {{paddingRight: normalize.setNormalize(16)}}
+                onPress = {() => {      
+                    //Update the score of the stock when someone adds it to their library
+                    //Navigate to library page and pass it percent change, ticker, stock name
+                    props.navigation.navigate('TabStack', {
+                        screen: 'Library',
+                        params: {
+                            stock: {
+                                sName: props.route.params.stock.sName,
+                                ticker: props.route.params.stock.ticker,
+                                score: score,
+                                percentChange: percentChange
+                                // percentChange: props.route.params.stock.percentChange
+                            }
+                        }
+                    })
+                }}
+                >
+    
+                    <Ionicons 
+                    name="add" 
+                    size={normalize.setNormalize(30)} 
+                    color="white" 
+                    />
+    
+                </TouchableOpacity>
+            )
+        } else {
+            return <View></View>
+        }
+    }
 
-    const {
-        height: SCREEN_HEIGHT,
-        width: SCREEN_WIDTH,
-    } = Dimensions.get('window')
+    //Displays info data
+    const infoDataDisplay = (label, index) => {
+        return(
+            <View style={stockDisplayStyles.infoDataContainer}>
+                    <Text style={stockDisplayStyles.tableText}>{label + ":"}</Text>
+                    <Text style={{color: 'white', fontSize: normalize.setNormalize(13)}}>{checkInfoData(infoData[index])}</Text>
+            </View>
+        )
+    }
 
-    // const stockComponentRender = () => {
-    //     if(render) {
-    //         console.log("IN STOCK COMPONENT askdlfjsd")
-    //         console.log(similar)
-    //         setRender(false)
-    //         return(
-                
-    //         )
-    //     }
-    // }
-
-    // useEffect(() => {
-    //    if(isInitialMount.current) {
-    //        isInitialMount.current = false;
-    //    } else {
-    //        if(render) {
-    //            stockComponentRender()
-    //        }
-    //    }
-    // });
-
+   
     //Updates the score of the stock
     const setScore = async () => {
         let tempScore = 0
@@ -186,7 +170,8 @@ function StockDisplay(props) {
 
     //Get the stock data from polygon API for the searched stock
     const getData = async () => {
-        // console.log("AT GET DATA")
+
+        let tempData = []
         
         try {
             await fetch('https://api.polygon.io/v1/meta/symbols/' + props.route.params.stock.ticker + '/company?apiKey=' + config.POLYGON_API_KEY)
@@ -197,31 +182,38 @@ function StockDisplay(props) {
             )
             .then(
                 function(data) {
-                    //Update the hooks
-                    setSimilar(data.similar)
-                    setDescription(data.description)
-                    setTags(data.tags)
-                    setCeo(data.ceo)
-                    setHQState(data.hq_state)
-                    setMarketCap(data.marketcap)
-                    setSector(data.sector)
-                    setEmployees(data.employees)
-                    setUrl(data.url)
-                    setExchange(data.exchangeSymbol)
-                    setPhoneNumber(data.phone)
-                    setListDate(data.listdate)
+                    //Use one hook to store all data
+                    tempData = [
+                        data.similar,
+                        data.description,
+                        data.tags,
+                        data.ceo,
+                        data.hq_state,
+                        data.marketcap,
+                        data.sector,
+                        data.employees,
+                        data.url,
+                        data.exchangeSymbol,
+                        data.phone,
+                        data.listdate,
+                    ]
+
+                    setInfoData(tempData)
+
+                    //Display loading screen when data is loading (Prevent component from updating multiple times)
                     setRender(false)
                 }
             )
         } catch (error) {
-            Alert.alert(error)
+            Alert.alert("Sorry we couldn't get description information for this stock :(")
+            setRender(false)
         }
     }
 
+    //Only get the percent change if the user didn't click on a trending stock (Already get percent change for trending on stocks page)
     const getPercentChange = async () => {
-        // console.log("props")
-        // console.log(props.route.params.stock.percentChange)
-
+       
+        //Check to see if stock is coming from trending page -> if not
         if(props.route.params.stock.percentChange == undefined) {
 
             try {
@@ -234,17 +226,17 @@ function StockDisplay(props) {
                 )
                 .then(
                     function(data) {
-                        // console.log("PERCENT CHANGE")
-                        // console.log(data.tickers.todaysChangePerc)
-                        setPercentChange(data.tickers.todaysChangePerc)
+                        setPercentChange(data.ticker.todaysChangePerc)
                     }
                 )
                 
             } catch (error) {
-                
+                //If no data for percent change, set to be 0
+                setPercentChange(0)
             }
 
         } else {
+            //If stock is coming from stocks page
             setPercentChange(props.route.params.stock.percentChange)
         }
         
@@ -262,45 +254,22 @@ function StockDisplay(props) {
             )
             .then(
                 function(data) {
-
                     setNewsData(data.results)
-                    // console.log(data.results)
                 }
             )
             
         } catch (error) {
-            Alert.alert(error)
+            Alert.alert("Sorry we couldn't get news data for this stock :(")
         }
     }
 
-    //Set the score, get data, get news when the component is mounted
-    useEffect(() => {
-        // console.log("in getData call")
-        // console.log("in StockDisplay")
-
-        let date = new Date()
-        let day = date.getDate()
-        let month = date.getMonth().toString()
-        let year = date.getFullYear().toString()
-
-        setDateString(year + "-" + month + "-" + day)
-
-
-    //    setDateString(year + "-" + month + "-" + day)
-    //    console.log(dateString)
-        getData()
-        getNews()
-        getPercentChange()
-        setScore()
-        getGraphData(year + "-" + month + "-" + (day-1).toString(),year + "-" + month + "-" + day.toString(), "minute", "1")
-     
-     }, [props]);
-
-     const getGraphData = async(startDate, endDate, timespan, multiplier) => {
-         let ok = []
-        //  console.log(props.route.params.ticker)
-        console.log("IN get data")
-        console.log(dateString)
+    //Get the graph data from the start date to the end date
+    //timespan: timeperiod for which get data points 
+    //multiplier: number of data points getting in the time span 
+    // - example: timespan = "day" multiplier = "1" will get 1 day data point for each day from startDate to endDate
+    //period: use to set hooks of day/week/month/year so don't have to make api call everytime user switches between them
+    const getGraphData = async (startDate, endDate, timespan, multiplier, period) => {
+        let tempGraphData = []
         try {
             await fetch('https://api.polygon.io/v2/aggs/ticker/' + props.route.params.stock.ticker + '/range/' + multiplier + '/'+ timespan + '/' + startDate + '/' + endDate + '?adjusted=true&sort=asc&limit=120&apiKey=' + config.POLYGON_API_KEY)
             .then(
@@ -311,159 +280,169 @@ function StockDisplay(props) {
             .then(
 
                 function(data) {
+                    //Use the first opening price to calculate the percent change
                     setOpen(data.results[0].h)
+
                     for(let date in data.results) {
                         
-                        ok.push(
+                        tempGraphData.push(
                             {
                                 x: date,
                                 y: data.results[date].h
-                                // open: data.results[date].o,
-                                // close: data.results[date].c,
-                                // high: data.results[date].h,
-                                // low: data.results[date].l
-                                
                             }
                         )
                     }
-                    setGraphData(ok)
+                    
+                    setGraphData(tempGraphData)
 
-                    if(timespan == "day") {
-                        setDayData(ok)
-                    } else if (timespan == "week") {
-                        setWeekData(ok)
-                    } else if (timespan == "month") {
-                        setMonthData(ok)
+                    if(period == "day") {
+                        setDayData(tempGraphData)
+                    } else if (period == "week") {
+                        console.log("in week data get graph data")
+                        setWeekData(tempGraphData)
+                    } else if (period == "month") {
+                        setMonthData(tempGraphData)
                     } else {
-                        setYearData(ok)
+                        setYearData(tempGraphData)
                     }
- 
 
                 }
 
             )
         } catch (error) {
 
+            Alert.alert("Up oh we couldn't fetch the graph data sorry :(")
+            //Set open and graph data so graph doesn't throw error when calculating percent change
+            setOpen(0)
+            setGraphData([{x:0, y:0}])
 
-            
         } finally {
             setLoading(false)
         }
-     }
+    }
 
+    //Call this the first time user presses on week, month, year and the first time the app is loaded
+     const getOtherGraphData = (i) => {
+        //Get the current date
+        let date = new Date()
+        let startDay = date.getDate()
+        let endDay = date.getDate()
+        let startMonth = date.getMonth()
+        let endMonth = date.getMonth()
+
+        let year = date.getFullYear()
+
+
+        //If user presses on 1D button
+        if(i == 0) {
+            //Check to make sure I won't send 0 as day (if the date day is 1)
+            //Set to be 28 because it is the least number of days a month can have
+            //WILL UPDATE THIS LATER
+            if(endDay == 1) {
+                startMonth = startMonth - 1
+                startDay = 28
+            } else {
+                startDay = startDay - 1
+            }
+
+            getGraphData(year.toString() + "-" + startMonth.toString() + "-" + startDay.toString(), year.toString() + "-" + endMonth.toString() + "-" + endDay.toString(), "minute", "1", "day")
+
+        //If user presses on 1W button
+        } else if (i == 1) {
+            //Make sure not sending negative number or 0 to api
+            if(endDay <= 7) {
+                startDay = startDay - 7 + 28
+                startMonth = startMonth - 1
+            } else {
+                startDay = startDay - 7
+            }
+
+            getGraphData(year.toString() + "-" + startMonth.toString() + "-" + startDay.toString(), year.toString() + "-" + endMonth.toString() + "-" + endDay.toString(), "minute", "1", "week")
+
+        //If user presses 1M
+        } else if(i==2){
+
+            if(endMonth == 1) {
+                startMonth = 12
+                year = year - 1
+            } else {
+                startMonth = startMonth - 1
+            }
+
+            getGraphData(year.toString() + "-" + startMonth.toString() + "-" + startDay.toString(), year.toString() + "-" + endMonth.toString() + "-" + endDay.toString(), "day", "1", "month")
+        //User presses 1Y
+        } else {
+
+            getGraphData((year-1).toString() + "-" + startMonth.toString() + "-" + startDay.toString(), year.toString() + "-" + endMonth.toString() + "-" + endDay.toString(), "week", "1", "year")
+
+        }
+    }
+
+    //Set the score, get data, get news when the component is mounted
+    useEffect(() => {
+
+        getData()
+        getNews()
+        getPercentChange()
+        setScore()
+        getOtherGraphData(0)
+     
+     }, [props]);
     
 
+     //Graph, while data is loading shows activity indicator
      const graph = () => {
         if(loading) {
-            return (<ActivityIndicator
-                color = "white"
-                size = {20}
-                />)
-            
+            return (
+            <ActivityIndicator
+                color = {Constants.THEME_COLOR.blue}
+                size = 'large'
+            />
+            )
         } else {
             return(
-               
-          
+                //Graph
+                <VictoryLine 
+                data = {graphData}
+                padding = {{top: normalize.setNormalize(40)}}
+                //Sets color of line to be theme green
+                style = {{data: {stroke: Constants.THEME_COLOR.green, strokeWidth: 2}}}
 
-                // <VictoryContainer
+                containerComponent = {
+                    <Container
+                    //Line that displays percent change
+                    cursorComponent={<LineSegment style={{stroke:"white", strokeWidth: 1.5}}/>}
+                    //Calculates percent change
+                    labels = {(point)=> "% " + (Math.round((((point.datum.y-open)/open)*100)*100)/100).toString()}
 
-                // width = {SCREEN_WIDTH}
-                // padding = {0}
-               
-                
-                // containerComponent = {
-                //     <Container
-
-                //     // labelComponent = {<VictoryLabel style={{fill:"red"}}/>}
-                   
-                //     voronoiDimension = "x"
-                //     // cursorDimension = "x"
-                //     // labelComponent={<LineSegment style={{stroke:"white"}}/>}
-                    
-                   
-                //     // labels = {(point) => ()=> <LineSegment style={{stroke:"white"}}/>}
-                //     // standAlone = {false}
-
-                //     // mouseFollowToolTips
-                //     // activateData = {true}
-                //     onActivated = {(points, props) => setPrevPoint(points[0].y)}
-                //     // onMouseMove = {(value) => console.log(value)}
-                //     // onCursorChange = {(value) => console.log(value)}
-                //     // onDeactivated = {()=> console.log("hi")}
-                //     // labelComponent={<VictoryLabel style={{fill:"red"}}/>}
-                //     // cursorLabel = {(point)=> point.datum.y}
-                  
-                //     />}
-                // >
-                    <VictoryLine data = {graphData}
-                    padding = {{top: normalize.setNormalize(40)}}
-                    style = {{
-                        data: {stroke: '#6AB664', strokeWidth: 1}
-                    }}
-                    containerComponent = {
-                        <Container
-                            cursorComponent={<LineSegment style={{stroke:"white", strokeWidth: 1}}/>}
-                            // onActivated = {(points) => updatePercentChange(points[0].y)}
-                            labels = {(point)=> "% " + (Math.round((((point.datum.y-open)/open)*100)*100)/100).toString()}
-                            cursorDimension = "x"
-                            voronoiDimension = "x"
-                            // defaultCursorValue = {1}
-                            // onCursorChange = {()=> {
-                            //     setScroll(false)
-                            // }}
-                            // onDeactivated = {()=> {
-                            //     setScroll(true)
-                            // }}
-
-                            labelComponent = {
-                                <VictoryTooltip
-                                style={{fill:'white', fontFamily: 'system font', fontSize: normalize.setNormalize(13)}}
-                                flyoutStyle = {{fill: 'black', strokeWidth: 0}}
-                                center = {{x:normalize.setNormalize(30), y: normalize.setNormalize(10)}}
-                                pointerLength = {0}
-                                
-                                />
-                            }
-                            // onDeactivated = {(points) => updatePercentChange(points[0].y)}
+                    cursorDimension = "x"
+                    voronoiDimension = "x"
+                      
+                    //Displays percent change
+                    labelComponent = {
+                        <VictoryTooltip
+                        style = {{fill:'white', fontFamily: 'system font', fontSize: normalize.setNormalize(13)}}
+                        flyoutStyle = {{fill: 'black', strokeWidth: 0}}
+                        center = {{x:normalize.setNormalize(30), y: normalize.setNormalize(10)}}
+                        pointerLength = {0}
                         
                         />
-                        // <VictoryVoronoiContainer
-                        // labels = {(point) => point.datum.y}
-                        // onActivated = {()=> {console.log("false")}}
-                        // onDeactivated = {()=> {console.log("true")}}
-                        // voronoiDimension = "x"
-
-                        // />
-                    }
-
-                    // width = {SCREEN_WIDTH}
-                    
-                    // padding = {0}
-                    
-
-                    // padding = {{top:40}}
-                   
-
-                
-                    
-                   
-                    >
-                        
-                        </VictoryLine>
-                        
-
-
-                
+                    }/>
+                }>      
+                </VictoryLine>  
             )
         }
      }
 
+     //While the rest of the data is loading display activity indicator
     if(render) {
         return(
-            <View style={{flex:1, justifyContent: 'center', alignItems: 'center'}}>
-                <Text style={{color: 'red'}}>
-                    Loading...
-                </Text>
+            <View 
+            style = {{flex:1, justifyContent: 'center', alignItems: 'center'}}>
+                <ActivityIndicator
+                size = "large"
+                color = {Constants.THEME_COLOR.blue}
+                />
             </View>
         )
     }
@@ -471,83 +450,48 @@ function StockDisplay(props) {
 
         //Container for page
         <View 
-        
-        style = {
-            {
-                justifyContent: 'center', 
-                flex: 1, 
-                marginTop: normalize.setNormalize(40), 
-                // marginHorizontal: normalize.setNormalize(30)
-            }
-        }>
+        style = {stockDisplayStyles.pageContainer}
+        >
             {/*
             Allows page to scroll
             */}
             <ScrollView
             showsVerticalScrollIndicator = {false}
-            scrollEnabled = {scroll}
+            stickyHeaderIndices={[1]}
             
             >
-
                 {/*
                 Container for back button and add button
                 */}
                 <View 
-                style = {
-                    {
-                        width: '100%', 
-                        justifyContent: 'space-between', 
-                        alignItems: 'center', 
-                        paddingBottom: normalize.setNormalize(10), 
-                        flexDirection: 'row'
-                    }
-                }>
+                style = {stockDisplayStyles.headerContainer}>
                     {/* 
                     Back button
                     */}
                     <TouchableOpacity
+                    style = {{flexDirection: 'row', alignItems: 'center'}}
                     onPress={() => {
                         props.navigation.replace('TabStack')
                     }}
                     >
+
                         <Ionicons 
                         name="chevron-back-outline" 
                         size={normalize.setNormalize(30)} 
                         color="white" 
                         />
 
+                        <Text style={{fontSize: normalize.setNormalize(20), fontWeight: Constants.STOCK_NAME_FONT.weight, color: 'gray'}}>
+                            {"$" + props.route.params.stock.ticker}
+                        </Text>
+
                     </TouchableOpacity>
 
                     {/* 
                     Add button
                     */}
-                    <TouchableOpacity
-                    onPress = {() => {
-                        
-                        //Update the score of the stock when someone adds it to their library
-                        //Navigate to library page and pass it percent change, ticker, stock name
-                        props.navigation.navigate('TabStack', {
-                            screen: 'Library',
-                            params: {
-                                stock: {
-                                    sName: props.route.params.stock.sName,
-                                    ticker: props.route.params.stock.ticker,
-                                    score: score,
-                                    percentChange: percentChange
-                                    // percentChange: props.route.params.stock.percentChange
-                                }
-                            }
-                        })
-                    }}
-                    >
-
-                        <Ionicons 
-                        name="add" 
-                        size={normalize.setNormalize(30)} 
-                        color="white" 
-                        />
-
-                    </TouchableOpacity>
+                    {addButton()}
+                   
 
                 </View>
 
@@ -555,17 +499,12 @@ function StockDisplay(props) {
                 Stock name and ticker
                 */}
                 <View 
-                style = {
-                    {
-                        width:'100%', 
-                        alignItems: 'center'
-                    }
-                }>
+                style = {stockDisplayStyles.titleScoreContainer}>
 
                     <Text 
                     style = {
                         {
-                            fontSize: normalize.setNormalize(20), 
+                            fontSize: normalize.setNormalize(35), 
                             color: 'white'
                         }
                     }>
@@ -575,68 +514,57 @@ function StockDisplay(props) {
                     <Text
                     style = {
                         {
-                            color: 'gray'
+                            paddingTop: normalize.setNormalize(10),
+                            color: Constants.THEME_COLOR.blue,
+                            fontWeight: 'bold'
                         }
                     }>
-                        {'$' + props.route.params.stock.ticker}
-                    </Text>
-
-                    <Text style={{color:'red'}}>
-                        {"HI"}
+                        {'Score: ' + score}
                     </Text>
 
                     
 
                 </View>
 
-                
-                {/* <View style={{width: '100%', height: normalize.setNormalize(400), justifyContent: 'center', alignItems: 'center'}}> */}
-                    
-                    <View style={{flex:1, justifyContent:'center', alignItems:'center', paddingTop: normalize.setNormalize(20)}}
+                {/**
+                 * Graph
+                 */}
+                <View style={{flex:1, justifyContent:'center', alignItems:'center', paddingTop: normalize.setNormalize(20)}}
                     >
                     {graph()}
-                    </View>
+                </View>
                        
-
-
-                {/* </View> */}
-
                 {/* 
                 Graph buttons
                 */}
-                <View style={{flex:1, justifyContent:'center', marginHorizontal: normalize.setNormalize(30)}}>
-                <View 
-                style = {
-                    {
-                        width: '100%', 
-                        height: normalize.setNormalize(50), 
-                        paddingTop: normalize.setNormalize(20),
-                        flexDirection:'row', 
-                        justifyContent: 'space-between',
-                        // marginHorizontal: normalize.setNormalize(30)
-                    }
-                }>
+                <View style={stockDisplayStyles.restOfPageContainer}>
+                    <View 
+                    style = {stockDisplayStyles.allGraphButtonsContainer}>
 
                     <TouchableOpacity
                     onPress= {()=>{
                         handleColor(0)
-                        getOtherGraphData(0)
+                        setGraphData(dayData)
                         
                     }}
                     style={[stockDisplayStyles.buttonContainer, {backgroundColor: color[0]}]}
                     >
+
                         <Text style={[stockDisplayStyles.buttonText, {color: textColor[0]}]}>1D</Text>
+
                     </TouchableOpacity>
 
                     <TouchableOpacity
                      onPress= {()=>{
                         handleColor(1)
-                       
+                        if(weekData.length == 0) {
                             getOtherGraphData(1)
+                        } else {
+                            setGraphData(weekData)
+                        }
                         
                     }}
                     style={[stockDisplayStyles.buttonContainer, {backgroundColor: color[1]}]}
-                    
                     >
                         <Text style={[stockDisplayStyles.buttonText, {color: textColor[1]}]}>1W</Text>
                     </TouchableOpacity>
@@ -644,8 +572,11 @@ function StockDisplay(props) {
                     <TouchableOpacity
                      onPress= {()=>{
                         handleColor(2)
-                        
+                        if(monthData.length == 0) {
                             getOtherGraphData(2)
+                        } else {
+                            setGraphData(monthData)
+                        }
                         
                     }}
                     style={[stockDisplayStyles.buttonContainer, {backgroundColor: color[2]}]}
@@ -657,8 +588,14 @@ function StockDisplay(props) {
                     <TouchableOpacity
                      onPress= {()=>{
                         handleColor(3)
-                        
+
+                        if(yearData.length == 0) {
                             getOtherGraphData(3)
+                        } else {
+                            
+                            setGraphData(yearData)
+                        }
+                        
                         
                     }}
                     style={[stockDisplayStyles.buttonContainer, {backgroundColor: color[3]}]}
@@ -667,44 +604,34 @@ function StockDisplay(props) {
                         <Text style={[stockDisplayStyles.buttonText, {color: textColor[3]}]}>1Y</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity
-                     onPress= {()=>{
-                        handleColor(4)
-                    }}
-                    style={[stockDisplayStyles.buttonContainer, {backgroundColor: color[4]}]}
-
-                    >
-                        <Text style={[stockDisplayStyles.buttonText, {color: textColor[4]}]}>All</Text>
-                    </TouchableOpacity>
-            </View>
+                </View>
                 
                 <View style={{paddingVertical: normalize.setNormalize(30)}}>
-                    <View style={{width: '100%', backgroundColor: 'white', height: 0.5, opacity: 0.2}}></View>
+                    <View style={stockDisplayStyles.borderLine}></View>
 
                 </View>
 
+                {/**
+                 * Tags
+                 */}
                 <View style={{width: '100%', alignItems: 'center', paddingBottom: normalize.setNormalize(30), flexDirection: 'row', display: 'flex'}}>
                 
-                <FlatList
-                    data = {tags}
+                    <FlatList
+                    data = {infoData[2]}
                     horizontal         
                     showsHorizontalScrollIndicator = {false}           
                     renderItem={({item})=>(
-                    <View style={{paddingHorizontal: 10}}>
-                        <View style={{borderRadius: 30, backgroundColor: '#3B3939', paddingHorizontal: normalize.setNormalize(10), paddingVertical: normalize.setNormalize(5), justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'white'}}>
-                            <Text key={item} style={{color: 'white'}}>{item}</Text>
+                        <View style={{paddingHorizontal: 10}}>
+                            <View style={{borderRadius: 30, backgroundColor: '#3B3939', paddingHorizontal: normalize.setNormalize(10), paddingVertical: normalize.setNormalize(5), justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'white'}}>
+                                <Text key={item} style={{color: 'white'}}>{item}</Text>
+                            </View>
                         </View>
-                    </View>
-                            
-                       
-                        
                     )}
                     />
-                       
                 </View>
 
                 <View style={{paddingBottom: normalize.setNormalize(30)}}>
-                    <View style={{width: '100%', backgroundColor: 'white', height: 0.5, opacity: 0.4}}></View>
+                    <View style={stockDisplayStyles.borderLine}></View>
 
                 </View>
 
@@ -712,125 +639,75 @@ function StockDisplay(props) {
                     {'About ' + props.route.params.stock.sName}
                 </Text>
 
-                <View style={{width: '100%', backgroundColor: '#3B3939', borderRadius: normalize.setNormalize(10), flex:1, padding:normalize.setNormalize(15)}}>
+                <View style={stockDisplayStyles.descriptionContainer}>
                     <Text style={{color: 'white'}}>
-                        {description}
+                        {infoData[1]}
                     </Text>
-
                 </View>
 
+                {/**
+                 * Displays infoData
+                 */}
                 <View style={{flexDirection: 'row', width:'100%', paddingTop: normalize.setNormalize(20), paddingLeft: normalize.setNormalize(10), paddingBottom: normalize.setNormalize(20)}}>
                     <View style={{width: '50%'}}>
-                        <View style={stockDisplayStyles.descriptionContainer}>
-                            <Text style={stockDisplayStyles.tableText}>{"CEO: "}</Text>
-                            <Text style={{color: 'white', fontSize: normalize.setNormalize(13)}}>{ceo}</Text>
-                        </View>
-                        <View style={stockDisplayStyles.descriptionContainer}>
-                            <Text style={stockDisplayStyles.tableText}>{"Employees: "}</Text>
-                            <Text style={{color: 'white', fontSize: normalize.setNormalize(13)}}>{employees}</Text>
-                        </View>
-                        <View style={stockDisplayStyles.descriptionContainer}>
-                            <Text style={stockDisplayStyles.tableText}>{"Sector: "}</Text>
-                            <Text style={{color: 'white', fontSize: normalize.setNormalize(13)}}>{sector}</Text>
-                        </View>
-                        <View style={stockDisplayStyles.descriptionContainer}>
-                            <Text style={stockDisplayStyles.tableText}>{"Phone Number: "}</Text>
-                            <Text style={{color: 'white', fontSize: normalize.setNormalize(13)}}>{phoneNumber}</Text>
-                        </View>
+                      
+                        {infoDataDisplay("CEO", 3)}
+                        {infoDataDisplay("Employees", 7)}
+                        {infoDataDisplay("Sector", 6)}
+                        {infoDataDisplay("Phone Number", 10)}
+            
                     </View>
+
                     <View style={{width: '50%'}}>
-                        <View style={stockDisplayStyles.descriptionContainer}>
-                            <Text style={stockDisplayStyles.tableText}>{"Market Cap: "}</Text>
-                            <Text style={{color: 'white', fontSize: normalize.setNormalize(13)}}>{marketCap}</Text>
-                        </View>
-                        <View style={stockDisplayStyles.descriptionContainer}>
-                            <Text style={stockDisplayStyles.tableText}>{"Headquarters: "}</Text>
-                            <Text style={{color: 'white', fontSize: normalize.setNormalize(13)}}>{hqState}</Text>
-                        </View>
-                        <View style={stockDisplayStyles.descriptionContainer}>
-                            <Text style={stockDisplayStyles.tableText}>{"Exchange: "}</Text>
-                            <Text style={{color: 'white', fontSize: normalize.setNormalize(13)}}>{exchange}</Text>
-                        </View>
-                        <View style={stockDisplayStyles.descriptionContainer}>
-                            <Text style={stockDisplayStyles.tableText}>{"List Date: "}</Text>
-                            <Text style={{color: 'white', fontSize: normalize.setNormalize(13)}}>{listDate}</Text>
-                        </View>
-                        {/* <Text style={stockDisplayStyles.tableText}>{"Market Cap: "}<Text style={{color: 'white'}}>{marketCap}</Text></Text>
-                        <Text style={stockDisplayStyles.tableText}>{"Headquarters: "}<Text style={{color: 'white'}}>{hqState}</Text></Text>
-                        <Text style={stockDisplayStyles.tableText}>{"Exchange: "}<Text style={{color: 'white'}}>{exchange}</Text></Text>
-                        <Text style={stockDisplayStyles.tableText}>{"List Date: "}<Text style={{color: 'white'}}>{}</Text></Text> */}
-
+                        {infoDataDisplay("Market Cap", 5)}
+                        {infoDataDisplay("Headquarters", 4)}
+                        {infoDataDisplay("Exchange", 9)}
+                        {infoDataDisplay("List Date", 11)}
                     </View>
-
 
                 </View>
 
                 <View style={{paddingVertical: normalize.setNormalize(30)}}>
-                    <View style={{width: '100%', backgroundColor: 'white', height: 0.5, opacity: 0.4}}></View>
-
+                    <View style={stockDisplayStyles.borderLine}></View>
                 </View>
 
-                <Text style={stockDisplayStyles.title}>
+                {/* <Text style={stockDisplayStyles.title}>
                     Similar Stocks
                 </Text>
 
                 <FlatList
-                    data = {similar}
+                    data = {infoData[0]}
                     renderItem={({item})=>(
-
                         
-
                         <StockContainer
                         ticker = {item}
                         />
                     
                     )}
-                />
+                /> */}
 
-                {/* <FlatList
-                    data = {similar}
-                    renderItem={({item})=>(
-
-                        
-
-                        <View>
-                            {
-                                () => {
-                                    console.log("In render flatlist")
-                                    if(render) {
-                                       
-                                        <StockContainer
-                                        ticker = {item}
-                                        />
-                                    }
-                                }
-                            }
-                            
-                        </View>
-                    
-                    )}
-                    /> */}
-                    {/* {stockComponentRender()} */}
-
-                <View style={{paddingVertical: normalize.setNormalize(30)}}>
+                {/* <View style={{paddingVertical: normalize.setNormalize(30)}}>
                     <View style={{width: '100%', backgroundColor: 'white', height: 0.5, opacity: 0.4}}></View>
-
-                </View>
+                </View> */}
 
             <Text style={stockDisplayStyles.title}>
                     News
             </Text>
 
+            {/**
+             * Flatlist to display news 
+             */}
             <FlatList
             data = {newsData}
             renderItem = {({item}) => (
                 <View style={{paddingBottom: normalize.setNormalize(20)}}>
                 <TouchableOpacity style={{paddingHorizontal: normalize.setNormalize(20), justifyContent: 'space-evenly'}}
                 onPress = {() => {
+                    //Open link provided by api
                     try {
                         Linking.openURL(item.article_url)
                     } catch (error) {
-                        Alert.alert(error)
+                        Alert.alert("Sorry we could not open up this news link")
                     }
                 }}
                 >
@@ -866,8 +743,6 @@ function StockDisplay(props) {
 
             </ScrollView>
 
-
-
         </View>
             
             
@@ -879,6 +754,27 @@ function StockDisplay(props) {
 }
 
 const stockDisplayStyles = StyleSheet.create({
+
+    pageContainer: {
+        justifyContent: 'center', 
+        flex: 1, 
+        marginTop: normalize.setNormalize(40), 
+    },
+
+    headerContainer: {
+        width: '100%', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        flexDirection: 'row',
+        paddingLeft: normalize.setNormalize(16)
+    },
+
+    titleScoreContainer: {
+        width:'100%',
+        paddingLeft: normalize.setNormalize(16),
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        paddingBottom: normalize.setNormalize(16)
+    },
 
     tableText: {
         fontSize: normalize.setNormalize(13),
@@ -910,7 +806,36 @@ const stockDisplayStyles = StyleSheet.create({
     },
 
     descriptionContainer: {
+        width: '100%', 
+        backgroundColor: '#3B3939', 
+        borderRadius: normalize.setNormalize(10), 
+        flex:1, 
+        padding:normalize.setNormalize(15)
+    },
+
+    infoDataContainer: {
         paddingBottom: normalize.setNormalize(5)
+    },
+
+    restOfPageContainer: {
+        flex:1, 
+        justifyContent:'center', 
+        marginHorizontal: normalize.setNormalize(30)
+    },
+
+    allGraphButtonsContainer: {
+        width: '100%', 
+        height: normalize.setNormalize(50), 
+        paddingTop: normalize.setNormalize(20),
+        flexDirection:'row', 
+        justifyContent: 'space-between',
+    },
+
+    borderLine: {
+        width: '100%', 
+        borderWidth: normalize.setNormalize(1),
+        borderColor: 'white',
+        opacity: 0.1,
     }
 
 })

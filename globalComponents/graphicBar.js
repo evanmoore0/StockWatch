@@ -1,79 +1,75 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import {Animated, View, } from 'react-native';
 import normalize from "../utils/normalize";
 
-class GraphicBar extends Component{
-    constructor(props) {
-        super(props);
-        this.state = {
-            translation: 50,
-        }
+//Graphic bar for graphic component
+function GraphicBar(props) {
 
-        this.fade = new Animated.Value(0)
-    }
+    //Animation values
+    const [translation, setTranslation] = useState(50)
+    const fade = new Animated.Value(0)
 
-    handleAnimation(){
-        this.fade.setValue(0)
-        this.setState({translation: this.fade.interpolate({
-            inputRange: [0,1],
-            outputRange: [1,0]
-        })})
+    //Grow animation
+    const handleAnimation = () => {
+        fade.setValue(0)
+        setTranslation(fade.interpolate({
+            inputRange: [0, 1],
+            outputRange: [1, 0]
+        }))
         Animated.timing(
-            this.fade, 
+            fade,
             {
-            toValue: 1,
+            toValue:1,
             duration: 3000,
-            // easing: Easing.ease,
             useNativeDriver: true
             }
-            
-        ).start(() => this.handleAnimationTwo())
+        ).start(() => handleAnimationTwo())
     }
 
-    handleAnimationTwo = () => {
-        this.fade.setValue(0)
-        this.setState({translation: this.fade.interpolate({
-            inputRange: [0,1],
-            outputRange: [0,1]
-        })})
-        Animated.timing(
-            this.fade,
-            {
-                toValue: 1,
-                duration: 3000,
-                useNativeDriver: true
-            }
-        ).start()
-    }
+    //Shrink animation
+   const handleAnimationTwo = () => {
+       fade.setValue(0)
+       setTranslation(fade.interpolate({
+           inputRange: [0,1],
+           outputRange: [0,1]
+       }))
+       Animated.timing(
+           fade,
+           {
+               toValue:1,
+               duration: 3000,
+               useNativeDriver: true
+           }
+       ).start()
+   }
 
-    componentDidMount() {
-        this.handleAnimation()
-    }
+   //Animate when component mounts
+   useEffect(() => {
+       handleAnimation()
+   }, [])
 
-    render() {
-        return(
-            <Animated.View
-                style={{
-                    top: normalize.setNormalize(this.props.padding),
+   return(
+    <Animated.View
+        style={{
+            top: normalize.setNormalize(props.padding),
 
-                    transform: [
-                        {scale:this.state.translation}
-                    ]
-                }}
-                >
+            transform: [
+                {scale:translation}
+            ]
+        }}
+        >
 
-                    <View style={{
-                        
-                        backgroundColor: this.props.color,
-                        width: normalize.setNormalize(10) * this.props.scale, 
-                        height: normalize.setNormalize(this.props.height),
-                        borderRadius: normalize.setNormalize(40),
-                        
-                    }}>    
-                </View>
-            </Animated.View>
-        )
-    }
+            <View 
+            style={
+                {
+                    backgroundColor: props.color,
+                    width: normalize.setNormalize(10) * props.scale, 
+                    height: normalize.setNormalize(props.height),
+                    borderRadius: normalize.setNormalize(40),
+            }}>    
+        </View>
+    </Animated.View>
+    )
 }
 
 export default GraphicBar;

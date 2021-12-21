@@ -1,108 +1,81 @@
-import React, { Component, useEffect, useState } from "react";
-import {View,Text, TouchableOpacity, Alert} from 'react-native'
-import normalize from "../utils/normalize";
-import GlobalStyles from "../utils/globalStyles";
+import React from "react";
+import {View,Text, TouchableOpacity, Keyboard} from 'react-native'
+
 import {useNavigation} from '@react-navigation/native'
-import { Ionicons } from '@expo/vector-icons';
-import {auth, db} from '../utils/firebase-config'
 
+import normalize from "../utils/normalize";
+import Constants from "../Constants";
+import GlobalStyles from "../utils/globalStyles";
 
+//Component that is displayed when user searches a stock
 function SearchContainer(props) {
 
-    // const [score, setScore] = useState(0)
+    //Not in navigation container, so must use useNavigation prop
     const navigation = useNavigation()
-    // const [display, setDisplay] = useState(false)
 
-    // const getScore = async () => {
-    //     try {
-    //         const score = await db.collection('score').doc(props.ticker).get()
-    //         setScore(score.data().score)
-    //     } catch {
-
-    //         setScore(0)
-
-    //     }
-    // }
-
-    // const shouldDisiplay = async () => {
-    //     // console.log(props.ticker)
-    //     try {
-    //         await fetch('https://api.polygon.io/v1/meta/symbols/' + props.ticker + '/company?apiKey=UUZQB9w93b0BibBDZTnR3lY3qnIWV4u1')
-    //         .then(
-    //             function(response) {
-    //                 return response.json();
-    //             }
-    //         )
-    //         .then(
-    //             function(data) {
-    //                 // console.log(data.error)
-    //                 if(data.error != undefined) {
-    //                     throw "O no"
-    //                 } else {
-    //                     setDisplay(true)
-    //                 }
-                    
-    //              }
-    //         )
-    //     } catch (error) {
-    //         setDisplay(false)
-    //     }
-    // }
-
-    // useEffect(() => {
-    //     shouldDisiplay()
-    //     getScore()
-
-    // }, [props]);
-
-    // if(!display) {
-    //     return(
-    //         <View>
-
-    //         </View>
-    //     )
-    // }
     return(
+
+        //Wrap in touchable opacity so user can click whole component
         <TouchableOpacity
-                style={{}}
-                onPress = {()=>{
+        onPress = {
+            () => {
+                Keyboard.dismiss()
+            //Navigate to stock display page
+                navigation.navigate("StockDisplay", {
+                    stock: {
+                        sName: props.sName,
+                        ticker: props.ticker,
+                        display: props.display
+                    }
+                })
+            }
+        }>
+            {/**
+             * Container for text/ border
+             */}
+            <View 
+            style = {
+            [GlobalStyles.stockContainer, 
+                {
+                    backgroundColor: 'black', 
+                    borderRadius: 0, 
+                    borderBottomColor: 'rgba(256,256,256,0.3)', 
+                    borderBottomWidth: normalize.setNormalize(1)
+                }
+            ]
+            }>
 
-                    navigation.navigate("StockDisplay", {
-                        stock: {
-                            sName: props.sName,
-                            ticker: props.ticker,
+                <View>
+                    <Text 
+                    style = {
+                        {
+                            fontSize: Constants.STOCK_NAME_FONT.size,
+                            fontWeight: Constants.STOCK_NAME_FONT.weight, 
+                            color: Constants.THEME_COLOR.green, 
+                            flexWrap: 'wrap'
                         }
-                    })
-                }}
-            // onPress={()=>{
-            //     navigation.navigate("StockDisplay", {
-            //         ticker: props.ticker
-            //     })
-            // }}
-            >
-                <View style={{height: normalize.setNormalize(80), width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingHorizontal: normalize.setNormalize(20), alignItems: 'center', borderBottomColor: 'rgba(256,256,256,0.5)', borderBottomWidth:0.5}}>
-                    <View>
-                        <Text style={{fontSize: normalize.setNormalize(16),
-        fontWeight: '800', color: '#6AB664', flexWrap: 'wrap', width: normalize.setNormalize(280)}}>{props.sName}</Text>
+                    }>
+                            {props.sName}
 
-                        <Text style={{color: 'white', fontSize: normalize.setNormalize(12)}}>{props.ticker}</Text>
+                    </Text>
 
-                        {/* <View style={{width: 200, height: 100, backgroundColor: 'red'}}></View> */}
-
-                    </View>
-                    {/* <Text style={{fontSize: normalize.setNormalize(12), color: '#6AB664', fontWeight: '700'}}>{'percentchange'}</Text> */}
-                    <View>
-                        <Ionicons name="add-circle" size={24} color="#6AB664" />
-                    </View>
-                    
-
-                    
+                    <Text 
+                    style = {
+                        {
+                            color: Constants.STOCK_NAME_FONT.tickerColor, 
+                            fontSize: Constants.STOCK_NAME_FONT.tickerSize
+                        }
+                    }>
+                        {props.ticker}
+                    </Text>
 
                 </View>
+                
+            </View>
 
 
 
-            </TouchableOpacity>
+        </TouchableOpacity>
     )
 }
 

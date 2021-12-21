@@ -1,13 +1,12 @@
 import React, { useEffect } from "react";
-import { View, Text } from "react-native";
+import { View} from "react-native";
 import { auth } from "../utils/firebase-config";
+import Graphic from "../globalComponents/graphic";
 
 function Loading(props) {
 
-       const checkUserStatus = () => {
-
-        // console.log("IN CHECK USER STATUS")
-
+    //Check to see if user is logged in, if so -> stocks screen if not -> welcome screen
+    const checkUserStatus = () => {
         auth.onAuthStateChanged((user) => {
             if(user) {
                 props.navigation.replace('TabStack')
@@ -15,22 +14,19 @@ function Loading(props) {
                 props.navigation.replace("Welcome")
             }
         })
-    }
+     }
 
-
+    //Call check user when the component mounts
     useEffect(()=> {
-
         checkUserStatus()
-        console.log("In loading useEffect")
     }, [])
 
     return(
-        <View style={{flex:1, justifyContent: 'center', alignItems: 'center'}}>
+        <View style={{flex:1}}>
 
-            <Text style={{fontSize: 50, color: 'red'}}>
-                Loading
-            </Text>
-        
+            <Graphic
+            scale = {1.5}
+            />
             
         </View>
     )

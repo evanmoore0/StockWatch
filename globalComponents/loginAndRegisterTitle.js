@@ -12,7 +12,6 @@ function LoginAndRegisterTitle(props) {
 
 const LoginAndRegisterTitleStyles = StyleSheet.create({
     titleContainer: {
-        // flex: normalize.setNormalize(264),
         justifyContent: 'flex-start',
         alignItems: 'center'
     },

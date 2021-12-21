@@ -1,11 +1,13 @@
 
 //React Imports
 import React, { useEffect, useRef, useState } from 'react';
-import {FlatList, Text, TextInput, View, ScrollView, LogBox, Modal, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Alert, Animated, Keyboard, RefreshControl} from 'react-native';
+import {FlatList, Text, TextInput, View, ScrollView, Modal, TouchableOpacity, KeyboardAvoidingView, Animated, Keyboard, RefreshControl, Alert, StyleSheet} from 'react-native';
 
 //Icon imports
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
+import { EvilIcons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 
 //Normalize function
 import normalize from '../utils/normalize';
@@ -19,15 +21,42 @@ import SearchContainer from '../globalComponents/searchContainer';
 import GlobalStyles from '../utils/globalStyles';
 
 //Firebase imports
-import {auth, db} from '../utils/firebase-config'
+import {db} from '../utils/firebase-config'
 import config from '../config';
+import Constants from '../Constants';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
-
+//Timer for refreshing
 const wait = (timeout) => {
     return new Promise(resolve => setTimeout(resolve, timeout))
 }
 
-function Stocks(props) {
+//Text displayed when user presses info icon
+const modalText = (text) => {
+    return(
+        <View 
+        style = {
+            {
+                flexDirection: 'row', 
+                justifyContent: 'center'
+            }
+        }>
+            <EvilIcons 
+            name="eye" 
+            size={normalize.setNormalize(30)} 
+            color="white" />
+
+            <Text 
+            style = {[stockStyles.modalText]}>
+                {text}
+            </Text>
+
+        </View>
+        
+    )
+}
+
+function Stocks({navigation}) {
 
     //Hooks
     //Stock symbol that is inputed into search bar
@@ -38,21 +67,28 @@ function Stocks(props) {
 
     //Data for search/trending
     const [searchData, setSearchData] = useState([])    
+    const [allSearchData, setAllSearchData] = useState([])
     const [trendingData, setTrendingData] = useState([])
 
     //Displaying info modal
     const [displayInfoOne, setDisplayInfoOne] = useState(false)
 
     //Value for animation
-    const animatedValue = useRef(new Animated.Value(99)).current
+    const animatedValue = useRef(new Animated.Value(Constants.SEARCHBAR.animatedValue)).current
 
+    //Whether the user tried refreshing the screen
     const [refreshing, setRefreshing] = useState(false)
+
+    const [shouldAnimate, setShouldAnimate] = useState(false)
+
+
     //Regex for cleaning stock name
-    // const clean = /.Com|mon|Ltd|Brands|Corp|(DE)|Common|Stock|Inc|[,.()]|oration|Class A|Shares|Holdings|Group| I | Ordinary| Wordwide| Class| A | common stock |/g
     const clean = /Brands/g
 
     //Shrinking animation
     const animate = () => {
+        //Whether I should close the animation when the user leaves the screen
+        setShouldAnimate(true)
         Animated.timing(animatedValue, {
             toValue: 82,
             duration: 100,
@@ -62,6 +98,7 @@ function Stocks(props) {
 
     //Expanding animation
     const animateIncreaseWidth = () => {
+        setShouldAnimate(false)
         Animated.timing(animatedValue, {
             toValue: 99,
             duration: 100,
@@ -75,75 +112,58 @@ function Stocks(props) {
         outputRange: ['0%', '100%'],
     })
 
+    //Called when user refreshes screen
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
         getTrending();
-        wait(2000).then(() => setRefreshing(false))
+        wait(1000).then(() => setRefreshing(false))
     }, [])
+    
 
     //If the user is not searching a stock display the trending page, otherwise
     //display search page
     const stockComponent = () => {
+        //If the search bar is not focused
         if(!visible) {
             return(
                 <FlatList
-               data = {trendingData}
-               showsVerticalScrollIndicator = {false}
-               style ={{zIndex: 0}}
-               renderItem={({item}) => (
-                       
-                   <StockContainer
-                   sName = {item.sName}
-                   ticker = {item.ticker}
-                   score = {item.score}
-                   percentChange = {item.percentChange}
-                   />
+                data = {trendingData}
+                showsVerticalScrollIndicator = {false}
+                renderItem = {
+                    ({ item }) => (
+                        <StockContainer
+                        sName = {item.sName}
+                        ticker = {item.ticker}
+                        score = {item.score}
+                        percentChange = {item.percentChange}
+                        display = {true}
+                        />
                    
-               )}
-               />
+                    )
+                }/>
             )
         } else {
+            //Otherwise return search component
             return(
+
                 <FlatList
                 data = {searchData}
                 showsVerticalScrollIndicator = {false}
-                renderItem={({item}) => (
-                   <SearchContainer
-                   sName = {item.Name}
-                   ticker = {item.Symbol}
-                   
-                   />
-               )}
-               />
-
+                keyboardShouldPersistTaps = "handled"
+                renderItem = {
+                    ({ item} ) => (
+                        <SearchContainer
+                        sName = {item.Name}
+                        ticker = {item.Symbol}
+                        display = {true}
+                        />
+                    )
+                }/>                
             )
         }
     }
 
-
-
-    //Get tickers to be displayed on the search page
-    // const getTickers = async () => {
-    //     try {
-    //         await fetch('https://api.polygon.io/v3/reference/tickers?type=CS&market=stocks&exchange=XNAS&search=' + stockSymbol + '&active=true&sort=ticker&order=asc&limit=20&apiKey=')
-    //         .then(
-    //             function(response) {
-    //                 return response.json();
-    //             }
-    //         )
-    //         .then(
-    //             function(data) {
-                    
-
-    //                 // cleanData(data.results)
-
-    //             }
-    //         )
-    //     } catch (err) {
-    //         Alert.alert(err)
-    //     }
-    // }
-
+    //All tickers on the app (just S&P 500 right now)
     const getTickers = async () => {
         try {
             await fetch(config.TICKERS_API_URL)
@@ -154,29 +174,34 @@ function Stocks(props) {
             )
             .then(
                 function(data) {
-                    setSearchData(data.filter(value =>  value.Name.replace(/Technologies| Technology/g, "").includes(stockSymbol)))
-            
+                    //Update the search data with list of tickers
+                    setAllSearchData(data.filter(value =>  value.Name.replace(/Technologies|Technology/g, "")))
                 }
             )
         } catch (error) {
+
+            Alert.alert("We couldn't fetch ticker data please try restarting the app")
             
         }
     }
 
+    //Filter throught the full list of stocks
+    const filterTickers = (data) => {
+        setSearchData(data.filter(value =>  value.Name.replace(/Technologies|Technology/g, "").includes(stockSymbol)))
+    }
+
     //Get top 20 stocks with the highest score
     const getTrending = async () => {
-        // console.log("TOP OF GET asjkdjsTRENDINGS")
-        let tempTrending = []
 
+        let tempTrending = []
         let listStocks = ""
 
-        //Access score collection and get 20 stocks with the highest score
+        //Access score collection and get 10 stocks with the highest score
         await db.collection('score')
             .orderBy('score', 'desc')
             .limit(10)
             .get()
             .then(querySnapshot => {
-                // console.log("IN FIRST THEN")
                 
                 querySnapshot.forEach(documentSnapshot => {
 
@@ -185,14 +210,13 @@ function Stocks(props) {
                     //Clean the name from the database
                     let cleanedName = documentSnapshot.data().sName.replace(clean, "").trim()
 
-                    // console.log(documentSnapshot.data().score)
                     //Store the trending data in a temp variable
                     tempTrending.push({ticker: documentSnapshot.id, sName: cleanedName, score: documentSnapshot.data().score, percentChange: 0})
-                    // console.log("in getTrending")
 
                 })
 
             })
+            //After getting 10 stocks with highest score fetch their percent change
             .then(
                 async function() {
                     try {
@@ -204,90 +228,49 @@ function Stocks(props) {
                         )
                         .then(
                             function(data) {
-                                // console.log("HERE")
-                                data.tickers.forEach((stock, index) => {
+                                data.tickers.forEach((stock) => {
                                     tempTrending.forEach((trendingStock) => {
                                         if(trendingStock.ticker == stock.ticker) {
                                             trendingStock.percentChange = stock.todaysChangePerc
                                         }
                                     })
                                 })
-                                // console.log(tempTrending)
                                 setTrendingData(tempTrending)
-
-
                             } 
                         )
                     } catch (error) {
-                        
+                        Alert.alert("We were unable to get the percent change for the trending stocks, please try restarting the app")
                     }
                 }
             )
-            
-        //Set temp trending hook
     }
 
-    
-
-    //Cleans the stock names using a regex
-    // const cleanData = (searchData) => {
-
-    //     //Make sure search bar isn't empty
-    //     if(searchData != undefined) {
-    //         for(let i = 0; i < searchData.length; i++) {
-        
-    //             //Clean the name
-    //             searchData[i].name = searchData[i].name.replace(clean, "").trim()
-    //         }
-
-    //         //Update the data
-    //         setSearchData(searchData)
-
-    //     } else {
-    //         //If the search bar is empty set the data to be an empty array
-    //         setSearchData([])
-    //     }
-    // }
-
     //Called every time the component is mounted
+    //Get trending data and all tickers
     useEffect(() => {
-        console.log("In stocks useEffect")
         getTrending()
-
+        getTickers()
     }, []);
 
-    
-
-    // const test = async () => {
-
-    //     console.log("In test")
-    //     setSearchData(await StockList())
-    // }
-
-    // useEffect(()=>{
-    //     test()
-    // }, [props])
-
+    //When the user leaves the screen clear the search bar, display trending info
     useEffect(() => {
-        console.log("IN props useef")
-    }, [props])
+        
+        const unsubscribe =  navigation.addListener('blur', () => {
+            
+            animateIncreaseWidth()
+            setStockSymbol('')
+            setVisible(false)
+
+        })
+        return unsubscribe
+    }, [navigation])
 
 
     //Called everytime the stockSymbol hook is updated (When the user types in the search bar)
     useEffect(() => {
-        getTickers()
+        filterTickers(allSearchData)
     }, [stockSymbol]);
 
-    // if(rendering) {
-    //     console.log("IN RENDINERISJDF")
-    //     return(
-    //         <View style={{flex:1, justifyContent: 'center', alignItems: 'center'}}>
-    //             <Text style={{color: 'red'}}>
-    //                 Loading...
-    //             </Text>
-    //         </View>
-    //     )
-    // }
     return (
 
         //Container for whole screen
@@ -296,6 +279,7 @@ function Stocks(props) {
         style = {GlobalStyles.homePageContainer}
         keyboardVerticalOffset = {10}
         behavior = 'padding'
+        
         >
             
             {/*
@@ -303,14 +287,7 @@ function Stocks(props) {
              */}
             <View 
             style = {
-                {
-                    position: 'absolute', 
-                    top: normalize.setNormalize(60), 
-                    width: '100%', 
-                    height: normalize.setNormalize(800), 
-                    opacity: 0.04, 
-                    backgroundColor:'black'
-                }
+                stockStyles.graphicContainer
             }>
 
                     <Graphic
@@ -340,90 +317,93 @@ function Stocks(props) {
                 />
             }
             >
-                    {/* <Modal
-                    visible = {displayInfoTwo}
-                    presentationStyle = "overFullScreen"
-                    transparent = {true}
-                    animationType = 'fade'
-                    
-                    
-                    >
-                        
-                        <TouchableOpacity style= {{width: SCREEN_WIDTH, height: SCREEN_HEIGHT}}
-                        onPress = {()=> {
-                            // setDisplayInfoOne(false)
-                            setDisplayInfoTwo(false)
-                            console.log("in modal two")
-                        }}
-                        >
-                            <Ionicons name="chatbox-sharp" size={normalize.setNormalize(160)} color="#3B3939" style={{left:normalize.setNormalize(291), top: normalize.setNormalize(835), position: 'absolute'}}/>
-                            <Text style={{fontSize: normalize.setNormalize(12),color: 'white', width: normalize.setNormalize(125), left: normalize.setNormalize(310), top: normalize.setNormalize(590), position: 'absolute'}}>
-                                Add a stock to your library by clicking the plus icon on the stocks page.
-                                View the stocks in your library here.
-
-                            </Text>
-                            
-                        </TouchableOpacity>
-
-                    </Modal> */}
 
                 {/*
-                Chat bubble that is displayed when the info button is pressed
+                Information page
                 */}
                 <Modal
                 visible = {displayInfoOne}
                 presentationStyle = "overFullScreen"
-                transparent = {true}
                 animationType = 'fade' 
                 >
                     {/*
                     Allows user to press anywhere on the screen to dismiss the modal
                     */}
-                    <TouchableOpacity 
+                    <View 
                     style = {
                         {
-                            flex:1
+                            flex:1,
+                            backgroundColor: 'black'
                         }
                     }
-                    onPress = {() => {
-                        setDisplayInfoOne(false)    
-                    }}
+                   
                     >
-                        {/*
-                        Chat icon
-                        */}
-                        <Ionicons 
-                        name = "chatbox-sharp" 
-                        size = {normalize.setNormalize(130)} 
-                        color = "#3B3939" 
-                        style = {
-                            {
-                                left:normalize.setNormalize(20), 
-                                top: normalize.setNormalize(165), 
-                                position: 'absolute'
-                            }
-                        }/>
+                       <View 
+                       style={stockStyles.modalScreenContainer}>
+                            <View 
+                            style = {
+                                {
+                                    flexDirection: 'row', 
+                                    alignItems: 'center'
+                                }
+                            }>
+                                <Text 
+                                style={stockStyles.modalText}>
+                                   {'Hello and welcome to   '}
+                                </Text>
 
-                        {/*
-                        Text inside chat icon
-                        */}
-                        <Text 
-                        style = {
-                            {
-                                color:'white', 
-                                position: 'absolute', 
-                                left: normalize.setNormalize(40), 
-                                top: normalize.setNormalize(186), 
-                                fontSize: normalize.setNormalize(12), 
-                                width: normalize.setNormalize(90), 
-                                height: normalize.setNormalize(150) 
-                            }
-                        }>
-                            A stocks score is the number of times it has been searched on this app!
-                        
-                        </Text>
+                                <Text 
+                                style = {
+                                    [stockStyles.modalText, 
+                                    {fontWeight: '800', fontSize: normalize.setNormalize(20)}]
+                                }>
+                                    Stock Watch!
+                                </Text>
 
-                    </TouchableOpacity>
+                            </View>
+                          
+
+                            <View style={stockStyles.modalGraphicContainer}>
+
+                                <Graphic
+                                scale = {0.6}
+                                />
+
+                            </View>
+
+                            <View 
+                            style = {
+                                {
+                                    paddingTop: normalize.setNormalize(100), 
+                                    flex:1, 
+                                    justifyContent: 'space-evenly'
+                                }
+                            }>
+
+                                {modalText('Keep track of the hottest stocks by visiting the Trending Page.')}
+                                {modalText('The number under the stock ticker is the number of times a stock has been searched on the app.')}
+                                {modalText('All data provided is real.')}
+                                {modalText('Add stocks to your library by pressing the plus icon on the stock\'s display page!')}
+                                {modalText('Remove stocks from your library by swiping left on the stock and pressing the red X')}
+
+                                <TouchableOpacity
+                                style={stockStyles.modalButtonContainer}
+                                onPress = {
+                                    () => {
+                                        setDisplayInfoOne(false)
+                                    }   
+                                }>
+                                    <Feather 
+                                    name="thumbs-up" 
+                                    size={normalize.setNormalize(24)} 
+                                    color="white" 
+                                    />
+
+                                </TouchableOpacity>
+                            </View>
+                       </View>
+
+                    </View>
 
                 </Modal>
 
@@ -516,12 +496,15 @@ function Stocks(props) {
                             placeholder = {"Search"}
                             selectionColor = 'white'       
                             clearButtonMode = "always" 
-                            blurOnSubmit = {false}
+
+                            value = {stockSymbol}
                             
                             //When the user clicks on the search bar, show the animation
                             onFocus = {() => {
                                 animate()
                             }}
+
+                            
                             
                             //Update the stock hook and show the stock page when the user types
                             onChangeText = {val => {
@@ -529,12 +512,12 @@ function Stocks(props) {
                                 setVisible(true)
                             }}
 
-                            keyboardType = 'default'
+                            
                             />
 
                         </Animated.View>
 
-                        {/*
+                        {/* 
                         Cancel button
                          */}
                         <TouchableOpacity
@@ -544,6 +527,7 @@ function Stocks(props) {
                         setVisible(false)
                         animateIncreaseWidth()
                         Keyboard.dismiss()
+                        setStockSymbol('')
                         }}
 
                         style = {
@@ -576,3 +560,44 @@ function Stocks(props) {
     }
 
 export default Stocks;
+
+const stockStyles = StyleSheet.create({
+    graphicContainer: {
+        position: 'absolute', 
+        top: normalize.setNormalize(60), 
+        width: '100%', 
+        height: normalize.setNormalize(800), 
+        opacity: 0.06, 
+        backgroundColor:'black'
+    },
+
+    modalText: {
+        color: 'white',
+        textAlign: 'center',
+        textShadowColor: 'white',
+        textShadowRadius: 10,
+        fontSize: normalize.setNormalize(20)
+    },
+
+    modalButtonContainer: {
+        justifyContent: 'space-evenly', 
+        alignItems: 'center', 
+        flexDirection: 'row', 
+        backgroundColor: 'gray', 
+        borderRadius: normalize.setNormalize(30), 
+        padding: normalize.setNormalize(16)
+    },
+
+    modalScreenContainer: {
+        flex:1, 
+        alignItems: 'center', 
+        marginTop: normalize.setNormalize(50), 
+        marginHorizontal: normalize.setNormalize(16)
+    },
+
+    modalGraphicContainer: {
+        height: normalize.setNormalize(200),
+        width: '100%', 
+        paddingTop: normalize.setNormalize(100)
+    }
+})

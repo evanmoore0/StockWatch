@@ -1,11 +1,14 @@
 import React, { Component, useState } from "react";
-import {View, StyleSheet, Text, TextInput, TouchableOpacity, Alert} from 'react-native';
+import {View, StyleSheet, Text, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView} from 'react-native';
 import LoginAndRegisterTitle from "../globalComponents/loginAndRegisterTitle";
 import normalize from "../utils/normalize";
 import GlobalStyles from "../utils/globalStyles";
-import PageButton from "../globalComponents/button";
 import Graphic from "../globalComponents/graphic";
 import { auth, db } from "../utils/firebase-config";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Constants from "../Constants";
+import { Ionicons } from '@expo/vector-icons';
+
 
 
 function Login(props) {
@@ -24,25 +27,44 @@ function Login(props) {
     }
 
     return (
-        <View style={GlobalStyles.screenContainer}>
-            <LoginAndRegisterTitle
-            title = "Login"
-            />
-            <View style={{height: 100, width: '100%'}}>
-            <Graphic
-            scale = {0.5}
-            />
+        <SafeAreaView>
+            <KeyboardAvoidingView
+             keyboardShouldPersistTaps='always'
+             keyboardDismissMode = 'on-drag'
+            >
+                <TouchableOpacity style={{width: '100%', flexDirection: 'row', alignItems: 'center'}}
+                onPress={() => {
+                    props.navigation.goBack()
+                }}
+                >
+                    <Ionicons 
+                    name="chevron-back-outline" 
+                    size={normalize.setNormalize(30)} 
+                    color="white" 
+                    />
+                    <Text style={{fontSize: normalize.setNormalize(20), color: 'white', fontWeight: '700'}}>
+                        Login
+                    </Text>
+
+            </TouchableOpacity>
+            
+            <View style={{height: normalize.setNormalize(55), width: '100%', paddingTop: normalize.setNormalize(50), position: 'absolute'}}>
+                <Graphic
+                scale = {0.3}
+                />
             </View>
+
             <View style={loginStyles.entryContainer}>
-            <View style={loginStyles.inputContainer}>
+                <View style={loginStyles.inputContainer}>
                 <Text style={loginStyles.textInputHeader}>email</Text>
                 <TextInput
                 style={loginStyles.textInput}
                 placeholder = "enter email"
                 placeholderTextColor = "white"
-                // onSubmitEditing = {()=> {
-                //     {this.textInput.focus()}
-                // }}
+                keyboardType= "email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+                autoCorrect = {false}
                 onChangeText = {text => {
                     setEmail(text)
                 }}
@@ -56,10 +78,10 @@ function Login(props) {
                 secureTextEntry
                 placeholder = "enter password"
                 placeholderTextColor = "white"
-                // ref = {(input) => {this.textInput = input}}
-                // onSubmitEditing = {()=> {
-                //     {this.textInputTwo.focus()}
-                // }}
+                keyboardType= "visible-password"
+                autoCapitalize="none"
+                autoComplete= "password"
+                autoCorrect = {false}
                 onChangeText = {text => {
                     setPassword(text)
                 }}
@@ -67,23 +89,27 @@ function Login(props) {
             </View>
             
         </View>
+        <View style={{width: '100%', justifyContent: 'center', alignItems:'center'}}>
+
             <TouchableOpacity
                 style={loginStyles.buttonContainer}
                 onPress = {() => {
-
                     handleLogin()
                 }}
                 >
-            <Text style={loginStyles.buttonText}>
+                    <Text style={loginStyles.buttonText}>
 
-                Login
+                        Login
 
+                    </Text>
+                </TouchableOpacity>
 
-            </Text>
-            </TouchableOpacity>
+            </View>
+            
 
-            <View style={{flex: normalize.setNormalize(110)}}></View>
-        </View>
+            </KeyboardAvoidingView>
+            
+        </SafeAreaView>
     )
     
 }
@@ -94,47 +120,47 @@ const loginStyles = StyleSheet.create({
 
     entryContainer: {
         width: '100%',
-        paddingTop: normalize.setNormalize(40),
+        paddingTop: normalize.setNormalize(200),
         justifyContent: 'center',
         alignItems: 'center'
     },
 
     textInputHeader: {
 
-        fontSize: normalize.setNormalize(25),
-        color: '#82C8FB',
+        color: Constants.THEME_COLOR.blue,
         paddingLeft: normalize.setNormalize(15),
         paddingBottom: normalize.setNormalize(5)
 
     },
 
     textInput: {
-        backgroundColor: '#6AB664',
+        backgroundColor: Constants.THEME_COLOR.green,
         borderRadius: normalize.setNormalize(50),
         borderWidth: normalize.setNormalize(4),
-        borderColor: '#82C8FB',
-        height: normalize.setNormalize(45),
+        borderColor: Constants.THEME_COLOR.blue,
+        height: normalize.setNormalize(40),
         width: normalize.setNormalize(300),
         paddingLeft: normalize.setNormalize(15),
-        fontSize: normalize.setNormalize(20),
+        fontSize: normalize.setNormalize(12),
         color: 'white'
     },
 
     inputContainer: {
-        paddingBottom: normalize.setNormalize(20)
+        paddingBottom: normalize.setNormalize(50)
     },
+
     buttonContainer: {
-        height: normalize.setNormalize(65),
-        width: normalize.setNormalize(210),
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: normalize.setNormalize(50),
-        backgroundColor: '#6AB664'
+        backgroundColor: Constants.THEME_COLOR.green,
+        paddingHorizontal: normalize.setNormalize(70),
+        height: normalize.setNormalize(40),
     },
 
     buttonText: {
 
-        fontSize: normalize.setNormalize(27),
+        fontSize: normalize.setNormalize(16),
         color: 'white'
     }
 

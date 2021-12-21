@@ -1,0 +1,475 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Graphic/> renders correctly 1`] = `
+<View
+  style={
+    Object {
+      "alignItems": "center",
+      "flex": 1,
+      "flexDirection": "row",
+      "justifyContent": "space-between",
+    }
+  }
+>
+  <View
+    style={
+      Object {
+        "top": NaN,
+        "transform": Array [
+          Object {
+            "scale": 50,
+          },
+        ],
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "backgroundColor": "#6AB664",
+          "borderRadius": 56,
+          "height": NaN,
+          "width": NaN,
+        }
+      }
+    />
+  </View>
+  <View
+    style={
+      Object {
+        "top": NaN,
+        "transform": Array [
+          Object {
+            "scale": 50,
+          },
+        ],
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "backgroundColor": "#6AB664",
+          "borderRadius": 56,
+          "height": NaN,
+          "width": NaN,
+        }
+      }
+    />
+  </View>
+  <View
+    style={
+      Object {
+        "top": NaN,
+        "transform": Array [
+          Object {
+            "scale": 50,
+          },
+        ],
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "backgroundColor": "#6AB664",
+          "borderRadius": 56,
+          "height": NaN,
+          "width": NaN,
+        }
+      }
+    />
+  </View>
+  <View
+    style={
+      Object {
+        "top": NaN,
+        "transform": Array [
+          Object {
+            "scale": 50,
+          },
+        ],
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "backgroundColor": "#82C8FB",
+          "borderRadius": 56,
+          "height": NaN,
+          "width": NaN,
+        }
+      }
+    />
+  </View>
+  <View
+    style={
+      Object {
+        "top": NaN,
+        "transform": Array [
+          Object {
+            "scale": 50,
+          },
+        ],
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "backgroundColor": "#6AB664",
+          "borderRadius": 56,
+          "height": NaN,
+          "width": NaN,
+        }
+      }
+    />
+  </View>
+  <View
+    style={
+      Object {
+        "top": NaN,
+        "transform": Array [
+          Object {
+            "scale": 50,
+          },
+        ],
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "backgroundColor": "#6AB664",
+          "borderRadius": 56,
+          "height": NaN,
+          "width": NaN,
+        }
+      }
+    />
+  </View>
+  <View
+    style={
+      Object {
+        "top": NaN,
+        "transform": Array [
+          Object {
+            "scale": 50,
+          },
+        ],
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "backgroundColor": "#6AB664",
+          "borderRadius": 56,
+          "height": NaN,
+          "width": NaN,
+        }
+      }
+    />
+  </View>
+  <View
+    style={
+      Object {
+        "top": NaN,
+        "transform": Array [
+          Object {
+            "scale": 50,
+          },
+        ],
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "backgroundColor": "#82C8FB",
+          "borderRadius": 56,
+          "height": NaN,
+          "width": NaN,
+        }
+      }
+    />
+  </View>
+  <View
+    style={
+      Object {
+        "top": NaN,
+        "transform": Array [
+          Object {
+            "scale": 50,
+          },
+        ],
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "backgroundColor": "#82C8FB",
+          "borderRadius": 56,
+          "height": NaN,
+          "width": NaN,
+        }
+      }
+    />
+  </View>
+  <View
+    style={
+      Object {
+        "top": NaN,
+        "transform": Array [
+          Object {
+            "scale": 50,
+          },
+        ],
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "backgroundColor": "#82C8FB",
+          "borderRadius": 56,
+          "height": NaN,
+          "width": NaN,
+        }
+      }
+    />
+  </View>
+  <View
+    style={
+      Object {
+        "top": NaN,
+        "transform": Array [
+          Object {
+            "scale": 50,
+          },
+        ],
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "backgroundColor": "#6AB664",
+          "borderRadius": 56,
+          "height": NaN,
+          "width": NaN,
+        }
+      }
+    />
+  </View>
+  <View
+    style={
+      Object {
+        "top": NaN,
+        "transform": Array [
+          Object {
+            "scale": 50,
+          },
+        ],
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "backgroundColor": "#6AB664",
+          "borderRadius": 56,
+          "height": NaN,
+          "width": NaN,
+        }
+      }
+    />
+  </View>
+  <View
+    style={
+      Object {
+        "top": NaN,
+        "transform": Array [
+          Object {
+            "scale": 50,
+          },
+        ],
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "backgroundColor": "#6AB664",
+          "borderRadius": 56,
+          "height": NaN,
+          "width": NaN,
+        }
+      }
+    />
+  </View>
+  <View
+    style={
+      Object {
+        "top": NaN,
+        "transform": Array [
+          Object {
+            "scale": 50,
+          },
+        ],
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "backgroundColor": "#82C8FB",
+          "borderRadius": 56,
+          "height": NaN,
+          "width": NaN,
+        }
+      }
+    />
+  </View>
+  <View
+    style={
+      Object {
+        "top": NaN,
+        "transform": Array [
+          Object {
+            "scale": 50,
+          },
+        ],
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "backgroundColor": "#82C8FB",
+          "borderRadius": 56,
+          "height": NaN,
+          "width": NaN,
+        }
+      }
+    />
+  </View>
+  <View
+    style={
+      Object {
+        "top": NaN,
+        "transform": Array [
+          Object {
+            "scale": 50,
+          },
+        ],
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "backgroundColor": "#6AB664",
+          "borderRadius": 56,
+          "height": NaN,
+          "width": NaN,
+        }
+      }
+    />
+  </View>
+  <View
+    style={
+      Object {
+        "top": NaN,
+        "transform": Array [
+          Object {
+            "scale": 50,
+          },
+        ],
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "backgroundColor": "#6AB664",
+          "borderRadius": 56,
+          "height": NaN,
+          "width": NaN,
+        }
+      }
+    />
+  </View>
+  <View
+    style={
+      Object {
+        "top": NaN,
+        "transform": Array [
+          Object {
+            "scale": 50,
+          },
+        ],
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "backgroundColor": "#6AB664",
+          "borderRadius": 56,
+          "height": NaN,
+          "width": NaN,
+        }
+      }
+    />
+  </View>
+  <View
+    style={
+      Object {
+        "top": NaN,
+        "transform": Array [
+          Object {
+            "scale": 50,
+          },
+        ],
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "backgroundColor": "#6AB664",
+          "borderRadius": 56,
+          "height": NaN,
+          "width": NaN,
+        }
+      }
+    />
+  </View>
+  <View
+    style={
+      Object {
+        "top": NaN,
+        "transform": Array [
+          Object {
+            "scale": 50,
+          },
+        ],
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "backgroundColor": "#6AB664",
+          "borderRadius": 56,
+          "height": NaN,
+          "width": NaN,
+        }
+      }
+    />
+  </View>
+</View>
+`;
