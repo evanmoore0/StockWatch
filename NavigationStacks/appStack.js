@@ -45,7 +45,6 @@ function TabStack() {
         initialRouteName = "Stock"
         tabBarPosition = "bottom"
         
-       
         //Display and highlight icon for screen user is currently on
         screenOptions={({ route }) =>(
             {

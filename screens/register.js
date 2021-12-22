@@ -15,15 +15,19 @@ function Register (props) {
     const [confirmPassowrd, setConfirmPassword] = useState('')
 
     const handleRegister = () => {
-        auth
+         var promise =  auth
         .createUserWithEmailAndPassword(email, password)
-        .then(
-            currentUser => {
-                const user = currentUser.user;
-                db.collection('users')
-                .doc(user.uid)
-                .set({email: user.email, stocks: []})
-            }
+        promise.then(async function(authData) {
+            //Just sending right now
+            await authData.user.sendEmailVerification();
+            const user = authData.user;
+            db.collection('users')
+            .doc(user.uid)
+            .set({email: user.email, stocks: []})
+        }, function(error) {
+          Alert.alert(error.message)
+        }
+            
         )
         .catch(error => alert(error.message))
     }

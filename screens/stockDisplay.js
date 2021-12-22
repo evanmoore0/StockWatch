@@ -287,8 +287,6 @@ function StockDisplay(props) {
                     setOpen(data.results[0].h)
 
                     for(let date in data.results) {
-
-                        console.log(data.results[date].h)
                         
                         tempGraphData.push(
                             {
@@ -347,6 +345,7 @@ function StockDisplay(props) {
             //Check to make sure I won't send 0 as day (if the date day is 1)
             //Set to be 28 because it is the least number of days a month can have
             //WILL UPDATE THIS LATER
+            // Get utc -> subtract -> convert
             if(endDay == 1) {
                 startMonth = startMonth - 1
                 startDay = 28
@@ -414,12 +413,9 @@ function StockDisplay(props) {
      //Graph, while data is loading shows activity indicator
      const graph = () => {
         if(loading) {
-            return (
-            <ActivityIndicator
-                color = {Constants.THEME_COLOR.blue}
-                size = 'large'
-            />
-            )
+          <View style= {{flex:1, justifyContent: 'center', alignItems: 'center'}}>
+              <ActivityIndicator/>
+          </View>
         } else {
             return(
                 //Graph

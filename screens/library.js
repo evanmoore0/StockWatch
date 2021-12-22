@@ -198,7 +198,6 @@ function Library(props) {
             getTodaysGain(tempGain)
             setFinalData(tempGain)
 
-            
 
         } else if(a == 2) {
          

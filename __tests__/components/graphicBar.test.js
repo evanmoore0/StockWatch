@@ -5,7 +5,6 @@ import GraphicBar from '../../globalComponents/graphicBar'
 
 jest.useFakeTimers();
 
-
 describe('<GraphicBar/>', () => {
     it('renders correctly', () => {
         const tree = renderer.create(<GraphicBar/>).toJSON();
