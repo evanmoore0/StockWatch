@@ -48,14 +48,7 @@ const GlobalStyles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: normalize.setNormalize(16)
     },
-    graphicContainer: {
-        position: 'absolute', 
-        top: normalize.setNormalize(60), 
-        width: '100%', 
-        height: normalize.setNormalize(800), 
-        opacity: 0.04, 
-        backgroundColor:'black'
-    },
+    
 })
 
 export default GlobalStyles;

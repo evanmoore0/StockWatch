@@ -1,8 +1,7 @@
 
-import React from "react";
+import React from 'react'
 import renderer from 'react-test-renderer'
-import GraphicBar from '../graphicBar'
-
+import GraphicBar from '../../globalComponents/graphicBar'
 
 jest.useFakeTimers();
 

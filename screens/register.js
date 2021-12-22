@@ -1,11 +1,11 @@
-import React, { Component, useState } from "react";
-import {View, Text, StyleSheet, TextInput, Alert, TouchableOpacity} from 'react-native';
-import LoginAndRegisterTitle from "../globalComponents/loginAndRegisterTitle";
+import React, { useState } from "react";
+import {View, Text, StyleSheet, TextInput, Alert, TouchableOpacity, SafeAreaView, KeyboardAvoidingView} from 'react-native';
 import normalize from "../utils/normalize";
-import GlobalStyles from "../utils/globalStyles";
 import Graphic from "../globalComponents/graphic";
 import { auth, db } from "../utils/firebase-config";
-import Library from "./library";
+import Constants from "../Constants";
+import { Ionicons } from '@expo/vector-icons';
+
 
 
 function Register (props) {
@@ -45,90 +45,107 @@ function Register (props) {
 
         return (
 
-            <View style={GlobalStyles.screenContainer}>
-                <LoginAndRegisterTitle
-                title = "Register"
-                />
+            <SafeAreaView>
+            <KeyboardAvoidingView
+            style={{paddingTop: normalize.setNormalize(20)}}
 
-                <View style={{height: 100, width: '100%'}}>
-
-                    <Graphic
-                    scale = {0.5}
+            
+            >
+                <TouchableOpacity style={{width: '100%', flexDirection: 'row', alignItems: 'center'}}
+                onPress={() => {
+                    props.navigation.replace("Welcome")
+                }}
+                >
+                    <Ionicons 
+                    name="chevron-back-outline" 
+                    size={normalize.setNormalize(30)} 
+                    color="white" 
                     />
-                </View>
+                    <Text style={{fontSize: normalize.setNormalize(20), color: 'white', fontWeight: '700'}}>
+                        Register
+                    </Text>
 
+            </TouchableOpacity>
+            
+            <View style={{height: normalize.setNormalize(55), width: '100%', paddingTop: normalize.setNormalize(50)}}>
+                <Graphic
+                scale = {0.3}
+                />
+            </View>
 
+            <View style={RegisterStyles.entryContainer}>
+                <View style={RegisterStyles.inputContainer}>
+                <Text style={RegisterStyles.textInputHeader}>email</Text>
+                <TextInput
+                style={RegisterStyles.textInput}
+                placeholder = "enter email"
+                placeholderTextColor = "white"
+                keyboardType= "email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+                autoCorrect = {false}
+                onChangeText = {text => {
+                    setEmail(text)
+                }}
+                />
+            </View>
+            
+            <View style={RegisterStyles.inputContainer}>
+                <Text style={RegisterStyles.textInputHeader}>password</Text>
+                <TextInput
+                style={RegisterStyles.textInput}
+                secureTextEntry
+                placeholder = "enter password"
+                placeholderTextColor = "white"
+                keyboardType= "visible-password"
+                autoCapitalize="none"
+                autoComplete= "password"
+                autoCorrect = {false}
+                onChangeText = {text => {
+                    setPassword(text)
+                }}
+                />
+            </View>
 
-                <View style={RegisterStyles.entryContainer}>
+            <View style={RegisterStyles.inputContainer}>
+                <Text style={RegisterStyles.textInputHeader}>confirm password</Text>
+                <TextInput
+                style={RegisterStyles.textInput}
+                secureTextEntry
+                placeholder = "confirm password"
+                placeholderTextColor = "white"
+                keyboardType= "visible-password"
+                autoCapitalize="none"
+                autoComplete= "password"
+                autoCorrect = {false}
+                onChangeText = {text => {
+                    setConfirmPassword(text)
+                }}
+                />
+            </View>
+            
+        </View>
+        <View style={{width: '100%', justifyContent: 'center', alignItems:'center'}}>
 
-                    <View style={RegisterStyles.inputContainer}>
-                        <Text style={RegisterStyles.textInputHeader}>email</Text>
-                        <TextInput
-                        style={RegisterStyles.textInput}
-                        placeholder = "enter email"
-                        placeholderTextColor = "white"
-                        onChangeText = {text=>{
-
-                            setEmail(text)
-                            
-                        }}
-                        onSubmitEditing = {()=> {
-                            {}
-                        }}
-                        />
-                    </View>
-
-                    <View style={RegisterStyles.inputContainer}>
-                        <Text style={RegisterStyles.textInputHeader}>password</Text>
-                        <TextInput
-                        style={RegisterStyles.textInput}
-                        secureTextEntry
-                        placeholder = "enter password"
-                        placeholderTextColor = "white"
-                        ref = {(input) => {}}
-                        onChangeText = {text=>{
-                            setPassword(text)
-                            
-                        }}
-                        onSubmitEditing = {()=> {
-                           
-                        }}
-                        />
-                    </View>
-
-                    <View style={RegisterStyles.inputContainer}>
-                        <Text style={RegisterStyles.textInputHeader}>confirm password</Text>
-                        <TextInput
-                        style={RegisterStyles.textInput}
-                        secureTextEntry
-                        placeholder = "confirm password"
-                        placeholderTextColor = "white"
-                        onChangeText = {text => {
-                            setConfirmPassword(text)
-                        }}
-                        ref = {(input)=>{}}
-                        />
-                    </View>
-
-
-                </View>
-
-                <TouchableOpacity
+            <TouchableOpacity
                 style={RegisterStyles.buttonContainer}
                 onPress = {() => {
-
                     handlePress()
                 }}
                 >
-            <Text style={RegisterStyles.buttonText}>
+                    <Text style={RegisterStyles.buttonText}>
 
-                Register
+                        Login
 
+                    </Text>
+                </TouchableOpacity>
 
-            </Text>
-            </TouchableOpacity>
-                <View style={{flex: normalize.setNormalize(110)}}></View>
             </View>
+            
+
+            </KeyboardAvoidingView>
+            
+        </SafeAreaView>
 
 
         )
@@ -141,48 +158,47 @@ const RegisterStyles = StyleSheet.create({
 
     entryContainer: {
         width: '100%',
-        paddingTop: normalize.setNormalize(40),
+        paddingTop: normalize.setNormalize(80),
         justifyContent: 'center',
         alignItems: 'center'
     },
 
     textInputHeader: {
 
-        fontSize: normalize.setNormalize(25),
-        color: '#82C8FB',
+        color: Constants.THEME_COLOR.blue,
         paddingLeft: normalize.setNormalize(15),
         paddingBottom: normalize.setNormalize(5)
 
     },
 
     textInput: {
-        backgroundColor: '#6AB664',
+        backgroundColor: Constants.THEME_COLOR.green,
         borderRadius: normalize.setNormalize(50),
         borderWidth: normalize.setNormalize(4),
-        borderColor: '#82C8FB',
-        height: normalize.setNormalize(45),
+        borderColor: Constants.THEME_COLOR.blue,
+        height: normalize.setNormalize(40),
         width: normalize.setNormalize(300),
         paddingLeft: normalize.setNormalize(15),
-        fontSize: normalize.setNormalize(20),
+        fontSize: normalize.setNormalize(12),
         color: 'white'
     },
 
     inputContainer: {
-        paddingBottom: normalize.setNormalize(20)
+        paddingBottom: normalize.setNormalize(50)
     },
 
     buttonContainer: {
-        height: normalize.setNormalize(65),
-        width: normalize.setNormalize(210),
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: normalize.setNormalize(50),
-        backgroundColor: '#6AB664'
+        backgroundColor: Constants.THEME_COLOR.green,
+        paddingHorizontal: normalize.setNormalize(70),
+        height: normalize.setNormalize(40),
     },
 
     buttonText: {
 
-        fontSize: normalize.setNormalize(27),
+        fontSize: normalize.setNormalize(16),
         color: 'white'
     }
 

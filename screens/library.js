@@ -1,15 +1,4 @@
 
-
-
-
-
-//NOTES: NOT SETTING FINALDATA IN GET SCORE, ONLY ALLDATA
-
-
-
-
-
-
 //React imports
 import React, { useEffect, useState, useRef } from "react";
 import {View, Text, TouchableOpacity, FlatList, ScrollView, Alert, Modal, ActivityIndicator, StyleSheet, AppState} from 'react-native';
@@ -38,16 +27,7 @@ import {Swipeable} from 'react-native-gesture-handler'
 import config from "../config";
 import Constants from "../Constants";
 
-//Custom hook to update page
-function useForceUpdate() {
-    const [value, setValue] = useState(0);
-    return () => setValue(value => value+1)
-}
-
 function Library(props) {
-
-    const forceUpdate = useForceUpdate();
-
     //Hooks
     //Gets the current state of the app
     //Whether the user is on the app, background, or the app is "inactive"
@@ -78,10 +58,6 @@ function Library(props) {
     //Final data, set when user presses All?Gainers/Losers
     const [finalData, setFinalData] = useState([])
 
-
-    const swipeableRef = useRef(null);
-    const swipeableFirstRef = useRef(null);
-
     //Use to check if app is mounted before updating appstate
     const isMounted = useRef(false)
 
@@ -94,7 +70,7 @@ function Library(props) {
 
     const allGainersLosers = (index, text) => {
         return(
-                <View style={{ width: '33%', alignItems: 'center'}}>
+                <View style={{ width: '34%', alignItems: 'center'}}>
                     <TouchableOpacity
                     style={{width:'100%', alignItems:'center'}}
                     onPress = {()=> {
@@ -128,7 +104,6 @@ function Library(props) {
                 renderItem = {({item, index}) => (
 
                     <Swipeable
-                    ref = {swipeableRef}
                     renderRightActions = {rightActions}
                     
                     onSwipeableRightOpen = {()=>{
@@ -156,8 +131,9 @@ function Library(props) {
         return (
             <TouchableOpacity style={libraryStyles.removeContainer}
             onPress = {() => {
-                remove(removeIndex)
                 handleClick(0)
+                remove(removeIndex)
+
             }}
             >
                 <FontAwesome 
@@ -169,16 +145,11 @@ function Library(props) {
         )
     }
 
+    //Removes desired stock from the state
     const remove = async (removeIndex) => {
+        let temp = allData.splice(removeIndex, 1)
+        setAllData(temp)       
 
-        allData.splice(removeIndex, 1)
-        console.log(allData)
-       
-        forceUpdate()
-    }
-
-    const closeSwipeable = () => {
-        swipeableRef.current.close()
     }
 
     //Calculate users gain based on whether they are in All/Gainers/Losers
@@ -332,16 +303,16 @@ function Library(props) {
         } 
     }
 
+    //Adds a stock to the state
     const addStock = async () => {
 
-
-        
         if(props.route.params != undefined) {
 
             
             let shouldAdd = true
 
             allData.forEach((stock) => {
+                //Check to see if user already has stock in their database
                 if(stock.ticker == props.route.params.stock.ticker) {
                     shouldAdd = false
                 }
@@ -357,51 +328,44 @@ function Library(props) {
                     score: props.route.params.stock.score
                     
                 })
-                // setFinalData(oldUserData => [...oldUserData, {
-                //     percentChange: props.route.params.stock.percentChange,
-                //     sName: props.route.params.stock.sName,
-                //     ticker: props.route.params.stock.ticker,
-                //     score: props.route.params.stock.score
-                // }])
-                // setFinalData(temp)
-              
                 setAllData(temp)
                 handleClick(0)
 
-                // try {
-
-                //     await db.collection("users").doc(auth.currentUser.uid).update({stocks:allData})
-                    
-                // } catch (error) {
-                    
-                // }
-
-            }
-
-
-            
-            
+            } 
         }
 
     }
 
-    useEffect(()=> {
-        addStock()
-    }, [props])
+    //Updates the user's database and signs them out
+    const handleSignOut = async () => {
+        updateDB()
 
+        try {
+
+            await auth.signOut();
+            
+        } catch (error) {
+
+            Alert.alert("We were unable to sign you out, please try again later")
+            
+        }
+    }
+
+    //Updates the users database (Called when screen is unactive, or user signs out)
+    const updateDB = async() => {
+       
+        try {
+            await db.collection("users").doc(auth.currentUser.uid).update({stocks:allData})
+        } catch (error) {
+            Alert.alert("We had trouble saving your stocks to our database please do not close the app")
+        }
+    }
+
+    //Use effect hooks 
     useEffect(() => {
         const subscription = AppState.addEventListener("change", (nextAppState)=> {
-            // if(appState.current.match(/inactive|background/) === "inactive") {
-               
-                // updateDB()
-            // } 
-            // console.log("IN subscriptino")
-
             if(isMounted.current) {
-                console.log("IN subscription")
-                console.log(isMounted.current)
-
-
+    
                 appState.current = nextAppState
                 setAppStateVisible(appState.current)
                 if(nextAppState !== 'active') {
@@ -422,149 +386,54 @@ function Library(props) {
     useEffect(()=> {
 
         setLoading(true)
-        console.log("IN use effect")
         isMounted.current = true;
         
         getStocks()
         setLoading(false)
 
-        // setLoading(false)
-
-        
-
-        // return () => {
-            
-        //     // updateDatabase()
-
-        //     componentMounted.current = false
-
-        //     // console.log("IN UNSUBSCRIBE")
-
-
-
-        // }
-
-        
-
         return () => {
 
-            console.log("IN set mounted")
-
             isMounted.current = false
-            
         }
-
-
 
     }, [])
 
-    const updateDB = async() => {
-
-        console.log("IN update db")
-       
-        try {
-            await db.collection("users").doc(auth.currentUser.uid).update({stocks:allData})
-        } catch (error) {
-            
-        } finally {
-            // setAllData({})
-            // setFinalData({})
-            // set
-        }
-
-    }
-
-    // const updateDatabase = async() => {
-
-    //     console.log("update database")
-    //     console.log(finalData)
-
-    //     try {
-
-    //         await db.collection('users').doc(auth.currentUser.uid).update({stocks: finalData})
-
-            
-    //     } catch (error) {
-            
-    //     }
-
-    // }
-
-    // const cleanUp = async () => {
-    //     setUserData([])
-    //     setLoading(true)
-    //     setTodaysGain(0)
-    // }
-
-    // useEffect(()=>{
-    //     console.log(
-    //         "IN props useeefec"
-    //     )
-    // }, [props])
-    // useEffect(()=> {
-    //     getTodaysGain()
-    // }, [props])
-
-
-    const handleSignOut = async () => {
-        console.log(auth.currentUser.uid)
-        console.log("in handle sign out")
-        // try {
-        //     await db.collection('users').doc(auth.currentUser.uid).update({stocks: userData})
-            
-        // } catch (error) {
-
-        //     console.log(error)
-            
-        // } finally {
-        //     console.log("IN AUTH SINGOUT")
-        //     await auth.signOut();
-        // }
-        updateDB()
-        // props.navigation.popToTop()
-        await auth.signOut();
-
-
-    }
+    useEffect(()=> {
+        addStock()
+    }, [props])
     
-        return (
-            <View style={
-                GlobalStyles.homePageContainer
-            }>
-                 <View style={libraryStyles.graphicContainer}>
-                        <Graphic
-                        scale = {1.4}
-                        />                    
-                </View>
+    return (
+         <View style={
+             GlobalStyles.homePageContainer
+         }>
+              <View style={libraryStyles.graphicContainer}>
+                     <Graphic
+                     scale = {1.4}
+                     />                    
+             </View>
 
-                <View style={libraryStyles.headerContainer}>
-
-
-                    <Text 
-                    style = {
-                        {
-                            color:'white', 
-                            fontWeight: 'bold'
-                        }
-                    }>
-                        Library
-                    </Text>
-
-                    {/**
-                     * Settings icon
-                     */}
-                    <TouchableOpacity
-                    onPress = {()=> {
-
-                        setVisible(true)                        
-                    }}
-                    >
+             <View style={libraryStyles.headerContainer}>
+                <Text 
+                style = {
+                    {
+                        color:'white', 
+                        fontWeight: 'bold'
+                    }
+                }>
+                    Library
+                </Text>
+                {/**
+                 * Settings icon
+                 */}
+                <TouchableOpacity
+                onPress = {() =>     
+                    setVisible(true)                        
+                }>
                         <Ionicons 
                         name="ios-settings-outline" 
-                        size={normalize.setNormalize(24)} 
+                        size={normalize.setNormalize(20)} 
                         color="white" 
                         />
-
                     </TouchableOpacity>
                 </View>
 

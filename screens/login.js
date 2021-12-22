@@ -29,12 +29,12 @@ function Login(props) {
     return (
         <SafeAreaView>
             <KeyboardAvoidingView
-             keyboardShouldPersistTaps='always'
-             keyboardDismissMode = 'on-drag'
+            style={{paddingTop: normalize.setNormalize(20)}}
+            
             >
                 <TouchableOpacity style={{width: '100%', flexDirection: 'row', alignItems: 'center'}}
                 onPress={() => {
-                    props.navigation.goBack()
+                    props.navigation.replace("Welcome")
                 }}
                 >
                     <Ionicons 
@@ -48,7 +48,7 @@ function Login(props) {
 
             </TouchableOpacity>
             
-            <View style={{height: normalize.setNormalize(55), width: '100%', paddingTop: normalize.setNormalize(50), position: 'absolute'}}>
+            <View style={{height: normalize.setNormalize(55), width: '100%', paddingTop: normalize.setNormalize(50)}}>
                 <Graphic
                 scale = {0.3}
                 />

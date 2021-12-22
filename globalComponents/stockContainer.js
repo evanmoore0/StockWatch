@@ -44,7 +44,8 @@ function StockContainer(props){
                         sName: props.sName,
                         ticker: props.ticker,
                         percentChange: props.percentChange,
-                        display: props.display
+                        display: props.display,
+                        score: props.score
                     }
                 })
             }

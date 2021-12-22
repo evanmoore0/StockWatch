@@ -1,65 +1,29 @@
-import React, { Component, useEffect } from "react";
+import React, {useEffect } from "react";
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import normalize from "../utils/normalize";
-import GlobalStyles from "../utils/globalStyles";
 import Graphic from "../globalComponents/graphic";
 
 //Firebase Auth
-import { auth } from "../utils/firebase-config";
-
-
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function Welcome(props) {
 
-    //Called when the user closes the app
-    // componentDidMount() {
-    //     this.checkUserStatus()
-
-    //     console.log("In Welcome Mount")
-        
-    // }
-
-    // componentWillUnmount() {
-    //     console.log("In Welcome UnMount")
-    // }
-
-    //Check to see if user is signed in -> direct to stocks page if they are
-    // checkUserStatus() {
-    //     console.log("In checkuser status")
-    //     auth.onAuthStateChanged((user)=> {
-    //         if(user) {
-    //             this.props.navigation.replace('TabStack')
-    //         }
-    //     })
-    // }
-    // const checkUserStatus = () => {
-
-    //     console.log("IN CHECK USER STATUS")
-
-    //     auth.onAuthStateChanged((user) => {
-    //         if(user) {
-    //             props.navigation.replace('TabStack')
-    //         }
-    //     })
-
-    // }
-
-
     useEffect(()=> {
-
-        console.log("In welcome useEffect")
 
     }, [])
 
         return (
-            <View style={GlobalStyles.screenContainer}>
+            <SafeAreaView style={{flex:1, paddingTop: normalize.setNormalize(20)}}>
 
                 {/**
                  Title of the welcome page
                  */}
-                <Text style={WelcomeStyles.title}>
-                    Stock Watch
-                </Text>
+                 <View style={{width: normalize.setNormalize(200), alignItems:'center'}}>
+                    <Text style={WelcomeStyles.title}>
+                       Stock Watch
+                    </Text>
+                 </View>
+               
 
                 {/**
                  Subtitle of the welcome page
@@ -84,13 +48,13 @@ function Welcome(props) {
                 {/**
                  Register button
                  */}
-                <TouchableOpacity
+
+                 <View style={[WelcomeStyles.container, {paddingBottom: normalize.setNormalize(20)}]}>
+                 <TouchableOpacity
                 style={WelcomeStyles.buttonContainer}
                 onPress = {() => {
 
                 props.navigation.replace('Register')
-
-
 
                 }}
                 >
@@ -101,22 +65,29 @@ function Welcome(props) {
 
                 </Text>
                 </TouchableOpacity>
+
+                 </View>
+                
                
                {/**
                 Text under register button (Click if already have an account)
                  */}
-                <TouchableOpacity
-                style = {WelcomeStyles.buttonSubtitleContainer}
-                onPress = {() => {
+                 <View style={WelcomeStyles.container}>
+                     <TouchableOpacity
+                    style = {WelcomeStyles.buttonSubtitleContainer}
+                    onPress = {() => {
 
-                    props.navigation.replace("Login")
-                }}
-                >
-                    <Text style={WelcomeStyles.buttonSubtitle}>Already have an account?</Text>
-                    <Text style={WelcomeStyles.buttonSubtitle}>Login here</Text>
-                </TouchableOpacity>
+                        props.navigation.replace("Login")
+                    }}
+                    >
+                        <Text style={WelcomeStyles.buttonSubtitle}>Already have an account?</Text>
+                        <Text style={WelcomeStyles.buttonSubtitle}>Login here</Text>
+                    </TouchableOpacity>
 
-            </View>
+                 </View>
+                
+
+            </SafeAreaView>
         )
     
 }
@@ -127,60 +98,63 @@ const WelcomeStyles = StyleSheet.create({
 
     title: {
 
-        flex: normalize.setNormalize(60),
-        fontSize: normalize.setNormalize(61),
-        color: 'white'
+        fontSize: normalize.setNormalize(27),
+        color: 'white',
+        fontWeight: '700'
 
     },
 
     subTitleContainer: {
 
-        flex: normalize.setNormalize(56),
-        paddingTop: normalize.setNormalize(20),
-        justifyContent: 'center',
-        alignItems: 'center'
+        paddingTop: normalize.setNormalize(5),
+        width: normalize.setNormalize(200),
+       
     },
 
     subTitle: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        color: '#82C8FB',
-        fontSize: normalize.setNormalize(20),
-        paddingBottom: normalize.setNormalize(3)
+        color: 'gray',
+        fontSize: normalize.setNormalize(12),
+        paddingBottom: normalize.setNormalize(3),  
+        textAlign: 'center'  ,
     },
 
     graphicContainer: {
-        flex: normalize.setNormalize(455),
-        width: '100%'
+        flex:1,
     },
 
     buttonSubtitleContainer: {
-        flex: normalize.setNormalize(60),
         paddingBottom: normalize.setNormalize(50),
         justifyContent: 'center',
         alignItems: 'center'
     },
 
     buttonSubtitle: {
-        fontSize: normalize.setNormalize(15),
+        fontSize: normalize.setNormalize(10),
         color: 'white',
 
     },
 
     buttonContainer: {
-        height: normalize.setNormalize(65),
-        width: normalize.setNormalize(210),
+        height: normalize.setNormalize(40),
+        paddingHorizontal: normalize.setNormalize(70),
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: normalize.setNormalize(50),
-        backgroundColor: '#6AB664'
+        backgroundColor: '#6AB664',
     },
 
     buttonText: {
 
-        fontSize: normalize.setNormalize(27),
+        fontSize: normalize.setNormalize(16),
         color: 'white'
 
+    },
+
+    container: {
+        width: '100%', 
+        justifyContent: 'center', 
+        alignItems:'center', 
+        paddingBottom: normalize.setNormalize(150)
     }
 
 

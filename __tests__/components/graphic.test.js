@@ -1,7 +1,7 @@
-
 import React from "react";
 import renderer from 'react-test-renderer'
-import Graphic from '../graphic'
+
+import Graphic from "../../globalComponents/graphic";
 
 jest.useFakeTimers();
 

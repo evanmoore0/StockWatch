@@ -376,7 +376,8 @@ function Stocks({navigation}) {
                                 {
                                     paddingTop: normalize.setNormalize(100), 
                                     flex:1, 
-                                    justifyContent: 'space-evenly'
+                                    justifyContent: 'space-evenly',
+                                    marginHorizontal: normalize.setNormalize(80)
                                 }
                             }>
 

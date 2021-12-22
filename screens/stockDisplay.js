@@ -1,7 +1,7 @@
 
 //React imports
-import React, { useEffect, useRef, useState } from "react";
-import {View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions, Alert, FlatList, Image, ActivityIndicator} from 'react-native';
+import React, { useEffect, useState } from "react";
+import {View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, FlatList, Image, ActivityIndicator} from 'react-native';
 
 //Victory Native components (Graph)
 import {VictoryLine, createContainer, LineSegment, VictoryTooltip} from 'victory-native'
@@ -126,7 +126,9 @@ function StockDisplay(props) {
                 </TouchableOpacity>
             )
         } else {
-            return <View></View>
+            return (
+                <View></View>
+            )
         }
     }
 
@@ -270,8 +272,9 @@ function StockDisplay(props) {
     //period: use to set hooks of day/week/month/year so don't have to make api call everytime user switches between them
     const getGraphData = async (startDate, endDate, timespan, multiplier, period) => {
         let tempGraphData = []
+
         try {
-            await fetch('https://api.polygon.io/v2/aggs/ticker/' + props.route.params.stock.ticker + '/range/' + multiplier + '/'+ timespan + '/' + startDate + '/' + endDate + '?adjusted=true&sort=asc&limit=120&apiKey=' + config.POLYGON_API_KEY)
+            await fetch('https://api.polygon.io/v2/aggs/ticker/' + props.route.params.stock.ticker + '/range/' + multiplier + '/'+ timespan + '/' + startDate + '/' + endDate + '?adjusted=true&sort=asc&limit=300&apiKey=' + config.POLYGON_API_KEY)
             .then(
                 function(response) {
                     return response.json()
@@ -284,6 +287,8 @@ function StockDisplay(props) {
                     setOpen(data.results[0].h)
 
                     for(let date in data.results) {
+
+                        console.log(data.results[date].h)
                         
                         tempGraphData.push(
                             {
@@ -332,6 +337,10 @@ function StockDisplay(props) {
 
         let year = date.getFullYear()
 
+        //Month returns 0-11
+        startMonth = startMonth + 1
+        endMonth = endMonth + 1
+
 
         //If user presses on 1D button
         if(i == 0) {
@@ -341,11 +350,13 @@ function StockDisplay(props) {
             if(endDay == 1) {
                 startMonth = startMonth - 1
                 startDay = 28
+             
             } else {
                 startDay = startDay - 1
             }
 
-            getGraphData(year.toString() + "-" + startMonth.toString() + "-" + startDay.toString(), year.toString() + "-" + endMonth.toString() + "-" + endDay.toString(), "minute", "1", "day")
+            getGraphData(year.toString() + "-" + startMonth.toString() + "-" + startDay.toString(), 
+            year.toString() + "-" + endMonth.toString() + "-" + endDay.toString(), "minute", "1", "day")
 
         //If user presses on 1W button
         } else if (i == 1) {
@@ -357,7 +368,8 @@ function StockDisplay(props) {
                 startDay = startDay - 7
             }
 
-            getGraphData(year.toString() + "-" + startMonth.toString() + "-" + startDay.toString(), year.toString() + "-" + endMonth.toString() + "-" + endDay.toString(), "minute", "1", "week")
+            getGraphData(year.toString() + "-" + startMonth.toString() + "-" + startDay.toString(), 
+            year.toString() + "-" + endMonth.toString() + "-" + endDay.toString(), "minute", "1", "week")
 
         //If user presses 1M
         } else if(i==2){
@@ -369,11 +381,13 @@ function StockDisplay(props) {
                 startMonth = startMonth - 1
             }
 
-            getGraphData(year.toString() + "-" + startMonth.toString() + "-" + startDay.toString(), year.toString() + "-" + endMonth.toString() + "-" + endDay.toString(), "day", "1", "month")
+            getGraphData(year.toString() + "-" + startMonth.toString() + "-" + startDay.toString(), 
+            year.toString() + "-" + endMonth.toString() + "-" + endDay.toString(), "day", "1", "month")
         //User presses 1Y
         } else {
 
-            getGraphData((year-1).toString() + "-" + startMonth.toString() + "-" + startDay.toString(), year.toString() + "-" + endMonth.toString() + "-" + endDay.toString(), "week", "1", "year")
+            getGraphData((year-1).toString() + "-" + startMonth.toString() + "-" + startDay.toString(), 
+            year.toString() + "-" + endMonth.toString() + "-" + endDay.toString(), "week", "1", "year")
 
         }
     }
@@ -386,6 +400,13 @@ function StockDisplay(props) {
         getPercentChange()
         setScore()
         getOtherGraphData(0)
+
+        return () => {
+            setDayData({})
+            setWeekData({})
+            setMonthData({})
+            setYearData({})
+        }
      
      }, [props]);
     
@@ -413,7 +434,9 @@ function StockDisplay(props) {
                     //Line that displays percent change
                     cursorComponent={<LineSegment style={{stroke:"white", strokeWidth: 1.5}}/>}
                     //Calculates percent change
-                    labels = {(point)=> "% " + (Math.round((((point.datum.y-open)/open)*100)*100)/100).toString()}
+                    labels = {(point)=>  "% " + (Math.round((((point.datum.y-open)/open)*100)*100)/100).toString()
+                }
+                    // "% " + (Math.round((((point.datum.y-open)/open)*100)*100)/100).toString()
 
                     cursorDimension = "x"
                     voronoiDimension = "x"
