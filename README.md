@@ -14,7 +14,7 @@ After our meeting caching and using a timeout is clearly the best method to redu
 
 Security:
 
-- Api Endpoints / Keys
+- Api Endpoints / Keys \n
 In the react native documentation they recommend storing your api keys and endpoints in either by using react-native-config or react-native-dotenv. I decided to use react-native-dotenv because the setup was very straight forward and it is compatible with expo. 
 
 - Asynchronous data
