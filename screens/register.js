@@ -162,7 +162,7 @@ const RegisterStyles = StyleSheet.create({
 
     entryContainer: {
         width: '100%',
-        paddingTop: normalize.setNormalize(80),
+        paddingTop: normalize.setNormalize(45),
         justifyContent: 'center',
         alignItems: 'center'
     },
