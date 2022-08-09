@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View} from "react-native";
+import { View, Image} from "react-native";
 import { auth } from "../utils/firebase-config";
 import Graphic from "../globalComponents/graphic";
 
@@ -22,11 +22,18 @@ function Loading(props) {
     }, [])
 
     return(
-        <View style={{flex:1}}>
+        <View style={{flex:1, justifyContent: 'center', alignItems: 'center'}}>
 
-            <Graphic
-            scale = {1.5}
-            />
+            {/* <Image
+                    style = {{width: 400, height: 400, borderRadius: 200}}
+                    source = {require('./imgs/profilePic.png')}
+                    
+
+                    /> */}
+
+                <Graphic
+                scale = {1}
+                />
             
         </View>
     )

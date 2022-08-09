@@ -68,7 +68,8 @@ function StockContainer(props){
                     <Text style = {
                         {
                             color: Constants.STOCK_NAME_FONT.tickerColor, 
-                            fontSize: Constants.STOCK_NAME_FONT.tickerSize
+                            fontSize: Constants.STOCK_NAME_FONT.tickerSize,
+                            paddingVertical: normalize.setNormalize(1)
                         }
                     }>
                         {props.ticker}
@@ -77,7 +78,7 @@ function StockContainer(props){
                     <Text style = {
                         {
                             color: 'white', 
-                            fontSize: normalize.setNormalize(12)
+                            fontSize: normalize.setNormalize(10)
                         }
                     }>
                         {props.score}

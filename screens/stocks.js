@@ -1,7 +1,7 @@
 
 //React Imports
 import React, { useEffect, useRef, useState } from 'react';
-import {FlatList, Text, TextInput, View, ScrollView, Modal, TouchableOpacity, KeyboardAvoidingView, Animated, Keyboard, RefreshControl, Alert, StyleSheet} from 'react-native';
+import {FlatList, Text, TextInput, View, ScrollView, Modal, TouchableOpacity, KeyboardAvoidingView, Animated, Keyboard, RefreshControl, Alert, StyleSheet, LogBox} from 'react-native';
 
 //Icon imports
 import { Ionicons } from '@expo/vector-icons';
@@ -25,11 +25,13 @@ import {db} from '../utils/firebase-config'
 import config from '../config';
 import Constants from '../Constants';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import GraphicUnderlay from '../globalComponents/graphicUnderlay';
 
 //Timer for refreshing
 const wait = (timeout) => {
     return new Promise(resolve => setTimeout(resolve, timeout))
 }
+
 
 //Text displayed when user presses info icon
 const modalText = (text) => {
@@ -38,12 +40,14 @@ const modalText = (text) => {
         style = {
             {
                 flexDirection: 'row', 
-                justifyContent: 'center'
+                justifyContent: 'center',
+                paddingHorizontal: normalize.setNormalize(24),
+                alignItems: 'flex-start'
             }
         }>
             <EvilIcons 
             name="eye" 
-            size={normalize.setNormalize(30)} 
+            size={normalize.setNormalize(25)} 
             color="white" />
 
             <Text 
@@ -84,6 +88,140 @@ function Stocks({navigation}) {
 
     //Regex for cleaning stock name
     const clean = /Brands/g
+
+
+    const InfoModal = () => {
+        return (
+            <Modal
+                visible = {displayInfoOne}
+                presentationStyle = "overFullScreen"
+                animationType = 'fade' 
+                >
+                    {/*
+                    Allows user to press anywhere on the screen to dismiss the modal
+                    */}
+                    <View 
+                    style = {
+                        {
+                            flex:1,
+                            backgroundColor: 'black'
+                        }
+                    }
+                   
+                    >
+                       <View 
+                       style={stockStyles.modalScreenContainer}>
+                            <View 
+                            style = {
+                                {
+                                    flexDirection: 'row', 
+                                    alignItems: 'center'
+                                }
+                            }>
+                                <Text 
+                                style={stockStyles.modalText}>
+                                   {'Hello and welcome to   '}
+                                </Text>
+
+                                <Text 
+                                style = {
+                                    [stockStyles.modalText, 
+                                    {fontWeight: '800', fontSize: normalize.setNormalize(20)}]
+                                }>
+                                    Stock Watch!
+                                </Text>
+
+                            </View>
+                          
+
+                            <View style={stockStyles.modalGraphicContainer}>
+
+                                <Graphic
+                                scale = {0.6}
+                                />
+
+                            </View>
+
+                            <View 
+                            style = {
+                                {
+                                    paddingTop: normalize.setNormalize(100), 
+                                    flex:1, 
+                                    justifyContent: 'center',
+                                    marginHorizontal: normalize.setNormalize(80)
+                                }
+                            }>
+
+                                {modalText('Keep track of the hottest stocks by visiting the Trending Page.')}
+                                {modalText('The number under the stock ticker is the number of times a stock has been searched on the app.')}
+                                {modalText('All data provided is real.')}
+                                {modalText('Add stocks to your library by pressing the plus icon on the stock\'s display page!')}
+                                {modalText('Remove stocks from your library by swiping left on the stock and pressing the red X')}
+
+                                <TouchableOpacity
+                                style={stockStyles.modalButtonContainer}
+                                onPress = {
+                                    () => {
+                                        setDisplayInfoOne(false)
+                                    }   
+                                }>
+                                    <Feather 
+                                    name="thumbs-up" 
+                                    size={normalize.setNormalize(24)} 
+                                    color="white" 
+                                    />
+
+                                </TouchableOpacity>
+                            </View>
+                       </View>
+
+                    </View>
+
+                </Modal>
+        )
+    }
+
+    const Header = () => {
+        return(
+             <View 
+                style = {
+                    {
+                        width: '100%', 
+                        flexDirection: 'row', 
+                        justifyContent: 'space-between'
+                    }
+                }>
+
+                    {/*
+                    Trending title
+                    */}
+                    <Text 
+                    style = {
+                        {
+                            color:'white', 
+                            fontWeight: 'bold'
+                        }
+                    }>
+                        Trending
+                    </Text>
+
+                    {/*
+                    Info button
+                    */}
+                    <TouchableOpacity
+                    onPress = {() => {
+                        setDisplayInfoOne(true)
+                    }}>
+                        <MaterialIcons 
+                        name="info-outline" 
+                        size={normalize.setNormalize(24)} 
+                        color="white" 
+                        />
+                    </TouchableOpacity>
+                    
+                </View>
+        )
+    }
 
     //Shrinking animation
     const animate = () => {
@@ -180,7 +318,7 @@ function Stocks({navigation}) {
             )
         } catch (error) {
 
-            Alert.alert("We couldn't fetch ticker data please try restarting the app")
+            Alert.alert("We were unable to get the percent change for the trending stocks, please try restarting the app")
             
         }
     }
@@ -219,6 +357,7 @@ function Stocks({navigation}) {
             //After getting 10 stocks with highest score fetch their percent change
             .then(
                 async function() {
+                    
                     try {
                         await fetch('https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=' + listStocks +'&apiKey=' + config.POLYGON_API_KEY)
                         .then(
@@ -248,6 +387,7 @@ function Stocks({navigation}) {
     //Called every time the component is mounted
     //Get trending data and all tickers
     useEffect(() => {
+        LogBox.ignoreAllLogs()
         getTrending()
         getTickers()
     }, []);
@@ -285,16 +425,10 @@ function Stocks({navigation}) {
             {/*
             Graphic that is displayed under trending 
              */}
-            <View 
-            style = {
-                stockStyles.graphicContainer
-            }>
-
-                    <Graphic
-                    scale = {1.4}
-                    />       
-
-            </View>
+           
+            <GraphicUnderlay
+            top = {60}
+            />
                 
             {/*
             Scroll View for the whole page, allows trending title and info icon to scroll.
@@ -321,133 +455,13 @@ function Stocks({navigation}) {
                 {/*
                 Information page
                 */}
-                <Modal
-                visible = {displayInfoOne}
-                presentationStyle = "overFullScreen"
-                animationType = 'fade' 
-                >
-                    {/*
-                    Allows user to press anywhere on the screen to dismiss the modal
-                    */}
-                    <View 
-                    style = {
-                        {
-                            flex:1,
-                            backgroundColor: 'black'
-                        }
-                    }
-                   
-                    >
-                       <View 
-                       style={stockStyles.modalScreenContainer}>
-                            <View 
-                            style = {
-                                {
-                                    flexDirection: 'row', 
-                                    alignItems: 'center'
-                                }
-                            }>
-                                <Text 
-                                style={stockStyles.modalText}>
-                                   {'Hello and welcome to   '}
-                                </Text>
-
-                                <Text 
-                                style = {
-                                    [stockStyles.modalText, 
-                                    {fontWeight: '800', fontSize: normalize.setNormalize(20)}]
-                                }>
-                                    Stock Watch!
-                                </Text>
-
-                            </View>
-                          
-
-                            <View style={stockStyles.modalGraphicContainer}>
-
-                                <Graphic
-                                scale = {0.6}
-                                />
-
-                            </View>
-
-                            <View 
-                            style = {
-                                {
-                                    paddingTop: normalize.setNormalize(100), 
-                                    flex:1, 
-                                    justifyContent: 'space-evenly',
-                                    marginHorizontal: normalize.setNormalize(80)
-                                }
-                            }>
-
-                                {modalText('Keep track of the hottest stocks by visiting the Trending Page.')}
-                                {modalText('The number under the stock ticker is the number of times a stock has been searched on the app.')}
-                                {modalText('All data provided is real.')}
-                                {modalText('Add stocks to your library by pressing the plus icon on the stock\'s display page!')}
-                                {modalText('Remove stocks from your library by swiping left on the stock and pressing the red X')}
-
-                                <TouchableOpacity
-                                style={stockStyles.modalButtonContainer}
-                                onPress = {
-                                    () => {
-                                        setDisplayInfoOne(false)
-                                    }   
-                                }>
-                                    <Feather 
-                                    name="thumbs-up" 
-                                    size={normalize.setNormalize(24)} 
-                                    color="white" 
-                                    />
-
-                                </TouchableOpacity>
-                            </View>
-                       </View>
-
-                    </View>
-
-                </Modal>
+                <InfoModal/>
+                
 
                 {/*
                 Trending title and info button container
                 */}
-                <View 
-                style = {
-                    {
-                        width: '100%', 
-                        flexDirection: 'row', 
-                        justifyContent: 'space-between'
-                    }
-                }>
-
-                    {/*
-                    Trending title
-                    */}
-                    <Text 
-                    style = {
-                        {
-                            color:'white', 
-                            fontWeight: 'bold'
-                        }
-                    }>
-                        Trending
-                    </Text>
-
-                    {/*
-                    Info button
-                    */}
-                    <TouchableOpacity
-                    onPress = {() => {
-                        setDisplayInfoOne(true)
-                    }}>
-                        <MaterialIcons 
-                        name="info-outline" 
-                        size={normalize.setNormalize(24)} 
-                        color="white" 
-                        />
-                    </TouchableOpacity>
-                    
-                </View>
+               <Header/>
 
                 {/*
                 Container for search bar and cancel button (without it sticky header indices messes up)
@@ -473,8 +487,8 @@ function Stocks({navigation}) {
                         */}
                         <Animated.View 
                         style = {
-                            [GlobalStyles.searchBarContainer], 
-                            { width: width }
+                            [GlobalStyles.searchBarContainer, 
+                            { width: width }]
                         }>
                             
                             {/*
@@ -488,7 +502,8 @@ function Stocks({navigation}) {
                                     width: '100%', 
                                     borderRadius: normalize.setNormalize(10), 
                                     paddingLeft: normalize.setNormalize(20), 
-                                    fontSize: normalize.setNormalize(18), 
+                                    fontSize: normalize.setNormalize(14), 
+                                    fontWeight: 'bold',
                                     color: 'white'
                                 }}
 
@@ -563,21 +578,12 @@ function Stocks({navigation}) {
 export default Stocks;
 
 const stockStyles = StyleSheet.create({
-    graphicContainer: {
-        position: 'absolute', 
-        top: normalize.setNormalize(60), 
-        width: '100%', 
-        height: normalize.setNormalize(800), 
-        opacity: 0.06, 
-        backgroundColor:'black'
-    },
 
     modalText: {
         color: 'white',
         textAlign: 'center',
-        textShadowColor: 'white',
-        textShadowRadius: 10,
-        fontSize: normalize.setNormalize(20)
+        fontSize: normalize.setNormalize(14),
+        paddingLeft: normalize.setNormalize(10)
     },
 
     modalButtonContainer: {

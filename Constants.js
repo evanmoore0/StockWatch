@@ -6,9 +6,9 @@ const Constants = {
         blue: '#82C8FB'
     },
     STOCK_NAME_FONT: {
-        size: normalize.setNormalize(16),
+        size: normalize.setNormalize(12),
         weight: '800',
-        tickerSize: normalize.setNormalize(12),
+        tickerSize: normalize.setNormalize(11),
         tickerColor: 'gray'
     },
     SEARCHBAR: {

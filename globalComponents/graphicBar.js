@@ -21,6 +21,7 @@ function GraphicBar(props) {
             {
             toValue:1,
             duration: 3000,
+            delay: props.delay,
             useNativeDriver: true
             }
         ).start(() => handleAnimationTwo())

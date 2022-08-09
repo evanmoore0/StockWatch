@@ -1,5 +1,5 @@
 import React, {useEffect } from "react";
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native';
 import normalize from "../utils/normalize";
 import Graphic from "../globalComponents/graphic";
 
@@ -18,9 +18,11 @@ function Welcome(props) {
                 {/**
                  Title of the welcome page
                  */}
-                 <View style={{width: normalize.setNormalize(200), alignItems:'center'}}>
+                 <View style={{alignItems: 'flex-start', paddingLeft: normalize.setNormalize(10)}}>
+                     <View style={{justifyContent:'center'}}>
+                     <View style={{alignItems:'center'}}>
                     <Text style={WelcomeStyles.title}>
-                       Stock Watch
+                        Stock Watch
                     </Text>
                  </View>
                
@@ -32,6 +34,11 @@ function Welcome(props) {
                     <Text style={WelcomeStyles.subTitle}>Keep track of all your stocks</Text>
                     <Text style={WelcomeStyles.subTitle}>at the click of a button</Text>
                 </View>
+
+                     </View>
+                 
+                 </View>
+
 
                 {/**
                  Graphic
@@ -85,6 +92,25 @@ function Welcome(props) {
                     </TouchableOpacity>
 
                  </View>
+
+                 
+                 {/* <View
+                 style={{ justifyContent: 'center', alignItems: 'center', paddingBottom: normalize.setNormalize(80)}}
+                 >
+                     <Image
+                    style = {{height:200, width: 200, borderRadius: 100}}
+                    source = {require('./imgs/profilePic.png')}
+                    />
+
+                    <Text
+                    style={{paddingTop: 30, color: 'white'}}
+                    >
+
+                        HMMMMMMMMMMMM
+                        
+                    </Text>
+
+                 </View> */}
                 
 
             </SafeAreaView>
@@ -98,7 +124,7 @@ const WelcomeStyles = StyleSheet.create({
 
     title: {
 
-        fontSize: normalize.setNormalize(27),
+        fontSize: normalize.setNormalize(20),
         color: 'white',
         fontWeight: '700'
 
@@ -107,7 +133,6 @@ const WelcomeStyles = StyleSheet.create({
     subTitleContainer: {
 
         paddingTop: normalize.setNormalize(5),
-        width: normalize.setNormalize(200),
        
     },
 
@@ -154,7 +179,7 @@ const WelcomeStyles = StyleSheet.create({
         width: '100%', 
         justifyContent: 'center', 
         alignItems:'center', 
-        paddingBottom: normalize.setNormalize(150)
+        paddingBottom: normalize.setNormalize(0)
     }
 
 

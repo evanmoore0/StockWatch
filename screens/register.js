@@ -139,7 +139,7 @@ function Register (props) {
                 >
                     <Text style={RegisterStyles.buttonText}>
 
-                        Login
+                        Register
 
                     </Text>
                 </TouchableOpacity>

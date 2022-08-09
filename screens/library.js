@@ -1,14 +1,14 @@
 
 //React imports
 import React, { useEffect, useState, useRef } from "react";
-import {View, Text, TouchableOpacity, FlatList, ScrollView, Alert, Modal, ActivityIndicator, StyleSheet, AppState} from 'react-native';
+import {View, Image, Text, TouchableOpacity, FlatList, ScrollView, Alert, Modal, ActivityIndicator, StyleSheet, AppState, LogBox} from 'react-native';
 
 //Firebase imports
 import { auth, db } from "../utils/firebase-config";
 
 //Components
 import StockContainer from "../globalComponents/stockContainer";
-import Graphic from "../globalComponents/graphic";
+import GraphicUnderlay from "../globalComponents/graphicUnderlay";
 
 //Styles
 import GlobalStyles from "../utils/globalStyles";
@@ -38,7 +38,7 @@ function Library(props) {
 
     //All/Gainers/Losers buttons
     const [fontWeight, setFontWeight] = useState(['700', '400', '400'])
-    const [lineHeight, setLineHeight] = useState([1, 0.2, 0.2])
+    const [lineHeight, setLineHeight] = useState([2, 0.2, 0.2])
 
     //Whether modal should be shown
     const [isVisible, setVisible] = useState(false)
@@ -68,29 +68,126 @@ function Library(props) {
     const [color, setColor] = useState("white")
 
 
+
+    const Header = () => {
+        return (
+            <View style={libraryStyles.headerContainer}>
+                <View>
+                <Text 
+                style = {
+                    {
+                        color:'white', 
+                        fontWeight: 'bold'
+                    }
+                }>
+                    Library
+                </Text>
+                    <Text style={{fontWeight: 'bold', color: color, fontSize: normalize.setNormalize(12), paddingTop: normalize.setNormalize(4)}}>
+                        {toadysGain}
+                    </Text>
+                </View>
+
+                
+               
+                {/**
+                 * Settings icon
+                 */}
+                <TouchableOpacity
+                onPress = {() =>     
+                    setVisible(true)                        
+                }>
+                        <Ionicons 
+                        name="ios-settings-outline" 
+                        size={normalize.setNormalize(20)} 
+                        color="white" 
+                        />
+                </TouchableOpacity>
+            </View>
+        )
+
+    }
+
+
+    const SignOutModal = () => {
+        return (
+            <Modal
+                visible = {isVisible}
+                presentationStyle = "overFullScreen"
+                transparent = {true}
+                animationType = "slide"
+                >
+                    <View style={libraryStyles.modalScreenContainer}>
+                        <View style={libraryStyles.modalContainer}>
+                            <View style={libraryStyles.modalXButtonContainer}>
+                                <TouchableOpacity style={libraryStyles.modalXButton}
+                                onPress= {()=> {
+                                    setVisible(false)
+                                }}
+                                >
+                                    <AntDesign 
+                                    name="close" 
+                                    size={normalize.setNormalize(24)} 
+                                    color="white" 
+                                    />
+
+                                </TouchableOpacity>
+                            </View>
+
+                            <View style={{paddingBottom: normalize.setNormalize(40)}}>
+                                <TouchableOpacity style={libraryStyles.modalTextContainer}
+                                onPress = {()=>{
+                                    handleSignOut()
+                                }}
+                                >
+                                    <Text style={{color: 'white'}}>Sign out</Text>
+                                </TouchableOpacity>
+                        </View>
+
+                    </View>
+
+                </View>
+
+            </Modal>
+        )
+    }
+
+    const AllGainersLosersTitle = () => {
+        return(
+            <View style={libraryStyles.allGainersLosersBackground}>
+
+                <View style= {libraryStyles.allGainersLosersContainer}>
+                    {allGainersLosers(0, "All")}
+                    {allGainersLosers(1, "Gainers")}
+                    {allGainersLosers(2, "Losers")}
+                </View>
+
+            </View>
+        )
+    }
+
+
+
+
     const allGainersLosers = (index, text) => {
         return(
-                <View style={{ width: '34%', alignItems: 'center'}}>
-                    <TouchableOpacity
-                    style={{width:'100%', alignItems:'center'}}
-                    onPress = {()=> {
-                        handleClick(index)
-                        }
-                    }>
-                            <Text style={[libraryStyles.allGainersLosersText, {fontWeight: fontWeight[index]}]}>{text}</Text>
-                        <View style={libraryStyles.linePadding}>
-                            <View style={[libraryStyles.line, {height: lineHeight[index]}]}></View>
-                        </View>
-                    </TouchableOpacity>
-                        
-                </View>
+                <TouchableOpacity
+                style={{width:'34%', alignItems:'center'}}
+                onPress = {()=> {
+                    handleClick(index)
+                    }
+                }>
+                        <Text style={[libraryStyles.allGainersLosersText, {fontWeight: fontWeight[index]}]}>{text}</Text>
+                    <View style={libraryStyles.linePadding}>
+                        <View style={[libraryStyles.line, {height: lineHeight[index]}]}></View>
+                    </View>
+                </TouchableOpacity>   
         )
 
     }
 
 
     //Show activity indicator when data is loading, display stock containers when done
-    const stockContainers = () => {
+    const StockContainers = () => {
         if(loading) {
             return (<ActivityIndicator
             color = {Constants.THEME_COLOR.blue}
@@ -168,8 +265,10 @@ function Library(props) {
 
         if(gain > 0) {
             setColor(Constants.THEME_COLOR.green)
+            setTodaysGain("+" + (Math.round((gain/stockData.length)*100)/100).toString() + "%")
         } else {
             setColor(Constants.THEME_COLOR.blue)
+            setTodaysGain((Math.round((gain/stockData.length)*100)/100).toString() + "%")
         }
     }
 
@@ -278,6 +377,7 @@ function Library(props) {
 
     useEffect(() => {
 
+        LogBox.ignoreAllLogs()
         getPercentChange()
 
     }, [userData])
@@ -292,6 +392,7 @@ function Library(props) {
             .get()
             .then(
                 function(response) {
+                    console.log(response.data())
                     updateUserData(response.data().stocks)
                  
                 }
@@ -402,111 +503,26 @@ function Library(props) {
     }, [props])
     
     return (
-         <View style={
-             GlobalStyles.homePageContainer
-         }>
-              <View style={libraryStyles.graphicContainer}>
-                     <Graphic
-                     scale = {1.4}
-                     />                    
-             </View>
 
-             <View style={libraryStyles.headerContainer}>
-                <Text 
-                style = {
-                    {
-                        color:'white', 
-                        fontWeight: 'bold'
-                    }
-                }>
-                    Library
-                </Text>
-                {/**
-                 * Settings icon
-                 */}
-                <TouchableOpacity
-                onPress = {() =>     
-                    setVisible(true)                        
-                }>
-                        <Ionicons 
-                        name="ios-settings-outline" 
-                        size={normalize.setNormalize(20)} 
-                        color="white" 
-                        />
-                    </TouchableOpacity>
-                </View>
+        //Container for whole screen
+         <View style = {GlobalStyles.homePageContainer}>
 
-                {/**
-                 * Sign out modal
-                 * 
-                 * Maybe make this a component?
-                 */}
-                <Modal
-                visible = {isVisible}
-                presentationStyle = "overFullScreen"
-                transparent = {true}
-                animationType = "slide"
-                >
-                    <View style={libraryStyles.modalScreenContainer}>
-                        <View style={libraryStyles.modalContainer}>
-                            <View style={libraryStyles.modalXButtonContainer}>
-                                <TouchableOpacity style={libraryStyles.modalXButton}
-                                onPress= {()=> {
-                                    setVisible(false)
-                                }}
-                                >
-                                    <AntDesign 
-                                    name="close" 
-                                    size={normalize.setNormalize(24)} 
-                                    color="white" 
-                                    />
+            <GraphicUnderlay top = {90}/>
+            
+            <SignOutModal/>
 
-                                </TouchableOpacity>
-                            </View>
 
-                            <View style={{paddingBottom: normalize.setNormalize(40)}}>
-                                <TouchableOpacity style={libraryStyles.modalTextContainer}
-                                onPress = {()=>{
-                                    handleSignOut()
-                                }}
-                                >
-                                    <Text style={{color: 'white'}}>Sign out</Text>
-                                </TouchableOpacity>
-                            </View>
+            <ScrollView
+            stickyHeaderIndices = {[1]}
+            style={{zIndex: 1}}
+            showsVerticalScrollIndicator = {false}
+            >
 
-                        </View>
+                <Header/>
 
-                    </View>
+                <AllGainersLosersTitle/>
 
-                </Modal>
-
-                <ScrollView
-                stickyHeaderIndices = {[1]}
-                style={{zIndex: 1}}
-                >
-
-                <View style={libraryStyles.todaysGainContainer}>
-                    <View style={libraryStyles.todaysGainBackground}>
-                        <Text style={{color: 'white', fontSize: normalize.setNormalize(14)}}>Today's Gain:</Text>
-                        <Text style={{fontSize: normalize.setNormalize(14), color: color, fontWeight: '700'}}>{" " + toadysGain }</Text>
-                    </View>
-
-                </View>
-
-                <View style={libraryStyles.allGainersLosersBackground}>
-
-                    <View style={libraryStyles.allGainersLosersContainer}>
-
-                        {allGainersLosers(0, "All")}
-                        {allGainersLosers(1, "Gainers")}
-                        {allGainersLosers(2, "Losers")}
-
-                    </View>
-
-                    
-                </View>
-
-                {stockContainers()}
+                <StockContainers/>
             
 
             </ScrollView>
@@ -525,14 +541,6 @@ const libraryStyles = StyleSheet.create({
         paddingHorizontal: normalize.setNormalize(10), 
         paddingBottom: normalize.setNormalize(20)
     }, 
-    graphicContainer: {
-        position: 'absolute', 
-        top: normalize.setNormalize(90), 
-        width: '100%', 
-        height: normalize.setNormalize(800), 
-        opacity: 0.06, 
-        zIndex: 0
-    },
 
     headerContainer: {
         width: '100%', 
@@ -576,43 +584,23 @@ const libraryStyles = StyleSheet.create({
         borderRadius: 50
     },
 
-    todaysGainContainer: {
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        width: '100%',
-        paddingBottom: normalize.setNormalize(15),
-        paddingTop: normalize.setNormalize(10), 
-    },
-
-    todaysGainBackground: {
-        flex:1, 
-        flexDirection: 'row', 
-        backgroundColor:'gray',  
-        justifyContent:'center', 
-        alignItems:'center',
-        borderRadius: normalize.setNormalize(10), 
-        height: normalize.setNormalize(32), 
-        paddingHorizontal: normalize.setNormalize(5)
-    },
-
+   
     allGainersLosersBackground: { 
-        height: normalize.setNormalize(60), 
         paddingTop: normalize.setNormalize(10), 
         backgroundColor: 'rgba(0, 0, 0, 0.8)', 
-        justifyContent: 'space-between'
+        width: '100%',
+        paddingBottom: normalize.setNormalize(15)
     },
 
     allGainersLosersContainer: {
         flexDirection: 'row', 
-        justifyContent: 'space-between', 
         width: '100%'
     },
 
     allGainersLosersText: {
         color: 'white', 
-        fontSize: normalize.setNormalize(20), 
+        fontSize: normalize.setNormalize(16), 
         paddingRight: normalize.setNormalize(15), 
-       
     },
 
     linePadding: {

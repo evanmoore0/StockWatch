@@ -1,7 +1,7 @@
 
 //React imports
 import React, { useEffect, useState } from "react";
-import {View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, FlatList, Image, ActivityIndicator} from 'react-native';
+import {View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, FlatList, Image, ActivityIndicator, LogBox} from 'react-native';
 
 //Victory Native components (Graph)
 import {VictoryLine, createContainer, LineSegment, VictoryTooltip} from 'victory-native'
@@ -65,6 +65,7 @@ function StockDisplay(props) {
     const [monthData, setMonthData] = useState([])
     const [yearData, setYearData] = useState([])
     const [dayData, setDayData] = useState([])
+
 
     //Container cursor/voronoi container for graph
     const Container = createContainer("voronoi", "cursor")
@@ -283,10 +284,14 @@ function StockDisplay(props) {
             .then(
 
                 function(data) {
+
+                    console.log(data)
                     //Use the first opening price to calculate the percent change
+    
                     setOpen(data.results[0].h)
 
                     for(let date in data.results) {
+
                         
                         tempGraphData.push(
                             {
@@ -314,7 +319,7 @@ function StockDisplay(props) {
             )
         } catch (error) {
 
-            Alert.alert("Up oh we couldn't fetch the graph data sorry :(")
+            console.log(error)
             //Set open and graph data so graph doesn't throw error when calculating percent change
             setOpen(0)
             setGraphData([{x:0, y:0}])
@@ -328,16 +333,30 @@ function StockDisplay(props) {
      const getOtherGraphData = (i) => {
         //Get the current date
         let date = new Date()
-        let startDay = date.getDate()
-        let endDay = date.getDate()
-        let startMonth = date.getMonth()
-        let endMonth = date.getMonth()
 
+        const dateMilli = new Date(Date.now())  
+
+        let bruh = date.now
+        // let startDay = date.getDate()
+        // let endDay = date.getDate()
+        // let startMonth = date.getMonth()
+        // let endMonth = date.getMonth()
+
+        // let year = date.getFullYear()
+
+        let endDay = date.getDate()
+        let endMonth = date.getMonth()
         let year = date.getFullYear()
+
+        let startDay;
+        let startMonth = date.getMonth();
+        
+        
 
         //Month returns 0-11
         startMonth = startMonth + 1
         endMonth = endMonth + 1
+
 
 
         //If user presses on 1D button
@@ -346,53 +365,93 @@ function StockDisplay(props) {
             //Set to be 28 because it is the least number of days a month can have
             //WILL UPDATE THIS LATER
             // Get utc -> subtract -> convert
-            if(endDay == 1) {
-                startMonth = startMonth - 1
-                startDay = 28
+            // if(endDay == 1) {
+            //     startMonth = startMonth - 1
+            //     startDay = 28
              
-            } else {
-                startDay = startDay - 1
-            }
+            // } else {
+            //     startDay = startDay - 2
+            //     endDay = endDay -1
+            // }
+            startDay = new Date(dateMilli - 24 * 60 * 60 * 1000).getDate()
 
-            getGraphData(year.toString() + "-" + startMonth.toString() + "-" + startDay.toString(), 
-            year.toString() + "-" + endMonth.toString() + "-" + endDay.toString(), "minute", "1", "day")
+            startDay = startDay-1
+            endDay = endDay-1
+
+
+            console.log("Start Day " + startDay)
+            console.log("End Day " + endDay)
+            console.log("Start Month " + startMonth)
+            console.log("End Month " + endMonth)
+            console.log("Year " + year)
+
+
+
+
+            console.log("FULL DATE")
+            console.log(year.toString() + "-0" + startMonth.toString() + "-" + startDay.toString(), 
+            year.toString() + "-0" + endMonth.toString() + "-" + endDay.toString(), "minute", "1", "day")
+            
+
+            getGraphData(year.toString() + "-0" + startMonth.toString() + "-" + startDay.toString(), 
+            year.toString() + "-0" + endMonth.toString() + "-" + endDay.toString(), "minute", "1", "day")
 
         //If user presses on 1W button
         } else if (i == 1) {
             //Make sure not sending negative number or 0 to api
-            if(endDay <= 7) {
-                startDay = startDay - 7 + 28
-                startMonth = startMonth - 1
-            } else {
-                startDay = startDay - 7
-            }
+            // if(endDay <= 7) {
+            //     startDay = startDay - 7 + 28
+            //     startMonth = startMonth - 1
+            // } else {
+            //     startDay = startDay - 7
+            // }
 
-            getGraphData(year.toString() + "-" + startMonth.toString() + "-" + startDay.toString(), 
-            year.toString() + "-" + endMonth.toString() + "-" + endDay.toString(), "minute", "1", "week")
+            startDay = startDay - 7
+
+            console.log("Start Day " + startDay)
+            console.log("End Day " + endDay)
+            console.log("Start Month " + startMonth)
+            console.log("End Month " + endMonth)
+            console.log("Year " + year)
+
+
+            getGraphData(year.toString() + "-0" + startMonth.toString() + "-0" + startDay.toString(), 
+            year.toString() + "-0" + endMonth.toString() + "-" + endDay.toString(), "minute", "1", "week")
 
         //If user presses 1M
         } else if(i==2){
 
-            if(endMonth == 1) {
-                startMonth = 12
-                year = year - 1
-            } else {
-                startMonth = startMonth - 1
-            }
+            // if(endMonth == 1) {
+            //     startMonth = 12
+            //     year = year - 1
+            // } else {
+            //     startMonth = startMonth - 1
+            // }
 
-            getGraphData(year.toString() + "-" + startMonth.toString() + "-" + startDay.toString(), 
-            year.toString() + "-" + endMonth.toString() + "-" + endDay.toString(), "day", "1", "month")
+            startMonth = startMonth - 1
+
+            console.log("Start Day " + startDay)
+            console.log("End Day " + endDay)
+            console.log("Start Month " + startMonth)
+            console.log("End Month " + endMonth)
+            console.log("Year " + year)
+
+
+
+            getGraphData(year.toString() + "-0" + startMonth.toString() + "-" + startDay.toString(), 
+            year.toString() + "-0" + endMonth.toString() + "-" + endDay.toString(), "day", "1", "month")
         //User presses 1Y
         } else {
 
-            getGraphData((year-1).toString() + "-" + startMonth.toString() + "-" + startDay.toString(), 
-            year.toString() + "-" + endMonth.toString() + "-" + endDay.toString(), "week", "1", "year")
+            getGraphData((year-1).toString() + "-0" + startMonth.toString() + "-" + startDay.toString(), 
+            year.toString() + "-0" + endMonth.toString() + "-" + endDay.toString(), "week", "1", "year")
 
         }
     }
 
     //Set the score, get data, get news when the component is mounted
     useEffect(() => {
+        LogBox.ignoreAllLogs()
 
         getData()
         getNews()
@@ -411,12 +470,12 @@ function StockDisplay(props) {
     
 
      //Graph, while data is loading shows activity indicator
-     const graph = () => {
-        if(loading) {
+     const Graph = () => {
+        if(loading && !graphData) {
           <View style= {{flex:1, justifyContent: 'center', alignItems: 'center'}}>
               <ActivityIndicator/>
           </View>
-        } else {
+        } 
             return(
                 //Graph
                 <VictoryLine 
@@ -450,7 +509,7 @@ function StockDisplay(props) {
                 }>      
                 </VictoryLine>  
             )
-        }
+        
      }
 
      //While the rest of the data is loading display activity indicator
@@ -550,7 +609,7 @@ function StockDisplay(props) {
                  */}
                 <View style={{flex:1, justifyContent:'center', alignItems:'center', paddingTop: normalize.setNormalize(20)}}
                     >
-                    {graph()}
+                    {/* <Graph/> */}
                 </View>
                        
                 {/* 
@@ -629,6 +688,28 @@ function StockDisplay(props) {
                     <View style={stockDisplayStyles.borderLine}></View>
 
                 </View>
+
+{/* 
+                <View style={{padding: 20, width: '100%', justifyContent: 'center', alignItems: 'center'}}>
+
+                    <TouchableOpacity
+                    style={{fbackgroundColor: 'red', height: 30, width: 30,backgroundColor: 'red'}}
+                    onPress={() => {
+                        let temp = weekData
+                        temp.push((Math.random() * 600)+800)
+                        setWeekData(temp)
+                    }}
+                    >
+                        <Text
+                        style={{color: 'white'}}
+                        >
+
+                            Click me puss
+
+                        </Text>
+                    </TouchableOpacity>
+
+                </View> */}
 
                 {/**
                  * Tags
