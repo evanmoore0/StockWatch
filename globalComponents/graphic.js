@@ -16,7 +16,7 @@ function Graphic(props){
                 flex:1, 
                 justifyContent: 
                 'space-between', 
-                alignItems: 'center'
+                alignItems: 'center',
             }
         }>
             {/**

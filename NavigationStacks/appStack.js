@@ -11,7 +11,7 @@
  */
 
 //React imports
-import React from "react";
+import React, { createContext, useEffect, useState } from "react";
 
 //React navigation imports
 import {NavigationContainer} from '@react-navigation/native'
@@ -28,24 +28,30 @@ import Stocks from "../screens/stocks";
 import Library from "../screens/library";
 import StockDisplay from "../screens/stockDisplay";
 
+import { Text } from "react-native";
+
 import normalize from "../utils/normalize";
 
 //Icons being displayed on tab bar
 import { Entypo } from '@expo/vector-icons';
 
+import { StockDataProvider } from "../utils/hooks/checkStockData";
 
 //Create navigation stack and tab stack
 const Stack = createNativeStackNavigator();
 const Tab = createMaterialTopTabNavigator();
 
-//TabStack: contains stocks screen and library screen
+
+
+
 function TabStack() {
+
     return(
+        
         <Tab.Navigator
         initialRouteName = "Stock"
         tabBarPosition = "bottom"
         
-        //Display and highlight icon for screen user is currently on
         screenOptions={({ route }) =>(
             {
                 tabBarStyle: {
@@ -81,7 +87,6 @@ function TabStack() {
                 <Tab.Screen 
                 name = "Stock" 
                 component = {Stocks}
-                
                 />
 
                 <Tab.Screen 
@@ -89,7 +94,11 @@ function TabStack() {
                 component={Library}
                 />
 
+
         </Tab.Navigator>
+
+       
+
     )
 }
 
@@ -97,54 +106,56 @@ function TabStack() {
 function AppStack() {
 
     return (
-        //So components don't clip into top of screen
-        <SafeAreaProvider>
+        <StockDataProvider>
+            <SafeAreaProvider>
 
-            <NavigationContainer
-            theme = {
-                {
-                    colors: {
-                        background: 'black'
+                <NavigationContainer
+                theme = {
+                    {
+                        colors: {
+                            background: 'black'
+                        }
                     }
-                }
-            }>
+                }>
 
-           {/*To remove the header from pages that are navigated to */}
-                <Stack.Navigator
-                screenOptions = {{headerShown: false}}
-                >
-                    <Stack.Screen
-                    name = "Loading" 
-                    component = {Loading}
-                    />
-                    <Stack.Screen 
-                    name = "Welcome" 
-                    component = {Welcome}
-                    />
-                    <Stack.Screen 
-                    name = "Login" 
-                    component = {Login}
-                    />
-                    <Stack.Screen 
-                    name = "Register" 
-                    component = {Register}
-                    />
-                    <Stack.Screen 
-                    name = "TabStack" 
-                    component = {TabStack}
-                    />
-                    <Stack.Screen 
-                    name = "StockDisplay" 
-                    component = {StockDisplay}
-                    />
+                    <Stack.Navigator
+                    screenOptions = {{headerShown: false}}
+                    >
+                        <Stack.Screen
+                        name = "Loading" 
+                        component = {Loading}
+                        />
+                        <Stack.Screen 
+                        name = "Welcome" 
+                        component = {Welcome}
+                        />
+                        <Stack.Screen 
+                        name = "Login" 
+                        component = {Login}
+                        />
+                        <Stack.Screen 
+                        name = "Register" 
+                        component = {Register}
+                        />
 
-                </Stack.Navigator>
 
-            </NavigationContainer>
+                        <Stack.Screen 
+                        name = "TabStack" 
+                        component = {TabStack}
+                        />
+                        <Stack.Screen 
+                        name = "StockDisplay" 
+                        component = {StockDisplay}
+                        />
 
-        </SafeAreaProvider>
 
-    )
+                    </Stack.Navigator>
+
+                </NavigationContainer>
+
+            </SafeAreaProvider>
+        </StockDataProvider>
+        )
 }
 
-export default AppStack;
+export default AppStack

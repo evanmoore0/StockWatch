@@ -1,108 +1,77 @@
-import React, {useEffect, useState } from "react";
-import {View,Text, TouchableOpacity} from 'react-native'
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
-import {useNavigation} from '@react-navigation/native'
+import { useNavigation } from "@react-navigation/native";
 
 import normalize from "../utils/normalize";
 import GlobalStyles from "../utils/globalStyles";
 import Constants from "../Constants";
 
+function StockContainer(props) {
+  const navigation = useNavigation();
 
-function StockContainer(props){
+  const stockContainerStyles = StyleSheet.create({
+    stock: {
+      fontSize: Constants.STOCK_NAME_FONT.size,
+      fontWeight: Constants.STOCK_NAME_FONT.weight,
+      color:
+        props.percentChange < 0
+          ? Constants.THEME_COLOR.blue
+          : Constants.THEME_COLOR.green,
+    },
 
-    const navigation = useNavigation();
+    ticker: {
+      color: Constants.STOCK_NAME_FONT.tickerColor,
+      fontSize: Constants.STOCK_NAME_FONT.tickerSize,
+      paddingVertical: normalize.setNormalize(1),
+    },
 
-    //Color of the percent gain
-    const [percentColor, setPercentColor] = useState('white');
+    score: {
+      color: "white",
+      fontSize: normalize.setNormalize(10),
+    },
 
-    //Set color of percent change
-    const checkPercentGain = () => {
-        if(props.percentChange <= 0) {
-            setPercentColor(Constants.THEME_COLOR.blue)
-        } else {
-            setPercentColor(Constants.THEME_COLOR.green)
-        }
-    }
+    percentChange: {
+      fontSize: Constants.STOCK_NAME_FONT.tickerSize,
+      color:
+        props.percentChange < 0
+          ? Constants.THEME_COLOR.blue
+          : Constants.THEME_COLOR.green,
+      fontWeight: Constants.STOCK_NAME_FONT.weight,
+    },
+  });
 
-    //Check the percent change for each stock
-    useEffect(() => {
-       checkPercentGain()
-    }, [props]);
-  
-    return(
+  return (
+    <TouchableOpacity
+      style={{
+        marginBottom: normalize.setNormalize(15),
+      }}
+      onPress={() => {
+        navigation.push("StockDisplay", {
+          stock: {
+            sName: props.sName,
+            ticker: props.ticker,
+            percentChange: props.percentChange,
+            score: props.score,
+          },
+        });
+      }}
+    >
+      <View style={GlobalStyles.stockContainer}>
+        <View>
+          <Text style={stockContainerStyles.stock}>{props.sName}</Text>
 
-        <TouchableOpacity
-        style = {
-            {
-                paddingBottom: normalize.setNormalize(15)
-            }
-        }
-        onPress = {
-            () => {
-            navigation.navigate("StockDisplay", {
-                    stock: {
-                        sName: props.sName,
-                        ticker: props.ticker,
-                        percentChange: props.percentChange,
-                        display: props.display,
-                        score: props.score
-                    }
-                })
-            }
-        }>
-            <View 
-            style = {
-                GlobalStyles.stockContainer
-            }>
-                <View>
-                    <Text 
-                    style = {
-                        {
-                            fontSize: Constants.STOCK_NAME_FONT.size,
-                            fontWeight: Constants.STOCK_NAME_FONT.weight, 
-                            color: percentColor
-                        }}>
-                            {props.sName}
-                    </Text>
+          <Text style={stockContainerStyles.ticker}>{props.ticker}</Text>
 
-                    <Text style = {
-                        {
-                            color: Constants.STOCK_NAME_FONT.tickerColor, 
-                            fontSize: Constants.STOCK_NAME_FONT.tickerSize,
-                            paddingVertical: normalize.setNormalize(1)
-                        }
-                    }>
-                        {props.ticker}
-                    </Text>
+          <Text style={stockContainerStyles.score}>{props.score}</Text>
+        </View>
 
-                    <Text style = {
-                        {
-                            color: 'white', 
-                            fontSize: normalize.setNormalize(10)
-                        }
-                    }>
-                        {props.score}
-                    </Text>
-
-                </View>
-
-                    <Text style = {
-                        {
-                            fontSize: Constants.STOCK_NAME_FONT.tickerSize, 
-                            color: percentColor, 
-                            fontWeight: Constants.STOCK_NAME_FONT.weight
-                        }
-                    }>
-                        {props.percentChange + " %"}
-                    </Text>
-
-                </View>
-
-            </TouchableOpacity>
-            
-        )
-    
+        <Text style={stockContainerStyles.percentChange}>
+          {props.percentChange + " %"}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
 }
 
 export default StockContainer;
-

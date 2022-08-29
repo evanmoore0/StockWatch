@@ -1,11 +1,12 @@
 import React from "react";
-import {View,Text, TouchableOpacity, Keyboard} from 'react-native'
+import {View,Text, TouchableOpacity, Keyboard, StyleSheet} from 'react-native'
 
 import {useNavigation} from '@react-navigation/native'
 
 import normalize from "../utils/normalize";
 import Constants from "../Constants";
 import GlobalStyles from "../utils/globalStyles";
+
 
 //Component that is displayed when user searches a stock
 function SearchContainer(props) {
@@ -25,7 +26,6 @@ function SearchContainer(props) {
                     stock: {
                         sName: props.sName,
                         ticker: props.ticker,
-                        display: props.display
                     }
                 })
             }
@@ -33,39 +33,14 @@ function SearchContainer(props) {
             {/**
              * Container for text/ border
              */}
-            <View 
-            style = {
-            [GlobalStyles.stockContainer, 
-                {
-                    backgroundColor: 'black', 
-                    borderRadius: 0, 
-                    borderBottomColor: 'rgba(256,256,256,0.3)', 
-                    borderBottomWidth: normalize.setNormalize(1)
-                }
-            ]
-            }>
+            <View style = {[GlobalStyles.stockContainer, searchContainerStyles.container]}>
 
                 <View>
-                    <Text 
-                    style = {
-                        {
-                            fontSize: Constants.STOCK_NAME_FONT.size,
-                            fontWeight: Constants.STOCK_NAME_FONT.weight, 
-                            color: Constants.THEME_COLOR.green, 
-                            flexWrap: 'wrap'
-                        }
-                    }>
+                    <Text style = {searchContainerStyles.stock}>
                             {props.sName}
-
                     </Text>
 
-                    <Text 
-                    style = {
-                        {
-                            color: Constants.STOCK_NAME_FONT.tickerColor, 
-                            fontSize: Constants.STOCK_NAME_FONT.tickerSize
-                        }
-                    }>
+                    <Text style = {searchContainerStyles.ticker}>
                         {props.ticker}
                     </Text>
 
@@ -80,3 +55,26 @@ function SearchContainer(props) {
 }
 
 export default SearchContainer;
+
+const searchContainerStyles = StyleSheet.create({
+
+    container:  {
+        backgroundColor: 'black', 
+        borderRadius: 0, 
+        borderBottomColor: 'rgba(256,256,256,0.3)', 
+        borderBottomWidth: normalize.setNormalize(1)
+    },
+
+    stock: {
+        fontSize: Constants.STOCK_NAME_FONT.size,
+        fontWeight: Constants.STOCK_NAME_FONT.weight, 
+        color: Constants.THEME_COLOR.green, 
+        flexWrap: 'wrap'
+    },
+
+    ticker: {
+        color: Constants.STOCK_NAME_FONT.tickerColor, 
+        fontSize: Constants.STOCK_NAME_FONT.tickerSize
+    }
+
+})
