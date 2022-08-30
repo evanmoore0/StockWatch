@@ -202,7 +202,7 @@ function Library(props) {
             <StockContainer
               ticker={stock.ticker}
               sName={stock.sName}
-              percentChange={parseInt(stock.percentChange).toFixed(2)}
+              percentChange={parseInt(stock.percentChange) ? parseInt(stock.percentChange).toFixed(2) : stock.percentChange}
               score={stock.score}
             />
           </Swipeable>
@@ -234,7 +234,8 @@ function Library(props) {
     let gain = 0;
 
     userData.forEach((stock) => {
-      gain += parseInt(stock.percentChange);
+      let percChange = parseInt(stock.percentChange) ? parseInt(stock.percentChange) : stock.percentChange
+      gain += percChange;
     });
 
     gain >= 0

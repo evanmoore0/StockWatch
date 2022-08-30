@@ -14,6 +14,7 @@ import {
   Alert,
   StyleSheet,
   LogBox,
+  Image
 } from "react-native";
 
 //Icon imports
@@ -39,6 +40,7 @@ import Constants from "../Constants";
 import GraphicUnderlay from "../globalComponents/graphicUnderlay";
 
 import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
+import StockBlock from "../globalComponents/stockBlock";
 
 //Timer for refreshing
 const wait = (timeout) => {
@@ -523,6 +525,44 @@ function Stocks({ navigation }) {
                Either trending page or stock page
                 */}
         {trendingData ? <StockComponent /> : <></>}
+
+        <StockBlock
+        smallImageURL = "https://g.foolcdn.com/editorial/images/698099/person-sitting-at-a-desk-using-a-laptop-and-smiling.jpg"
+        bigImageURL = "https://cdn.benzinga.com/files/images/story/2022/08/29/image42.jpg?width=1200&height=800&fit=crop"
+        smallTitle = "News title would go here"
+        bigTitle = "Should this be over the image?"
+        />
+        <StockBlock
+        smallImageURL = "https://g.foolcdn.com/editorial/images/698509/0x0-supercharger_16.jpg"
+        bigImageURL = "https://cdn.benzinga.com/files/images/story/2022/08/29/0x0-powerwall_plus_03.jpg?width=1200&height=800&fit=crop"
+        smallTitle = "Elon has a small cock"
+        bigTitle = "Wowowowwowowowo"
+        />
+        <StockBlock
+        smallImageURL = "https://cdn.benzinga.com/files/images/story/2022/analyst_ratings_image_25533.jpeg?width=1200&height=800&fit=crop"
+        bigImageURL = "https://images.mktw.net/im-612255/social"
+        smallTitle = "She couldn't decide of the glass was half empty or half full so she drank it."
+        bigTitle = "here aren't enough towels in the world to stop the sewage flowing from his mouth."
+        />
+        <StockBlock
+        smallImageURL = "https://images.mktw.net/im-608368/social"
+        bigImageURL = "https://staticx-tuner.zacks.com/images/default_article_images/default9.jpg"
+        smallTitle = "The irony of the situation wasn't lost on anyone in the room."
+        bigTitle = "Nancy decided to make the porta-potty her home."
+        />
+        <StockBlock
+        smallImageURL = "https://cdn.benzinga.com/files/images/story/2022/08/29/abtech_10.png?width=1200&height=800&fit=crop"
+        bigImageURL = "https://staticx-tuner.zacks.com/images/articles/main/53/49.jpg"
+        smallTitle = "All randomly generated "
+        bigTitle = "Thx for testing"
+        />
+
+
+
+      
+      
+        
+
       </ScrollView>
     </KeyboardAvoidingView>
   );

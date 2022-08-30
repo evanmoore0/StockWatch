@@ -317,8 +317,10 @@ function StockDisplay(props) {
             } else {
               setYearData(tempGraphData);
             }
+          } else {
+            setGraphData([{ x: 0, y: 0 }]);
           }
-        });
+        })
     } catch (error) {
       //Set open and graph data so graph doesn't throw error when calculating percent change
       setOpen(0);
@@ -353,10 +355,11 @@ function StockDisplay(props) {
         endDate.subtract("1", "day");
       }
 
-      startDate.format("YYYY-MM-DD");
-      endDate.format("YYYY-MM-DD");
+      let finalStart  = startDate.format("YYYY-MM-DD");
+      let finalEnd =  endDate.format("YYYY-MM-DD");
 
-      getGraphData(startDate, endDate, "minute", "1", "day");
+
+      getGraphData(finalStart, finalEnd, "minute", "1", "day");
 
       //If user presses on 1W button
     } else if (i == 1) {
@@ -377,7 +380,10 @@ function StockDisplay(props) {
       startDate.format("YYYY-MM-DD");
       endDate.format("YYYY-MM-DD");
 
-      getGraphData(startDate, endDate, "minute", "1", "week");
+      let finalStart  = startDate.format("YYYY-MM-DD");
+      let finalEnd =  endDate.format("YYYY-MM-DD");
+
+      getGraphData(finalStart, finalEnd, "minute", "1", "week");
 
       //If user presses 1M
     } else if (i == 2) {
@@ -398,7 +404,10 @@ function StockDisplay(props) {
       startDate.format("YYYY-MM-DD");
       endDate.format("YYYY-MM-DD");
 
-      getGraphData(startDate, endDate, "day", "1", "month");
+      let finalStart  = startDate.format("YYYY-MM-DD");
+      let finalEnd =  endDate.format("YYYY-MM-DD");
+
+      getGraphData(finalStart, finalEnd, "day", "1", "month");
 
       //User presses 1Y
     } else {
@@ -419,7 +428,10 @@ function StockDisplay(props) {
       startDate.format("YYYY-MM-DD");
       endDate.format("YYYY-MM-DD");
 
-      getGraphData(startDate, endDate, "week", "1", "year");
+      let finalStart  = startDate.format("YYYY-MM-DD");
+      let finalEnd =  endDate.format("YYYY-MM-DD");
+
+      getGraphData(finalStart, finalEnd, "week", "1", "year");
     }
   };
 
