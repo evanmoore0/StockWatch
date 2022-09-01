@@ -108,7 +108,6 @@ function Register(props) {
               autoComplete="default"
               autoCorrect={false}
               onChangeText={(text) => {
-                console.log("IN HERE");
                 setEmail(text);
               }}
             />

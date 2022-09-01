@@ -17,7 +17,7 @@ function Welcome(props) {
       >
         <View style={{ justifyContent: "center" }}>
           <View style={{ alignItems: "center" }}>
-            <Text style={WelcomeStyles.title}>Stock Watch</Text>
+            <Text style={WelcomeStyles.title}>Stock Score</Text>
           </View>
 
           <View style={WelcomeStyles.subTitleContainer}>

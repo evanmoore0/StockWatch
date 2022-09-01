@@ -21,7 +21,9 @@ function Loading(props) {
   };
 
   //Call check user when the component mounts
-
+  useEffect(() => {
+    checkUserStatus();
+  }, []);
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
