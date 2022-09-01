@@ -6,6 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
+  Alert,
 } from "react-native";
 import normalize from "../utils/normalize";
 import Graphic from "../globalComponents/graphic";
@@ -22,7 +23,26 @@ function Login(props) {
 
   //Sign the user in if the account exists
   const handleLogin = () => {
-    signInWithEmailAndPassword(auth, email, password);
+    signInWithEmailAndPassword(auth, `${email}@stockwatch.com`, password).catch(
+      (error) => {
+        switch (error.code) {
+          case "auth/invalid-email":
+            Alert.alert("Please input a valid username");
+            break;
+          case "auth/wrong-password":
+            Alert.alert("Please input the correct password");
+            break;
+          case "auth/user-disabled":
+            Alert.alert("Your account has been disabled :(");
+            break;
+          case "auth/user-not.found":
+            Alert.alert(
+              "We could not find a user with the given username and password"
+            );
+            break;
+        }
+      }
+    );
   };
 
   return (

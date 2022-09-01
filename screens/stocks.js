@@ -526,7 +526,7 @@ function Stocks({ navigation }) {
                 */}
         {trendingData ? <StockComponent /> : <></>}
 
-        <StockBlock
+        {/* <StockBlock
         smallImageURL = "https://g.foolcdn.com/editorial/images/698099/person-sitting-at-a-desk-using-a-laptop-and-smiling.jpg"
         bigImageURL = "https://cdn.benzinga.com/files/images/story/2022/08/29/image42.jpg?width=1200&height=800&fit=crop"
         smallTitle = "News title would go here"
@@ -555,13 +555,8 @@ function Stocks({ navigation }) {
         bigImageURL = "https://staticx-tuner.zacks.com/images/articles/main/53/49.jpg"
         smallTitle = "All randomly generated "
         bigTitle = "Thx for testing"
-        />
+        /> */}
 
-
-
-      
-      
-        
 
       </ScrollView>
     </KeyboardAvoidingView>

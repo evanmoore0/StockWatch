@@ -75,7 +75,7 @@ function StockDisplay(props) {
   const [open, setOpen] = useState(0);
 
   //Get the percentChange for the stock if I haven't already gotten it
-  const [percentChange, setPercentChange] = useState(0);
+  const [percentChange, setPercentChange] = useState("0");
 
   //Update the score for the stock
   const [score, setPropsScore] = useState(0);
@@ -231,15 +231,16 @@ function StockDisplay(props) {
             return response.json();
           })
           .then(function (data) {
-            setPercentChange(data.ticker.todaysChangePerc);
+            setPercentChange(data.ticker.todaysChangePerc.toString());
           });
       } catch (error) {
         //If no data for percent change, set to be 0
-        setPercentChange(0);
+        setPercentChange("0");
       }
     } else {
       //If stock is coming from stocks page
       setPercentChange(props.route.params.stock.percentChange);
+
     }
   };
 

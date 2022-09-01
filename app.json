@@ -1,12 +1,11 @@
 {
   "expo": {
-    "name": "Final",
-    "slug": "final",
+    "name": "StockWatch",
+    "slug": "StockWatch",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
-      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -18,7 +17,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "buildNumber": "1"
+      "bundleIdentifier": "com.evan.stockscore"
     },
     "android": {
       "adaptiveIcon": {
@@ -29,7 +28,11 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "description": ""
+    "description": "",
+    "extra": {
+      "eas": {
+        "projectId": "29ce3fe3-057c-4024-a11e-15f22a08b978"
+      }
+    }
   }
-
 }

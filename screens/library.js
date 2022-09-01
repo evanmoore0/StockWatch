@@ -202,7 +202,7 @@ function Library(props) {
             <StockContainer
               ticker={stock.ticker}
               sName={stock.sName}
-              percentChange={parseInt(stock.percentChange) ? parseInt(stock.percentChange).toFixed(2) : stock.percentChange}
+              percentChange={parseFloat(stock.percentChange).toFixed(2)}
               score={stock.score}
             />
           </Swipeable>
@@ -234,9 +234,10 @@ function Library(props) {
     let gain = 0;
 
     userData.forEach((stock) => {
-      let percChange = parseInt(stock.percentChange) ? parseInt(stock.percentChange) : stock.percentChange
+      let percChange = parseFloat(stock.percentChange)
       gain += percChange;
     });
+
 
     gain >= 0
       ? setColor(Constants.THEME_COLOR.green)
@@ -392,7 +393,7 @@ function Library(props) {
                 await getDoc(scoreRef).then((scoreData) => {
                   sData[stock].score = scoreData.data().score;
                   sData[stock].percentChange =
-                    data.tickers[percentData].todaysChangePerc;
+                    data.tickers[percentData].todaysChangePerc.toString();
                 });
               }
             }
@@ -408,10 +409,10 @@ function Library(props) {
           setUserData(sData);
           break;
         case 1:
-          setUserData(sData.filter((stock) => stock.percentChange >= 0));
+          setUserData(sData.filter((stock) => parseFloat(stock.percentChange) >= 0));
           break;
         case 2:
-          setUserData(sData.filter((stock) => stock.percentChange < 0));
+          setUserData(sData.filter((stock) => parseFloat(stock.percentChange) < 0));
           break;
       }
       setAllStockData(sData);
