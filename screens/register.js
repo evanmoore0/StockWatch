@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   KeyboardAvoidingView,
+  Modal,
 } from "react-native";
 import normalize from "../utils/normalize";
 import Graphic from "../globalComponents/graphic";
@@ -16,11 +17,15 @@ import Constants from "../Constants";
 import { Ionicons } from "@expo/vector-icons";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
+import { AntDesign } from "@expo/vector-icons";
 
+var randomWords = require('random-words')
+ 
 function Register(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassowrd, setConfirmPassword] = useState("");
+
 
   async function HandleRegister() {
     try {
@@ -30,6 +35,14 @@ function Register(props) {
         password
       ).then((authData) => {
         const docRef = doc(db, "users", authData.user.uid);
+        const confirmDoc = doc(db, "phrase", authData.user.email)
+
+        setDoc(confirmDoc, {
+          email: authData.user.email,
+          phrase: randWords,
+          password
+
+        })
 
         setDoc(docRef, {
           email: authData.user.email,
@@ -49,6 +62,8 @@ function Register(props) {
     }
   }
 
+  const [randWords, setRandWords] = useState([])
+
   const handlePress = () => {
     if (!password) {
       Alert.alert("Password is required");
@@ -57,12 +72,73 @@ function Register(props) {
     } else if (confirmPassowrd != password) {
       Alert.alert("Password does not match!");
     } else {
-      HandleRegister();
+      setRandWords(randomWords(6))
+      setDisplayPhrase(true)
     }
   };
 
+  const [displayPhrase, setDisplayPhrase] = useState(false);
+
   return (
     <SafeAreaView>
+      <Modal
+        visible={displayPhrase}
+        presentationStyle="overFullScreen"
+        animationType="slide"
+        transparent={true}
+      >
+        <View style={RegisterStyles.secretModalContainer}>
+          <View style={RegisterStyles.secretModalBackground}>
+            <View
+              style={RegisterStyles.secretModalHeaderContainer}
+            >
+              <Text style={RegisterStyles.secretModalTitle}>Secret Phrase</Text>
+              <TouchableOpacity style={RegisterStyles.modalCloseContainer}
+              onPress = {() => {
+                setDisplayPhrase(false)
+                setRandWords([])
+              }}
+              >
+                <AntDesign
+                  name="close"
+                  size={normalize.setNormalize(24)}
+                  color="white"
+                />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={RegisterStyles.secretModalSubtitle}>
+              This phrase is used to reset your password. Do not share this
+              phrase with anyone. Make sure you write it down!
+            </Text>
+
+            {/**
+             * PHrase here
+             */}
+
+            <View style={RegisterStyles.allPhraseContainer}>
+              {randWords.map(
+                (word, index) => (
+                  <View key = {index} style={RegisterStyles.phraseContainer}>
+                    <Text style={RegisterStyles.phrase}>{`${index + 1}. ${word}`}</Text>
+                  </View>
+                )
+              )}
+            </View>
+
+            <View style={RegisterStyles.secretModalAllButtonContainer}>
+              <TouchableOpacity
+                style={RegisterStyles.secretModalButtonContainer}
+                onPress = {() => HandleRegister()}
+              >
+                <Text style={RegisterStyles.secretModalButtonText}>
+                  Continue
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
       <KeyboardAvoidingView style={{ paddingTop: normalize.setNormalize(20) }}>
         <TouchableOpacity
           style={{ width: "100%", flexDirection: "row", alignItems: "center" }}
@@ -182,6 +258,7 @@ const RegisterStyles = StyleSheet.create({
     color: Constants.THEME_COLOR.blue,
     paddingLeft: normalize.setNormalize(15),
     paddingBottom: normalize.setNormalize(5),
+    fontSize: normalize.setNormalize(18),
   },
 
   textInput: {
@@ -192,7 +269,7 @@ const RegisterStyles = StyleSheet.create({
     height: normalize.setNormalize(40),
     width: normalize.setNormalize(300),
     paddingLeft: normalize.setNormalize(15),
-    fontSize: normalize.setNormalize(12),
+    fontSize: normalize.setNormalize(14),
     color: "white",
   },
 
@@ -212,5 +289,91 @@ const RegisterStyles = StyleSheet.create({
   buttonText: {
     fontSize: normalize.setNormalize(16),
     color: "white",
+  },
+
+  secretModalContainer: {
+    flex: 1,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  secretModalBackground: {
+    display: "flex",
+
+    backgroundColor: "gray",
+    borderRadius: "30%",
+    flexDirection: "column",
+    width: "90%",
+    padding: normalize.setNormalize(30),
+  },
+
+  secretModalTitle: {
+    fontSize: normalize.setNormalize(20),
+    color: "white",
+    fontWeight: "900",
+  },
+
+  secretModalSubtitle: {
+    fontSize: normalize.setNormalize(16),
+    color: "white",
+  },
+
+  allPhraseContainer: {
+    display: "flex",
+    flexWrap: "wrap",
+    flexDirection: "row",
+    marginTop: normalize.setNormalize(20),
+  },
+
+  phraseContainer: {
+    display: "flex",
+    backgroundColor: "white",
+    backgroundColor: "white",
+    padding: normalize.setNormalize(8),
+    borderRadius: "20%",
+    margin: normalize.setNormalize(10),
+  },
+
+  phrase: {
+    fontSize: normalize.setNormalize(16),
+    color: Constants.THEME_COLOR.green,
+    fontWeight: "900",
+  },
+
+  secretModalAllButtonContainer: {
+    display: "flex",
+    flexDirection: "row",
+    width: "100%",
+    justifyContent: "center",
+  },
+
+  secretModalButtonContainer: {
+    display: "flex",
+    padding: normalize.setNormalize(6),
+    borderRadius: "20%",
+    backgroundColor: Constants.THEME_COLOR.green,
+    marginTop: normalize.setNormalize(40),
+  },
+  secretModalButtonText: {
+    fontSize: normalize.setNormalize(18),
+    color: "white",
+  },
+
+  modalCloseContainer: {
+    display: "flex",
+    backgroundColor: Constants.THEME_COLOR.green,
+    borderRadius: "50%",
+    padding: normalize.setNormalize(6)
+  },
+
+  secretModalHeaderContainer: {
+    display: "flex",
+    width: "100%",
+    justifyContent: "space-between",
+    flexDirection: "row",
+    marginBottom: normalize.setNormalize(10),
+    alignItems: "flex-end"
+    
   },
 });

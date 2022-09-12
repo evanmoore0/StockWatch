@@ -28,7 +28,7 @@ function StockContainer(props) {
 
     score: {
       color: "white",
-      fontSize: normalize.setNormalize(10),
+      fontSize: normalize.setNormalize(14),
     },
 
     percentChange: {
@@ -40,6 +40,25 @@ function StockContainer(props) {
       fontWeight: Constants.STOCK_NAME_FONT.weight,
     },
   });
+
+  const handleScore = () => {
+
+    let finalScore = Math.abs(props.score) >= 1.0e+9
+
+    ? (Math.abs(props.score) / 1.0e+9).toFixed(1) + "B"
+    // Six Zeroes for Millions 
+    : Math.abs(props.score) >= 1.0e+6
+
+    ? (Math.abs(props.score) / 1.0e+6).toFixed(1) + "M"
+    // Three Zeroes for Thousands
+    : Math.abs(props.score) >= 1.0e+3
+
+    ? (Math.abs(props.score) / 1.0e+3).toFixed(1) + "K"
+
+    : Math.abs(props.score);
+
+    return finalScore
+  }
 
   return (
     <TouchableOpacity
@@ -63,7 +82,7 @@ function StockContainer(props) {
 
           <Text style={stockContainerStyles.ticker}>{props.ticker}</Text>
 
-          <Text style={stockContainerStyles.score}>{props.score}</Text>
+          <Text style={stockContainerStyles.score}>{handleScore()}</Text>
         </View>
 
         <Text style={stockContainerStyles.percentChange}>

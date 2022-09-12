@@ -14,7 +14,6 @@ import {
   Alert,
   StyleSheet,
   LogBox,
-  Image
 } from "react-native";
 
 //Icon imports
@@ -40,7 +39,6 @@ import Constants from "../Constants";
 import GraphicUnderlay from "../globalComponents/graphicUnderlay";
 
 import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
-import StockBlock from "../globalComponents/stockBlock";
 
 //Timer for refreshing
 const wait = (timeout) => {
@@ -188,21 +186,18 @@ function Stocks({ navigation }) {
           justifyContent: "space-between",
         }}
       >
-        {/*
-                    Trending title
-                    */}
+ 
         <Text
           style={{
             color: "white",
             fontWeight: "bold",
+            fontSize: normalize.setNormalize(20)
           }}
         >
           Trending
         </Text>
 
-        {/*
-                    Info button
-                    */}
+
         <TouchableOpacity
           onPress={() => {
             setDisplayInfoOne(true);
@@ -210,7 +205,7 @@ function Stocks({ navigation }) {
         >
           <MaterialIcons
             name="info-outline"
-            size={normalize.setNormalize(24)}
+            size={normalize.setNormalize(30)}
             color="white"
           />
         </TouchableOpacity>
@@ -471,7 +466,7 @@ function Stocks({ navigation }) {
                   width: "100%",
                   borderRadius: normalize.setNormalize(10),
                   paddingLeft: normalize.setNormalize(20),
-                  fontSize: normalize.setNormalize(14),
+                  fontSize: normalize.setNormalize(18),
                   fontWeight: "bold",
                   color: "white",
                 }}
@@ -569,7 +564,7 @@ const stockStyles = StyleSheet.create({
   modalText: {
     color: "white",
     textAlign: "center",
-    fontSize: normalize.setNormalize(14),
+    fontSize: normalize.setNormalize(16),
     paddingLeft: normalize.setNormalize(10),
     fontWeight: "600",
   },

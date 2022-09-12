@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { View } from "react-native";
 import { auth } from "../utils/firebase-config";
-import Graphic from "../globalComponents/graphic";
 import { onAuthStateChanged } from "firebase/auth";
 
 import {MaterialIcons} from '@expo/vector-icons'

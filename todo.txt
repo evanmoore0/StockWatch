@@ -1,0 +1,9 @@
+TODO:
+
+- Forgot password 
+- Double check % gain
+- Dates stock market is closed
+- New UI
+- Fix stock display loading
+- Polygon tickers instead
+- Malicious Usernames

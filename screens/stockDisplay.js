@@ -10,6 +10,7 @@ import {
   Image,
   ActivityIndicator,
   LogBox,
+  SafeAreaView
 } from "react-native";
 
 //Victory Native components (Graph)
@@ -93,6 +94,8 @@ function StockDisplay(props) {
   const [yearData, setYearData] = useState([]);
   const [dayData, setDayData] = useState([]);
 
+  const [websiteURL, setWebsiteURL] = useState("")
+
   //Container cursor/voronoi container for graph
   const Container = createContainer("voronoi", "cursor");
 
@@ -132,7 +135,7 @@ function StockDisplay(props) {
         >
           <Ionicons
             name="add"
-            size={normalize.setNormalize(30)}
+            size={normalize.setNormalize(44)}
             color="white"
           />
         </TouchableOpacity>
@@ -147,7 +150,7 @@ function StockDisplay(props) {
     return (
       <View style={stockDisplayStyles.infoDataContainer}>
         <Text style={stockDisplayStyles.tableText}>{label + ":"}</Text>
-        <Text style={{ color: "white", fontSize: normalize.setNormalize(13) }}>
+        <Text style={{ color: "white", fontSize: normalize.setNormalize(14) }}>
           {infoData[index] ? infoData[index] : "No Data"}
         </Text>
       </View>
@@ -184,16 +187,45 @@ function StockDisplay(props) {
         .then(function (response) {
           return response.json();
         })
-        .then(function (data) {
+        .then(async function (data) {
           //Use one hook to store all data
+
+          let temp = {}
+
+          await fetch(  
+            `https://api.polygon.io/v3/reference/tickers/${props.route.params.stock.ticker}?apiKey=${config.POLYGON_API_KEY}`
+          ).then(function (response) {
+            return response.json()
+          }).then(function (data) {
+            
+
+            temp = data.results
+      
+          })
+
+          let marketcap = 
+          Math.abs(temp.market_cap) >= 1.0e+12 
+          ? (Math.abs(temp.market_cap) / 1.0e+12).toFixed(2) + "T" : Math.abs(temp.market_cap) >= 1.0e+9
+
+          ? (Math.abs(temp.market_cap) / 1.0e+9).toFixed(2) + "B"
+          // Six Zeroes for Millions 
+          : Math.abs(temp.market_cap) >= 1.0e+6
+      
+          ? (Math.abs(temp.market_cap) / 1.0e+6).toFixed(2) + "M"
+          // Three Zeroes for Thousands
+          : Math.abs(temp.market_cap) >= 1.0e+3
+      
+          ? (Math.abs(temp.market_cap) / 1.0e+3).toFixed(2) + "K"
+      
+          : Math.abs(temp.market_cap);
 
           tempData = [
             data?.similar,
-            data?.description,
+            temp.description,
             data?.tags,
             data?.ceo,
             data?.hq_state,
-            data?.marketcap,
+            marketcap,
             data?.sector,
             data?.employees,
             data?.url,
@@ -298,12 +330,12 @@ function StockDisplay(props) {
         })
         .then(function (data) {
           if (data.results) {
-            setOpen(data.results[0].h);
+            setOpen(data.results[0].o);
 
             for (let date in data.results) {
               tempGraphData.push({
                 x: date,
-                y: data.results[date].h,
+                y: data.results[date].vw,
               });
             }
 
@@ -502,7 +534,6 @@ function StockDisplay(props) {
 
         <Text
           style={{
-            paddingTop: normalize.setNormalize(10),
             color: Constants.THEME_COLOR.blue,
             fontWeight: "bold",
           }}
@@ -538,11 +569,15 @@ function StockDisplay(props) {
             flex: 1,
             justifyContent: "center",
             alignItems: "center",
-            paddingTop: normalize.setNormalize(60),
-            height: normalize.setNormalize(325),
           }}
         >
-          <ActivityIndicator />
+          <VictoryLine
+          data={[{x:0, y:0}]}
+          padding={{ top: normalize.setNormalize(40), bottom: normalize.setNormalize(40), left: normalize.setNormalize(10), right: normalize.setNormalize(10) }}
+          >
+
+          </VictoryLine>
+
         </View>
       );
     }
@@ -554,19 +589,14 @@ function StockDisplay(props) {
             flex: 1,
             justifyContent: "center",
             alignItems: "center",
-            paddingTop: normalize.setNormalize(60),
-            height: normalize.setNormalize(325),
           }}
         >
-          <Text
-            style={{
-              fontSize: normalize.setNormalize(25),
-              color: "gray",
-              fontWeight: "800",
-            }}
+             <VictoryLine
+          data={[{x:0, y:0}]}
+          padding={{ top: normalize.setNormalize(40), bottom: normalize.setNormalize(40), left: normalize.setNormalize(10), right: normalize.setNormalize(10) }}
           >
-            No Data
-          </Text>
+
+          </VictoryLine>
         </View>
       );
     }
@@ -576,14 +606,12 @@ function StockDisplay(props) {
         style={{
           justifyContent: "center",
           alignItems: "center",
-          paddingTop: normalize.setNormalize(10),
-          height: normalize.setNormalize(325),
           display: "flex",
         }}
       >
         <VictoryLine
           data={graphData}
-          padding={{ top: normalize.setNormalize(40) }}
+          padding={{ top: normalize.setNormalize(60), bottom: normalize.setNormalize(40), left: normalize.setNormalize(10), right: normalize.setNormalize(10) }}
           //Sets color of line to be theme green
           style={{
             data: { stroke: Constants.THEME_COLOR.green, strokeWidth: 2 },
@@ -597,10 +625,12 @@ function StockDisplay(props) {
               //Calculates percent change
 
               labels={(point) =>
-                "% " +
-                (
-                  Math.round(((point.datum.y - open) / open) * 100 * 100) / 100
-                ).toString()
+
+                `% ${( Math.round(((point.datum.y - open) / open) * 100 * 100) / 100)}\n$${point.datum.y.toFixed(2)}`
+                // "%" +
+                // (
+                //   Math.round(((point.datum.y - open) / open) * 100 * 100) / 100
+                // ).toString() + "\n" + point.datum.y.toFixed(0)
               }
               cursorDimension="x"
               voronoiDimension="x"
@@ -612,14 +642,13 @@ function StockDisplay(props) {
                       datum.y - open > 0
                         ? Constants.THEME_COLOR.green
                         : Constants.THEME_COLOR.blue,
-                    fontSize: normalize.setNormalize(13),
-                    paddingLeft: normalize.setNormalize(16),
+                    fontSize: normalize.setNormalize(14),
                     fontWeight: "600",
                   }}
                   flyoutStyle={{ fill: "black", strokeWidth: 0 }}
                   center={{
                     x: normalize.setNormalize(30),
-                    y: normalize.setNormalize(10),
+                    y: normalize.setNormalize(20),
                   }}
                   pointerLength={0}
                 />
@@ -670,7 +699,7 @@ function StockDisplay(props) {
                   style={{
                     color: "white",
                     fontWeight: "bold",
-                    fontSize: normalize.setNormalize(12),
+                    fontSize: normalize.setNormalize(16),
                   }}
                 >
                   {news.publisher.name}
@@ -680,7 +709,7 @@ function StockDisplay(props) {
                   style={{
                     color: "white",
                     fontWeight: "bold",
-                    fontSize: normalize.setNormalize(12),
+                    fontSize: normalize.setNormalize(16),
                   }}
                 >
                   {HandleNewsDate(news.published_utc)}
@@ -849,6 +878,7 @@ function StockDisplay(props) {
             onPress={() => {
               handleColor(0);
               if (dayData.length > 0) {
+                setOpen(dayData[0].y)
                 setGraphData(dayData);
               } else {
                 getOtherGraphData(0);
@@ -870,6 +900,7 @@ function StockDisplay(props) {
             onPress={() => {
               handleColor(1);
               if (weekData.length > 0) {
+                setOpen(weekData[0].y)
                 setGraphData(weekData);
               } else {
                 getOtherGraphData(1);
@@ -892,6 +923,7 @@ function StockDisplay(props) {
               handleColor(2);
 
               if (monthData.length > 0) {
+                setOpen(monthData[0].y)
                 setGraphData(monthData);
               } else {
                 getOtherGraphData(2);
@@ -914,6 +946,7 @@ function StockDisplay(props) {
               handleColor(3);
 
               if (yearData.length > 0) {
+                setOpen(yearData[0].y)
                 setGraphData(yearData);
               } else {
                 getOtherGraphData(3);
@@ -945,7 +978,7 @@ function StockDisplay(props) {
   }
   return (
     //Container for page
-    <View style={stockDisplayStyles.pageContainer}>
+    <SafeAreaView style={stockDisplayStyles.pageContainer}>
       {/*
             Allows page to scroll
             */}
@@ -969,7 +1002,7 @@ function StockDisplay(props) {
           <News />
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -977,7 +1010,6 @@ const stockDisplayStyles = StyleSheet.create({
   pageContainer: {
     justifyContent: "center",
     flex: 1,
-    marginTop: normalize.setNormalize(60),
   },
 
   headerContainer: {
@@ -997,7 +1029,7 @@ const stockDisplayStyles = StyleSheet.create({
   },
 
   tableText: {
-    fontSize: normalize.setNormalize(13),
+    fontSize: normalize.setNormalize(16),
     color: "gray",
     paddingVertical: normalize.setNormalize(10),
   },
@@ -1013,7 +1045,7 @@ const stockDisplayStyles = StyleSheet.create({
 
   buttonText: {
     color: "white",
-    fontSize: normalize.setNormalize(13),
+    fontSize: normalize.setNormalize(16),
   },
 
   title: {
@@ -1028,6 +1060,7 @@ const stockDisplayStyles = StyleSheet.create({
     borderRadius: normalize.setNormalize(10),
     flex: 1,
     padding: normalize.setNormalize(15),
+    
   },
 
   infoDataContainer: {

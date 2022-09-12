@@ -22,9 +22,9 @@ function Welcome(props) {
 
           <View style={WelcomeStyles.subTitleContainer}>
             <Text style={WelcomeStyles.subTitle}>
-              Keep track of all your stocks
+              Keep up with the latest 
             </Text>
-            <Text style={WelcomeStyles.subTitle}>at the click of a button</Text>
+            <Text style={WelcomeStyles.subTitle}>trending stocks</Text>
           </View>
         </View>
       </View>
@@ -70,7 +70,7 @@ export default Welcome;
 
 const WelcomeStyles = StyleSheet.create({
   title: {
-    fontSize: normalize.setNormalize(20),
+    fontSize: normalize.setNormalize(24),
     color: "white",
     fontWeight: "700",
   },
@@ -97,7 +97,7 @@ const WelcomeStyles = StyleSheet.create({
   },
 
   buttonSubtitle: {
-    fontSize: normalize.setNormalize(10),
+    fontSize: normalize.setNormalize(13),
     color: "white",
   },
 
@@ -111,7 +111,7 @@ const WelcomeStyles = StyleSheet.create({
   },
 
   buttonText: {
-    fontSize: normalize.setNormalize(16),
+    fontSize: normalize.setNormalize(20),
     color: "white",
   },
 

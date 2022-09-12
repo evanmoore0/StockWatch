@@ -55,7 +55,7 @@ function Library(props) {
   const [isVisible, setVisible] = useState(false);
 
   //Todays Gain
-  const [toadysGain, setTodaysGain] = useState(0);
+  const [todaysGain, setTodaysGain] = useState(0);
 
   //Data initially fetched from the database for the user
   const [userData, setUserData] = useState([]);
@@ -80,6 +80,7 @@ function Library(props) {
             style={{
               color: "white",
               fontWeight: "bold",
+              fontSize: normalize.setNormalize(20)
             }}
           >
             Library
@@ -88,11 +89,11 @@ function Library(props) {
             style={{
               fontWeight: "bold",
               color: color,
-              fontSize: normalize.setNormalize(12),
-              paddingTop: normalize.setNormalize(4),
+              fontSize: normalize.setNormalize(16),
+              paddingVertical: normalize.setNormalize(8),
             }}
           >
-            {toadysGain}
+            {todaysGain ? todaysGain : " "}
           </Text>
         </View>
 
@@ -102,7 +103,7 @@ function Library(props) {
         <TouchableOpacity onPress={() => setVisible(true)}>
           <Ionicons
             name="ios-settings-outline"
-            size={normalize.setNormalize(20)}
+            size={normalize.setNormalize(30)}
             color="white"
           />
         </TouchableOpacity>
@@ -534,7 +535,7 @@ const libraryStyles = StyleSheet.create({
     paddingTop: normalize.setNormalize(10),
     backgroundColor: "rgba(0, 0, 0, 0.8)",
     width: "100%",
-    paddingBottom: normalize.setNormalize(15),
+    paddingBottom: normalize.setNormalize(20),
   },
 
   allGainersLosersContainer: {
@@ -544,7 +545,7 @@ const libraryStyles = StyleSheet.create({
 
   allGainersLosersText: {
     color: "white",
-    fontSize: normalize.setNormalize(16),
+    fontSize: normalize.setNormalize(17),
     paddingRight: normalize.setNormalize(15),
   },
 
