@@ -19,13 +19,12 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { AntDesign } from "@expo/vector-icons";
 
-var randomWords = require('random-words')
- 
+var randomWords = require("random-words");
+
 function Register(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassowrd, setConfirmPassword] = useState("");
-
 
   async function HandleRegister() {
     try {
@@ -35,14 +34,13 @@ function Register(props) {
         password
       ).then((authData) => {
         const docRef = doc(db, "users", authData.user.uid);
-        const confirmDoc = doc(db, "phrase", authData.user.email)
+        const confirmDoc = doc(db, "phrase", authData.user.email);
 
         setDoc(confirmDoc, {
           email: authData.user.email,
           phrase: randWords,
-          password
-
-        })
+          password,
+        });
 
         setDoc(docRef, {
           email: authData.user.email,
@@ -62,7 +60,7 @@ function Register(props) {
     }
   }
 
-  const [randWords, setRandWords] = useState([])
+  const [randWords, setRandWords] = useState([]);
 
   const handlePress = () => {
     if (!password) {
@@ -72,8 +70,8 @@ function Register(props) {
     } else if (confirmPassowrd != password) {
       Alert.alert("Password does not match!");
     } else {
-      setRandWords(randomWords(6))
-      setDisplayPhrase(true)
+      setRandWords(randomWords(6));
+      setDisplayPhrase(true);
     }
   };
 
@@ -89,15 +87,14 @@ function Register(props) {
       >
         <View style={RegisterStyles.secretModalContainer}>
           <View style={RegisterStyles.secretModalBackground}>
-            <View
-              style={RegisterStyles.secretModalHeaderContainer}
-            >
+            <View style={RegisterStyles.secretModalHeaderContainer}>
               <Text style={RegisterStyles.secretModalTitle}>Secret Phrase</Text>
-              <TouchableOpacity style={RegisterStyles.modalCloseContainer}
-              onPress = {() => {
-                setDisplayPhrase(false)
-                setRandWords([])
-              }}
+              <TouchableOpacity
+                style={RegisterStyles.modalCloseContainer}
+                onPress={() => {
+                  setDisplayPhrase(false);
+                  setRandWords([]);
+                }}
               >
                 <AntDesign
                   name="close"
@@ -112,24 +109,20 @@ function Register(props) {
               phrase with anyone. Make sure you write it down!
             </Text>
 
-            {/**
-             * PHrase here
-             */}
-
             <View style={RegisterStyles.allPhraseContainer}>
-              {randWords.map(
-                (word, index) => (
-                  <View key = {index} style={RegisterStyles.phraseContainer}>
-                    <Text style={RegisterStyles.phrase}>{`${index + 1}. ${word}`}</Text>
-                  </View>
-                )
-              )}
+              {randWords.map((word, index) => (
+                <View key={index} style={RegisterStyles.phraseContainer}>
+                  <Text style={RegisterStyles.phrase}>{`${
+                    index + 1
+                  }. ${word}`}</Text>
+                </View>
+              ))}
             </View>
 
             <View style={RegisterStyles.secretModalAllButtonContainer}>
               <TouchableOpacity
                 style={RegisterStyles.secretModalButtonContainer}
-                onPress = {() => HandleRegister()}
+                onPress={() => HandleRegister()}
               >
                 <Text style={RegisterStyles.secretModalButtonText}>
                   Continue
@@ -364,7 +357,7 @@ const RegisterStyles = StyleSheet.create({
     display: "flex",
     backgroundColor: Constants.THEME_COLOR.green,
     borderRadius: "50%",
-    padding: normalize.setNormalize(6)
+    padding: normalize.setNormalize(6),
   },
 
   secretModalHeaderContainer: {
@@ -373,7 +366,6 @@ const RegisterStyles = StyleSheet.create({
     justifyContent: "space-between",
     flexDirection: "row",
     marginBottom: normalize.setNormalize(10),
-    alignItems: "flex-end"
-    
+    alignItems: "flex-end",
   },
 });

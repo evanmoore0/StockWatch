@@ -28,21 +28,20 @@ function Login(props) {
   const [displayReset, setDisplayReset] = useState(false);
 
   const [displayPhrase, setDisplayPhrase] = useState(false);
-  const [resetUsername, setResetUsername] = useState("")
+  const [resetUsername, setResetUsername] = useState("");
 
-  const [disableUsername, setDisableUsername] = useState(true)
+  const [disableUsername, setDisableUsername] = useState(true);
 
-  const [secretPhraseOne, setSecretPhraseOne] = useState("")
-  const [secretPhraseTwo, setSecretPhraseTwo] = useState("")
-  const [secretPhraseThree, setSecretPhraseThree] = useState("")
-  const [secretPhraseFour, setSecretPhraseFour] = useState("")
-  const [secretPhraseFive, setSecretPhraseFive] = useState("")
-  const [secretPhraseSix, setSecretPhraseSix] = useState("")
+  const [secretPhraseOne, setSecretPhraseOne] = useState("");
+  const [secretPhraseTwo, setSecretPhraseTwo] = useState("");
+  const [secretPhraseThree, setSecretPhraseThree] = useState("");
+  const [secretPhraseFour, setSecretPhraseFour] = useState("");
+  const [secretPhraseFive, setSecretPhraseFive] = useState("");
+  const [secretPhraseSix, setSecretPhraseSix] = useState("");
 
-  const [displayNewPass, setDisplayNewPass] = useState(false)
-  const [confirmNewPass, setConfirmNewPass] = useState("")
+  const [displayNewPass, setDisplayNewPass] = useState(false);
+  const [confirmNewPass, setConfirmNewPass] = useState("");
 
-  //Sign the user in if the account exists
   const handleLogin = () => {
     signInWithEmailAndPassword(auth, `${email}@stockwatch.com`, password).catch(
       (error) => {
@@ -67,61 +66,66 @@ function Login(props) {
   };
 
   const handleReset = () => {
-
     setDisplayReset(true);
   };
 
   const handleContinue = async () => {
+    const phraseDoc = doc(db, "phrase", `${resetUsername}@stockwatch.com`);
 
-    const phraseDoc = doc(db, "phrase", `${resetUsername}@stockwatch.com`)
+    const phraseSnap = await getDoc(phraseDoc);
 
-    const phraseSnap = await getDoc(phraseDoc)
-    
-    setDisableUsername(false)
+    setDisableUsername(false);
 
-    if(phraseSnap.exists()) {
-
-      setDisplayPhrase(true)
-
+    if (phraseSnap.exists()) {
+      setDisplayPhrase(true);
     } else {
-      Alert.alert("Input a valid username")
+      Alert.alert("Input a valid username");
     }
-
-  }
+  };
 
   const handlePhrase = async () => {
+    const phraseDoc = doc(db, "phrase", `${resetUsername}@stockwatch.com`);
 
-    const phraseDoc = doc(db, "phrase", `${resetUsername}@stockwatch.com`)
-
-     await getDoc(phraseDoc).then((data) => 
-      JSON.stringify(data.data().phrase) === JSON.stringify([secretPhraseOne, secretPhraseTwo, secretPhraseThree, secretPhraseFour, secretPhraseFive, secretPhraseSix]) ? setDisplayNewPass(true) : alert("Incorrect phrase")
-    )
-
-  }
+    await getDoc(phraseDoc).then((data) =>
+      JSON.stringify(data.data().phrase) ===
+      JSON.stringify([
+        secretPhraseOne,
+        secretPhraseTwo,
+        secretPhraseThree,
+        secretPhraseFour,
+        secretPhraseFive,
+        secretPhraseSix,
+      ])
+        ? setDisplayNewPass(true)
+        : alert("Incorrect phrase")
+    );
+  };
 
   const handleChangePassword = async () => {
-
-    if(newPassword != confirmNewPass) {
-      alert("Passwords do not match")
+    if (newPassword != confirmNewPass) {
+      alert("Passwords do not match");
     } else if (newPassword.length <= 6) {
-      alert("please input a password longer than 6 characters")
+      alert("please input a password longer than 6 characters");
     } else {
-      const phraseDoc = doc(db, "phrase", `${resetUsername}@stockwatch.com`)
+      const phraseDoc = doc(db, "phrase", `${resetUsername}@stockwatch.com`);
 
-     await getDoc(phraseDoc).then((data) => {
-      signInWithEmailAndPassword(auth, `${resetUsername}@stockwatch.com`,data.data().password).then(() => {
-        updatePassword(auth.currentUser, newPassword).then(() => {
-          Alert.alert("Password Updated")
-        }).catch((error) => {
-          alert(error.code)
-        })
-      })
-     })
-
+      await getDoc(phraseDoc).then((data) => {
+        signInWithEmailAndPassword(
+          auth,
+          `${resetUsername}@stockwatch.com`,
+          data.data().password
+        ).then(() => {
+          updatePassword(auth.currentUser, newPassword)
+            .then(() => {
+              Alert.alert("Password Updated");
+            })
+            .catch((error) => {
+              alert(error.code);
+            });
+        });
+      });
     }
-
-     
-  }
+  };
 
   return (
     <SafeAreaView>
@@ -132,10 +136,9 @@ function Login(props) {
         transparent={true}
       >
         <KeyboardAvoidingView
-        behavior="padding"
-
-        
-        style={loginStyles.modalContainer}>
+          behavior="padding"
+          style={loginStyles.modalContainer}
+        >
           <View style={loginStyles.modalBackground}>
             <View style={loginStyles.modalHeaderContainer}>
               <Text style={{ color: "white", fontWeight: "900" }}>
@@ -144,17 +147,16 @@ function Login(props) {
 
               <TouchableOpacity
                 onPress={() => {
-                  setDisplayReset(false)
-                  setDisableUsername("")
-                  setSecretPhraseOne(true)
-                  setSecretPhraseTwo("")
-                  setSecretPhraseThree("")
-                  setSecretPhraseFour("")
-                  setSecretPhraseFive("")
-                  setSecretPhraseSix("")
-                  setDisplayPhrase(false)
-                  setDisableUsername(true)
-
+                  setDisplayReset(false);
+                  setDisableUsername("");
+                  setSecretPhraseOne(true);
+                  setSecretPhraseTwo("");
+                  setSecretPhraseThree("");
+                  setSecretPhraseFour("");
+                  setSecretPhraseFive("");
+                  setSecretPhraseSix("");
+                  setDisplayPhrase(false);
+                  setDisableUsername(true);
                 }}
                 style={loginStyles.modalCloseContainer}
               >
@@ -166,17 +168,15 @@ function Login(props) {
               </TouchableOpacity>
             </View>
 
-            <Text style={loginStyles.secretPhrase}>
-                  Input Username
-                </Text>
+            <Text style={loginStyles.secretPhrase}>Input Username</Text>
 
-                <TextInput
-                onChangeText={(value) => setResetUsername(value)}
-                style = {loginStyles.modalUserNameInput}
-                autoCapitalize = {false}
-                autoComplete = {false}
-                editable = {disableUsername}
-                />
+            <TextInput
+              onChangeText={(value) => setResetUsername(value)}
+              style={loginStyles.modalUserNameInput}
+              autoCapitalize={false}
+              autoComplete={false}
+              editable={disableUsername}
+            />
 
             {displayPhrase ? (
               <>
@@ -185,46 +185,89 @@ function Login(props) {
                 </Text>
 
                 <View style={loginStyles.resetInputContainer}>
-                  <TextInput autoCapitalize={false} placeholder="1" onChangeText={(val) => setSecretPhraseOne(val)} style={loginStyles.resetInput} />
-                  <TextInput autoCapitalize={false} placeholder="2" onChangeText={(val) => setSecretPhraseTwo(val)} style={loginStyles.resetInput} />
-                  <TextInput autoCapitalize={false} placeholder="3" onChangeText={(val) => setSecretPhraseThree(val)} style={loginStyles.resetInput} />
+                  <TextInput
+                    autoCapitalize={false}
+                    placeholder="1"
+                    onChangeText={(val) => setSecretPhraseOne(val)}
+                    style={loginStyles.resetInput}
+                  />
+                  <TextInput
+                    autoCapitalize={false}
+                    placeholder="2"
+                    onChangeText={(val) => setSecretPhraseTwo(val)}
+                    style={loginStyles.resetInput}
+                  />
+                  <TextInput
+                    autoCapitalize={false}
+                    placeholder="3"
+                    onChangeText={(val) => setSecretPhraseThree(val)}
+                    style={loginStyles.resetInput}
+                  />
                 </View>
                 <View style={loginStyles.resetInputContainer}>
-                  <TextInput autoCapitalize={false} placeholder="4" onChangeText={(val) => setSecretPhraseFour(val)} style={loginStyles.resetInput} />
-                  <TextInput autoCapitalize={false} placeholder="5" onChangeText={(val) => setSecretPhraseFive(val)} style={loginStyles.resetInput} />
-                  <TextInput autoCapitalize={false} placeholder="6" onChangeText={(val) => setSecretPhraseSix(val)} style={loginStyles.resetInput} />
+                  <TextInput
+                    autoCapitalize={false}
+                    placeholder="4"
+                    onChangeText={(val) => setSecretPhraseFour(val)}
+                    style={loginStyles.resetInput}
+                  />
+                  <TextInput
+                    autoCapitalize={false}
+                    placeholder="5"
+                    onChangeText={(val) => setSecretPhraseFive(val)}
+                    style={loginStyles.resetInput}
+                  />
+                  <TextInput
+                    autoCapitalize={false}
+                    placeholder="6"
+                    onChangeText={(val) => setSecretPhraseSix(val)}
+                    style={loginStyles.resetInput}
+                  />
                 </View>
               </>
             ) : (
               <></>
             )}
 
-            {displayNewPass ? <>
-              <Text style={loginStyles.secretPhrase}>
-                  Input New Password
-              </Text>
+            {displayNewPass ? (
+              <>
+                <Text style={loginStyles.secretPhrase}>Input New Password</Text>
 
-              <TextInput secureTextEntry
-              placeholder="enter password"
-              placeholderTextColor="white"
-              keyboardType="visible-password"
-              autoCapitalize="none"
-              autoComplete="password" onChangeText={(val) => setNewPassword(val)} style =  {loginStyles.newPassword}/>
-              <TextInput secureTextEntry
-              placeholder="enter password"
-              placeholderTextColor="white"
-              keyboardType="visible-password"
-              autoCapitalize="none"
-              autoComplete="password" onChangeText={(val) => setConfirmNewPass(val)} style =  {loginStyles.newPassword}/>
+                <TextInput
+                  secureTextEntry
+                  placeholder="enter password"
+                  placeholderTextColor="white"
+                  keyboardType="visible-password"
+                  autoCapitalize="none"
+                  autoComplete="password"
+                  onChangeText={(val) => setNewPassword(val)}
+                  style={loginStyles.newPassword}
+                />
+                <TextInput
+                  secureTextEntry
+                  placeholder="enter password"
+                  placeholderTextColor="white"
+                  keyboardType="visible-password"
+                  autoCapitalize="none"
+                  autoComplete="password"
+                  onChangeText={(val) => setConfirmNewPass(val)}
+                  style={loginStyles.newPassword}
+                />
+              </>
+            ) : (
+              <></>
+            )}
 
-            </> : <></>}
-
-            <TouchableOpacity onPress={() => {
-
-              displayNewPass ? handleChangePassword() : displayPhrase ? handlePhrase() : handleContinue()
-              }} 
-              
-              style={loginStyles.modalContinueContainer}>
+            <TouchableOpacity
+              onPress={() => {
+                displayNewPass
+                  ? handleChangePassword()
+                  : displayPhrase
+                  ? handlePhrase()
+                  : handleContinue();
+              }}
+              style={loginStyles.modalContinueContainer}
+            >
               <Text style={{ color: "white" }}>Continue</Text>
             </TouchableOpacity>
           </View>
@@ -449,18 +492,15 @@ const loginStyles = StyleSheet.create({
     backgroundColor: "white",
     width: "100%",
     marginBottom: "5%",
-
-    
   },
 
-  newPassword : {
-
+  newPassword: {
     backgroundColor: "white",
     color: Constants.THEME_COLOR.blue,
     padding: normalize.setNormalize(10),
     borderRadius: "5%",
     display: "flex",
     width: "100%",
-    marginBottom: "5%"
-  }
+    marginBottom: "5%",
+  },
 });

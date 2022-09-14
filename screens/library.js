@@ -12,94 +12,73 @@ import {
   RefreshControl,
 } from "react-native";
 
-//Firebase imports
 import { auth, db } from "../utils/firebase-config";
 
-//Components
 import StockContainer from "../globalComponents/stockContainer";
 import GraphicUnderlay from "../globalComponents/graphicUnderlay";
 
-//Styles
 import GlobalStyles from "../utils/globalStyles";
 
-//Normalize function
 import normalize from "../utils/normalize";
 
-//Icons
 import { Ionicons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 
 import { Swipeable } from "react-native-gesture-handler";
 
-//Config file
 import config from "../config";
 import Constants from "../Constants";
 import { getDoc, doc, arrayUnion, updateDoc } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 import { useStockData } from "../utils/hooks/checkStockData";
 
-//Timer for refreshing
-const wait = (timeout) => {
-  return new Promise((resolve) => setTimeout(resolve, timeout));
-};
-
 function Library(props) {
   const { stockData, setStockData } = useStockData();
 
-  //All/Gainers/Losers buttons
-  const [fontWeight, setFontWeight] = useState(["700", "400", "400"]);
-  const [lineHeight, setLineHeight] = useState([2, 0.2, 0.2]);
-
-  //Whether modal should be shown
   const [isVisible, setVisible] = useState(false);
 
-  //Todays Gain
   const [todaysGain, setTodaysGain] = useState(0);
 
-  //Data initially fetched from the database for the user
   const [userData, setUserData] = useState([]);
-
-  //Display activity indicator when data is loading in
-  const [loading, setLoading] = useState(true);
-
   const [allStockData, setAllStockData] = useState([]);
 
+  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const [filterIndex, setFilterIndex] = useState(0);
 
-  //Todays gain color
   const [color, setColor] = useState("white");
+
+  const headerStyles = StyleSheet.create({
+    todaysGainText: {
+      fontWeight: "bold",
+      color: color,
+      fontSize: normalize.setNormalize(16),
+      paddingVertical: normalize.setNormalize(8),
+    },
+
+    headerContainer: {
+      fontWeight: "bold",
+      color: color,
+      fontSize: normalize.setNormalize(16),
+      paddingVertical: normalize.setNormalize(8),
+      display: "flex",
+      flexDirection: "row",
+      alignItems: "flex-start",
+      justifyContent: "space-between",
+    },
+  });
 
   const Header = () => {
     return (
-      <View style={libraryStyles.headerContainer}>
+      <View style={headerStyles.headerContainer}>
         <View>
-          <Text
-            style={{
-              color: "white",
-              fontWeight: "bold",
-              fontSize: normalize.setNormalize(20)
-            }}
-          >
-            Library
-          </Text>
-          <Text
-            style={{
-              fontWeight: "bold",
-              color: color,
-              fontSize: normalize.setNormalize(16),
-              paddingVertical: normalize.setNormalize(8),
-            }}
-          >
+          <Text style={GlobalStyles.title}>Library</Text>
+          <Text style={headerStyles.todaysGainText}>
             {todaysGain ? todaysGain : " "}
           </Text>
         </View>
-
-        {/**
-         * Settings icon
-         */}
         <TouchableOpacity onPress={() => setVisible(true)}>
           <Ionicons
             name="ios-settings-outline"
@@ -136,16 +115,14 @@ function Library(props) {
               </TouchableOpacity>
             </View>
 
-            <View style={{ paddingBottom: normalize.setNormalize(40) }}>
-              <TouchableOpacity
-                style={libraryStyles.modalTextContainer}
-                onPress={() => {
-                  handleSignOut();
-                }}
-              >
-                <Text style={{ color: "white" }}>Sign out</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={libraryStyles.modalTextContainer}
+              onPress={() => {
+                handleSignOut();
+              }}
+            >
+              <Text style={libraryStyles.modalText}>Sign out</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -167,7 +144,7 @@ function Library(props) {
   const allGainersLosers = (index, text) => {
     return (
       <TouchableOpacity
-        style={{ width: "34%", alignItems: "center" }}
+        style={libraryStyles.allGainersLosersColumn}
         onPress={() => {
           handleClick(index);
         }}
@@ -175,21 +152,23 @@ function Library(props) {
         <Text
           style={[
             libraryStyles.allGainersLosersText,
-            { fontWeight: fontWeight[index] },
+            { fontWeight: filterIndex == index ? "700" : "400" },
           ]}
         >
           {text}
         </Text>
         <View style={libraryStyles.linePadding}>
           <View
-            style={[libraryStyles.line, { height: lineHeight[index] }]}
+            style={[
+              libraryStyles.line,
+              { height: filterIndex == index ? 2 : 0.2 },
+            ]}
           ></View>
         </View>
       </TouchableOpacity>
     );
   };
 
-  //Show activity indicator when data is loading, display stock containers when done
   const StockContainers = () => {
     if (loading) {
       return (
@@ -198,8 +177,11 @@ function Library(props) {
     }
     return (
       <>
-        {userData.map((stock, index) => (
-          <Swipeable key={index} renderRightActions={() => RightActions(stock)}>
+        {userData.map((stock) => (
+          <Swipeable
+            key={stock.ticker}
+            renderRightActions={() => RightActions(stock)}
+          >
             <StockContainer
               ticker={stock.ticker}
               sName={stock.sName}
@@ -213,7 +195,6 @@ function Library(props) {
     // }
   };
 
-  //Red X that is displayed when user swipes on stock container
   const RightActions = (stock) => {
     return (
       <TouchableOpacity
@@ -235,10 +216,9 @@ function Library(props) {
     let gain = 0;
 
     userData.forEach((stock) => {
-      let percChange = parseFloat(stock.percentChange)
+      let percChange = parseFloat(stock.percentChange);
       gain += percChange;
     });
-
 
     gain >= 0
       ? setColor(Constants.THEME_COLOR.green)
@@ -249,17 +229,8 @@ function Library(props) {
       : setTodaysGain("");
   }, [userData]);
 
-  //Updates the title/data
   const handleClick = (a) => {
-    let tempWeight = ["400", "400", "400"];
-    let tempHeight = [0.2, 0.2, 0.2];
-    tempWeight[a] = "700";
-    tempHeight[a] = 1;
-
     setFilterIndex(a);
-
-    setFontWeight(tempWeight);
-    setLineHeight(tempHeight);
 
     if (a == 0) {
       setUserData(allStockData);
@@ -281,13 +252,12 @@ function Library(props) {
         GetPercentChange(data.data().stocks);
       });
     } catch (error) {
-      alert(
+      Alert.alert(
         "There was an error fetching your stock data please email us at: @"
       );
     }
   }
 
-  //Factor out?
   const stockRef = doc(db, "users", auth.currentUser.uid);
 
   async function AddStock() {
@@ -301,7 +271,7 @@ function Library(props) {
         }),
       });
     } catch (error) {
-      alert("There was an error adding your stock please email us at: @");
+      Alert.alert("There was an error adding your stock please email us at: @");
     } finally {
       switch (filterIndex) {
         case 0:
@@ -376,10 +346,7 @@ function Library(props) {
 
     try {
       await fetch(
-        "https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=" +
-          listStocks +
-          "&apiKey=" +
-          config.POLYGON_API_KEY
+        `${config.POLYGON_API_LINK}v2/snapshot/locale/us/markets/stocks/tickers?tickers=${listStocks}&apiKey=${config.FIREBASE_API_KEY}`
       )
         .then(function (response) {
           return response.json();
@@ -401,19 +368,22 @@ function Library(props) {
           }
         });
     } catch (error) {
-      alert("Couldn't get percent change :(");
+      Alert.alert("Couldn't get percent change :(");
     } finally {
       setLoading(false);
-
       switch (filterIndex) {
         case 0:
           setUserData(sData);
           break;
         case 1:
-          setUserData(sData.filter((stock) => parseFloat(stock.percentChange) >= 0));
+          setUserData(
+            sData.filter((stock) => parseFloat(stock.percentChange) >= 0)
+          );
           break;
         case 2:
-          setUserData(sData.filter((stock) => parseFloat(stock.percentChange) < 0));
+          setUserData(
+            sData.filter((stock) => parseFloat(stock.percentChange) < 0)
+          );
           break;
       }
       setAllStockData(sData);
@@ -422,7 +392,6 @@ function Library(props) {
     return sData;
   }
 
-  //Updates the user's database and signs them out
   const handleSignOut = async () => {
     try {
       await signOut(auth);
@@ -449,10 +418,8 @@ function Library(props) {
   }
 
   return (
-    //Container for whole screen
     <View style={GlobalStyles.homePageContainer}>
       <GraphicUnderlay top={90} />
-
       <SignOutModal />
 
       <ScrollView
@@ -470,9 +437,7 @@ function Library(props) {
         }
       >
         <Header />
-
         <AllGainersLosersTitle />
-
         <StockContainers />
       </ScrollView>
     </View>
@@ -487,12 +452,6 @@ const libraryStyles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: normalize.setNormalize(10),
     paddingBottom: normalize.setNormalize(20),
-  },
-
-  headerContainer: {
-    width: "100%",
-    justifyContent: "space-between",
-    flexDirection: "row",
   },
 
   modalScreenContainer: {
@@ -529,6 +488,7 @@ const libraryStyles = StyleSheet.create({
     backgroundColor: "#6AB664",
     padding: normalize.setNormalize(20),
     borderRadius: 50,
+    marginBottom: normalize.setNormalize(40),
   },
 
   allGainersLosersBackground: {
@@ -559,4 +519,8 @@ const libraryStyles = StyleSheet.create({
     width: "100%",
     opacity: 0.5,
   },
+
+  modalText: { color: "white", fontSize: normalize.setNormalize(14) },
+
+  allGainersLosersColumn: { width: "34%", alignItems: "center" },
 });

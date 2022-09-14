@@ -1,65 +1,64 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import normalize from "../utils/normalize";
 import Graphic from "../globalComponents/graphic";
 
 //Firebase Auth
 import { SafeAreaView } from "react-native-safe-area-context";
+import GlobalStyles from "../utils/globalStyles";
 
 function Welcome(props) {
   return (
-    <SafeAreaView style={{ flex: 1, paddingTop: normalize.setNormalize(20) }}>
+    <SafeAreaView style={welcomeStyles.pageContainer}>
       <View
         style={{
           alignItems: "flex-start",
           paddingLeft: normalize.setNormalize(10),
         }}
       >
-        <View style={{ justifyContent: "center" }}>
-          <View style={{ alignItems: "center" }}>
-            <Text style={WelcomeStyles.title}>Stock Score</Text>
+        <View style={GlobalStyles.justifyCenter}>
+          <View style={GlobalStyles.alignCenter}>
+            <Text style={welcomeStyles.title}>Stock Score</Text>
           </View>
 
-          <View style={WelcomeStyles.subTitleContainer}>
-            <Text style={WelcomeStyles.subTitle}>
-              Keep up with the latest 
-            </Text>
-            <Text style={WelcomeStyles.subTitle}>trending stocks</Text>
+          <View style={welcomeStyles.subTitleContainer}>
+            <Text style={welcomeStyles.subTitle}>Keep up with the latest</Text>
+            <Text style={welcomeStyles.subTitle}>trending stocks</Text>
           </View>
         </View>
       </View>
 
-      <View style={WelcomeStyles.graphicContainer}>
+      <View style={welcomeStyles.graphicContainer}>
         <Graphic scale={1} />
       </View>
 
       <View
         style={[
-          WelcomeStyles.container,
+          welcomeStyles.container,
           { paddingBottom: normalize.setNormalize(20) },
         ]}
       >
         <TouchableOpacity
-          style={WelcomeStyles.buttonContainer}
+          style={welcomeStyles.buttonContainer}
           onPress={() => {
             props.navigation.replace("Register");
           }}
         >
-          <Text style={WelcomeStyles.buttonText}>Register</Text>
+          <Text style={welcomeStyles.buttonText}>Register</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={WelcomeStyles.container}>
+      <View style={welcomeStyles.container}>
         <TouchableOpacity
-          style={WelcomeStyles.buttonSubtitleContainer}
+          style={welcomeStyles.buttonSubtitleContainer}
           onPress={() => {
             props.navigation.replace("Login");
           }}
         >
-          <Text style={WelcomeStyles.buttonSubtitle}>
+          <Text style={welcomeStyles.buttonSubtitle}>
             Already have an account?
           </Text>
-          <Text style={WelcomeStyles.buttonSubtitle}>Login here</Text>
+          <Text style={welcomeStyles.buttonSubtitle}>Login here</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -68,7 +67,12 @@ function Welcome(props) {
 
 export default Welcome;
 
-const WelcomeStyles = StyleSheet.create({
+const welcomeStyles = StyleSheet.create({
+  pageContainer: {
+    flex: 1,
+    paddingTop: normalize.setNormalize(20),
+  },
+
   title: {
     fontSize: normalize.setNormalize(24),
     color: "white",

@@ -32,7 +32,8 @@
     "react-native-svg": "12.3.0",
     "react-native-tab-view": "^3.1.1",
     "react-native-web": "~0.18.7",
-    "victory-native": "^36.6.0"
+    "victory-native": "^36.6.0",
+    "expo-web-browser": "~11.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.18.6",

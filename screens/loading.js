@@ -3,12 +3,11 @@ import { View } from "react-native";
 import { auth } from "../utils/firebase-config";
 import { onAuthStateChanged } from "firebase/auth";
 
-import {MaterialIcons} from '@expo/vector-icons'
+import { MaterialIcons } from "@expo/vector-icons";
 import normalize from "../utils/normalize";
-
+import GlobalStyles from "../utils/globalStyles";
 
 function Loading(props) {
-  //Check to see if user is logged in, if so -> stocks screen if not -> welcome screen
   const checkUserStatus = () => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -19,21 +18,17 @@ function Loading(props) {
     });
   };
 
-  //Call check user when the component mounts
   useEffect(() => {
     checkUserStatus();
   }, []);
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-
+    <View style={GlobalStyles.fullPageCenterAlign}>
       <MaterialIcons
-      name = "remove-red-eye"
-      color = 'rgba(82,82,82,0.3)'
-      size = {normalize.setNormalize(300)}
-
+        name="remove-red-eye"
+        color="rgba(82,82,82,0.3)"
+        size={normalize.setNormalize(300)}
       />
-      
     </View>
   );
 }
