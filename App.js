@@ -1,5 +1,5 @@
 import React from 'react';
-import AppStack from './NavigationStacks/appStack';
+import AppStack from './src/Navigation/appStack';
 
 export default function App() {
 
