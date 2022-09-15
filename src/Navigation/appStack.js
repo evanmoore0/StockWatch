@@ -46,7 +46,7 @@ function TabStack() {
       tabBarPosition="bottom"
       screenOptions={({ route }) => ({
         tabBarStyle: {
-          marginBottom: normalize.setNormalize(35),
+          marginBottom: normalize.setNormalize(20),
         },
 
         tabBarIcon: ({ focused, color }) => {

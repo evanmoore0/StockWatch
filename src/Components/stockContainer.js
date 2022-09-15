@@ -5,7 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 
 import normalize from "../utils/Style/normalize";
 import GlobalStyles from "../utils/Style/globalStyles";
-import Constants from "../Constants";
+import Constants from "../utils/Constants";
 
 function StockContainer(props) {
   const navigation = useNavigation();

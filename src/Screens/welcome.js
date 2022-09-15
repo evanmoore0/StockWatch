@@ -18,7 +18,7 @@ function Welcome(props) {
       >
         <View style={GlobalStyles.justifyCenter}>
           <View style={GlobalStyles.alignCenter}>
-            <Text style={welcomeStyles.title}>Stock Score</Text>
+            <Text style={welcomeStyles.title}>Insider Trends</Text>
           </View>
 
           <View style={welcomeStyles.subTitleContainer}>

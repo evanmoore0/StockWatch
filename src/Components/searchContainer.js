@@ -10,7 +10,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 
 import normalize from "../utils/Style/normalize";
-import Constants from "../Constants";
+import Constants from "../utils/Constants";
 import GlobalStyles from "../utils/Style/globalStyles";
 
 function SearchContainer(props) {

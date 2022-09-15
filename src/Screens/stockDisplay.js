@@ -110,7 +110,7 @@ function StockDisplay(props) {
             </Text>
           </TouchableOpacity>
         ) : (
-          <Text style={stockDisplayStyles.infoText}>
+          <Text style={stockDisplayStyles.infoText} numberOfLines = {1}>
             {infoData[index] ? infoData[index] : "No Data"}
           </Text>
         )}
@@ -192,7 +192,7 @@ function StockDisplay(props) {
         });
     } catch (error) {
       Alert.alert(
-        "Sorry we couldn't get description information for this stock :("
+        "Sorry we couldn't get description information for this stock"
       );
       setRender(false);
     }
@@ -592,7 +592,7 @@ function StockDisplay(props) {
           >
             <Text
               numberOfLines={numLines}
-              style={{ color: "white", fontSize: normalize.setNormalize(18) }}
+              style={{ color: "white", fontSize: normalize.setNormalize(14) }}
             >
               {infoData[1]}
             </Text>
@@ -651,7 +651,6 @@ function StockDisplay(props) {
         <View style={stockDisplayStyles.allGraphButtonsContainer}>
           <TouchableOpacity
             onPress={() => {
-              handleColor(0);
 
               setColorIndex(0);
 
@@ -685,7 +684,6 @@ function StockDisplay(props) {
 
           <TouchableOpacity
             onPress={() => {
-              handleColor(1);
 
               setColorIndex(1);
 
@@ -719,7 +717,6 @@ function StockDisplay(props) {
 
           <TouchableOpacity
             onPress={() => {
-              handleColor(2);
 
               setColorIndex(2);
 
@@ -830,7 +827,7 @@ const stockDisplayStyles = StyleSheet.create({
 
   titleScoreContainer: {
     width: "100%",
-    // paddingLeft: normalize.setNormalize(16),
+    paddingLeft: normalize.setNormalize(16),
     backgroundColor: "rgba(0, 0, 0, 0.9)",
     paddingBottom: normalize.setNormalize(16),
   },
@@ -979,7 +976,7 @@ const stockDisplayStyles = StyleSheet.create({
   newsDescription: {
     color: "white",
     paddingVertical: normalize.setNormalize(15),
-    fontSize: normalize.setNormalize(16),
+    fontSize: normalize.setNormalize(14),
   },
 
   newsDivider: {
