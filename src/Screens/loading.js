@@ -6,6 +6,11 @@ import { onAuthStateChanged } from "firebase/auth";
 import { MaterialIcons } from "@expo/vector-icons";
 import normalize from "../utils/Style/normalize";
 import GlobalStyles from "../utils/Style/globalStyles";
+import * as SplashScreen from 'expo-splash-screen';
+
+
+
+SplashScreen.preventAutoHideAsync();
 
 function Loading(props) {
   const checkUserStatus = () => {
@@ -19,7 +24,10 @@ function Loading(props) {
   };
 
   useEffect(() => {
+
     checkUserStatus();
+    SplashScreen.hideAsync()
+
   }, []);
 
   return (

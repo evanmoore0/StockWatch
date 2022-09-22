@@ -786,9 +786,9 @@ function StockDisplay(props) {
 
   if (render) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <SafeAreaView style={stockDisplayStyles.pageContainer}>
         <ActivityIndicator size="large" color={Constants.THEME_COLOR.blue} />
-      </View>
+      </SafeAreaView>
     );
   }
   return (
