@@ -13,6 +13,12 @@ import * as SplashScreen from 'expo-splash-screen';
 SplashScreen.preventAutoHideAsync();
 
 function Loading(props) {
+
+  async function initApp() {
+    checkUserStatus()
+    await new Promise(resolve => setTimeout(resolve, 1000)).then(() => console.log("Done"))
+    SplashScreen.hideAsync()
+  }
   const checkUserStatus = () => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -25,8 +31,7 @@ function Loading(props) {
 
   useEffect(() => {
 
-    checkUserStatus();
-    SplashScreen.hideAsync()
+    initApp()
 
   }, []);
 
