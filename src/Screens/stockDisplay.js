@@ -17,6 +17,8 @@ import {
   createContainer,
   LineSegment,
   VictoryTooltip,
+  VictoryScatter,
+  VictoryLabel,
 } from "victory-native";
 
 import config from "../utils/Config/envConfig";
@@ -110,7 +112,7 @@ function StockDisplay(props) {
             </Text>
           </TouchableOpacity>
         ) : (
-          <Text style={stockDisplayStyles.infoText} numberOfLines = {1}>
+          <Text style={stockDisplayStyles.infoText} numberOfLines={1}>
             {infoData[index] ? infoData[index] : "No Data"}
           </Text>
         )}
@@ -448,31 +450,56 @@ function StockDisplay(props) {
     if (loading) {
       return (
         <View style={stockDisplayStyles.graphContainer}>
-          <VictoryLine
+             <VictoryScatter
+            domain={[-10, 10]}
             data={[{ x: 0, y: 0 }]}
-            padding={{
-              top: normalize.setNormalize(40),
-              bottom: normalize.setNormalize(40),
-              left: normalize.setNormalize(10),
-              right: normalize.setNormalize(10),
+            labels={() => ["Loading..."]}
+            style={{
+              data: { fill: "black" },
             }}
-          ></VictoryLine>
+            labelComponent={
+              <VictoryLabel
+                inline
+                style={[
+                  {
+                    fill: "#4C4E52",
+                    fontWeight: "900",
+                    fontSize: normalize.setNormalize(30),
+                    fontFamily:"Arial"                     
+                  },
+                ]}
+              />
+            }
+          />
         </View>
       );
     }
 
+
     if (!graphData) {
       return (
         <View style={stockDisplayStyles.graphContainer}>
-          <VictoryLine
+          <VictoryScatter
+            domain={[-10, 10]}
             data={[{ x: 0, y: 0 }]}
-            padding={{
-              top: normalize.setNormalize(40),
-              bottom: normalize.setNormalize(40),
-              left: normalize.setNormalize(10),
-              right: normalize.setNormalize(10),
+            labels={() => ["No Data"]}
+            style={{
+              data: { fill: "black" },
             }}
-          ></VictoryLine>
+            labelComponent={
+              <VictoryLabel
+                inline
+                style={[
+                  {
+                    fill: "#4C4E52",
+                    fontWeight: "900",
+                    fontSize: normalize.setNormalize(30),
+                    fontFamily:"Arial"                     
+                  },
+                ]}
+              />
+            }
+          />
         </View>
       );
     }
@@ -576,6 +603,20 @@ function StockDisplay(props) {
   };
 
   const Info = () => {
+    if (render) {
+      return (
+        <View
+          style={{
+            height: normalize.setNormalize(300),
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <ActivityIndicator size={"large"} />
+        </View>
+      );
+    }
     return (
       <>
         <View style={stockDisplayStyles.tagBorderLine}></View>
@@ -651,7 +692,6 @@ function StockDisplay(props) {
         <View style={stockDisplayStyles.allGraphButtonsContainer}>
           <TouchableOpacity
             onPress={() => {
-
               setColorIndex(0);
 
               if (dayData.length > 0) {
@@ -684,7 +724,6 @@ function StockDisplay(props) {
 
           <TouchableOpacity
             onPress={() => {
-
               setColorIndex(1);
 
               if (weekData.length > 0) {
@@ -717,7 +756,6 @@ function StockDisplay(props) {
 
           <TouchableOpacity
             onPress={() => {
-
               setColorIndex(2);
 
               if (monthData.length > 0) {
@@ -784,13 +822,13 @@ function StockDisplay(props) {
     );
   };
 
-  if (render) {
-    return (
-      <SafeAreaView style={stockDisplayStyles.pageContainer}>
-        <ActivityIndicator size="large" color={Constants.THEME_COLOR.blue} />
-      </SafeAreaView>
-    );
-  }
+  // if (render) {
+  //   return (
+  //     <SafeAreaView style={stockDisplayStyles.pageContainer}>
+  //       <ActivityIndicator size="large" color={Constants.THEME_COLOR.blue} />
+  //     </SafeAreaView>
+  //   );
+  // }
   return (
     <SafeAreaView style={stockDisplayStyles.pageContainer}>
       <ScrollView
