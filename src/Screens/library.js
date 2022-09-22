@@ -62,7 +62,7 @@ function Library(props) {
       fontWeight: "bold",
       color: color,
       fontSize: normalize.setNormalize(16),
-      paddingVertical: normalize.setNormalize(8),
+      paddingBottom: normalize.setNormalize(8),
       display: "flex",
       flexDirection: "row",
       alignItems: "flex-start",
@@ -177,7 +177,9 @@ function Library(props) {
     }
     return (
       <>
-        {userData.map((stock) => (
+        {userData.sort(function(a,b) {
+          return a.sName.localeCompare(b.sName)
+        }).map((stock) => (
           <Swipeable
             key={stock.ticker}
             renderRightActions={() => RightActions(stock)}
@@ -346,13 +348,14 @@ function Library(props) {
 
     try {
       await fetch(
-        `${config.POLYGON_API_LINK}v2/snapshot/locale/us/markets/stocks/tickers?tickers=${listStocks}&apiKey=${config.FIREBASE_API_KEY}`
+        `${config.POLYGON_API_LINK}v2/snapshot/locale/us/markets/stocks/tickers?tickers=${listStocks}&apiKey=${config.POLYGON_API_KEY}`
       )
         .then(function (response) {
           return response.json();
         })
         .then(async function (data) {
           let scoreRef;
+
 
           for (let stock in sData) {
             for (let percentData in data.tickers) {

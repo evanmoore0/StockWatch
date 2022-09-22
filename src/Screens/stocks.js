@@ -46,10 +46,10 @@ const modalText = (text) => {
         justifyContent: "flex-start",
         alignItems: "flex-start",
         width: "100%",
-        marginBottom: normalize.setNormalize(25),
+        marginBottom: normalize.setNormalize(35),
       }}
     >
-      <EvilIcons name="eye" size={normalize.setNormalize(24)} color="white" />
+      <EvilIcons name="eye" size={normalize.setNormalize(30)} color="white" />
 
       <Text style={[stockStyles.modalText]}>{text}</Text>
     </View>
@@ -93,7 +93,7 @@ function Stocks({ navigation }) {
               }}
             >
               <Text style={stockStyles.modalText}>
-                {"Hello and welcome to   "}
+                {"Hello and welcome to"}
               </Text>
 
               <Text
@@ -114,17 +114,17 @@ function Stocks({ navigation }) {
               style={stockStyles.modalTextContainer}
             >
               {modalText(
-                "Keep track of the hottest stocks by visiting the Trending Page."
+                "Keep track of the hottest stocks on the Trending page"
               )}
               {modalText(
-                "The number under the stock ticker is the number of times a stock has been searched on the app."
+                "The number under the stock ticker is the number of times a stock has been searched on the app"
               )}
-              {modalText("All data provided is real.")}
+              {modalText("All data provided is real")}
               {modalText(
-                "Add stocks to your library by pressing the plus icon on the stock's display page!"
+                "Add stocks to your library by pressing the plus icon on the stock's display page"
               )}
               {modalText(
-                "Remove stocks from your library by swiping left on the stock and pressing the red X."
+                "Remove a stock from your library by swiping left on the stock and pressing the red X"
               )}
 
               <TouchableOpacity
@@ -135,7 +135,7 @@ function Stocks({ navigation }) {
               >
                 <Feather
                   name="thumbs-up"
-                  size={normalize.setNormalize(14)}
+                  size={normalize.setNormalize(24)}
                   color="white"
                 />
               </TouchableOpacity>
@@ -426,9 +426,11 @@ const stockStyles = StyleSheet.create({
   modalText: {
     color: "white",
     textAlign: "center",
-    fontSize: normalize.setNormalize(16),
+    fontSize: normalize.setNormalize(18),
     paddingLeft: normalize.setNormalize(10),
     fontWeight: "600",
+    textAlign: "left"
+
   },
 
   modalButtonContainer: {
@@ -437,8 +439,9 @@ const stockStyles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: "gray",
     borderRadius: normalize.setNormalize(30),
-    padding: normalize.setNormalize(10),
-    width: normalize.setNormalize(40),
+    padding: normalize.setNormalize(20),
+    width: normalize.setNormalize(80),
+    alignSelf: "center"
   },
 
   infoModalBackground: {
@@ -458,15 +461,15 @@ const stockStyles = StyleSheet.create({
   },
 
   modalTextContainer: {
-    paddingTop: normalize.setNormalize(100),
+    paddingTop: normalize.setNormalize(60),
     flex: 1,
     justifyContent: "center",
     marginHorizontal: normalize.setNormalize(80),
-    alignItems: "center",
+    alignItems: "flex-start",
   },
 
   modalGraphicContainer: {
-    height: normalize.setNormalize(200),
+    height: normalize.setNormalize(150),
     width: "100%",
     paddingTop: normalize.setNormalize(100),
   },

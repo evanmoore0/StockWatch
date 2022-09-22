@@ -54,13 +54,19 @@ function Register(props) {
     } catch (error) {
       switch (error.code) {
         case "auth/email-already-exists":
-          alert("Username already exists");
-          break;
+          Alert.alert("Username already exists")
+          break
         case "auth/invalid-email":
-          alert("Please remove symbols");
+          Alert.alert("Please remove symbols")
+          break
+        case "auth/invalid-password":
+          Alert.alert("Please input a valid password")
+          break
+        case "auth/email-already-in-use":
+          Alert.alert("Username is already in use")
+          break
+        
       }
-
-      alert(error.message);
     }
   }
 

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View } from "react-native";
+import { View} from "react-native";
 import { auth } from "../utils/Config/firebase-config";
 import { onAuthStateChanged } from "firebase/auth";
 
