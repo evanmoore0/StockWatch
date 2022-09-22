@@ -16,7 +16,7 @@ function Loading(props) {
 
   async function initApp() {
     checkUserStatus()
-    await new Promise(resolve => setTimeout(resolve, 1000)).then(() => console.log("Done"))
+    await new Promise(resolve => setTimeout(resolve, 1000))
     SplashScreen.hideAsync()
   }
   const checkUserStatus = () => {

@@ -48,6 +48,8 @@ function Library(props) {
 
   const [filterIndex, setFilterIndex] = useState(0);
 
+  const [displayPrivacy, setDisplayPrivacy] = useState(false);
+
   const [color, setColor] = useState("white");
 
   const headerStyles = StyleSheet.create({
@@ -90,6 +92,44 @@ function Library(props) {
     );
   };
 
+  const PrivacyModal = () => {
+    return (
+      <Modal
+        visible={displayPrivacy}
+        presentationStyle="overFullScreen"
+        transparent={true}
+        animationType="slide"
+      >
+        <View style={libraryStyles.modalScreenContainer}>
+          <View style={libraryStyles.privacyModalContainer}>
+            <View style={libraryStyles.modalXButtonContainer}>
+              <TouchableOpacity
+                style={libraryStyles.modalXButton}
+                onPress={() => {
+                  setDisplayPrivacy(false);
+                }}
+              >
+                <AntDesign
+                  name="close"
+                  size={normalize.setNormalize(24)}
+                  color="white"
+                />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={GlobalStyles.title}>Privacy Policy</Text>
+
+            <Text style = {libraryStyles.modalText}>
+              {
+                "Hello! My name is Evan and I am the sole developer for Insider Trends. I am dedicated to keeping your data safe.\n\nInformation Collected:\nInsider trends does not require any personal information for you to register for the app. In order to provide you with the option to keep track of your favorite stocks we store stocks added to your library in a database. Data collected from this is not used by anyone and can only be viewed by myself. Further, this data is displayed to you by the stocks score. Throughout the app the only data collected is your username, password, stocks you view - not connected to your account, and what stocks you have in your library.Who Gets to See This Data? \n\nNo one! I am the only person who has access to the database and am adament about keeping your data secure."
+              }
+            </Text>
+          </View>
+        </View>
+      </Modal>
+    );
+  };
+
   const SignOutModal = () => {
     return (
       <Modal
@@ -122,6 +162,16 @@ function Library(props) {
               }}
             >
               <Text style={libraryStyles.modalText}>Sign out</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+            style = {libraryStyles.modalTextContainer}
+              onPress={() => {
+                setDisplayPrivacy((privacy) => !privacy);
+                setVisible(false);
+              }}
+            >
+              <Text style={{ color: "white" }}>Privacy Policy</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -177,21 +227,23 @@ function Library(props) {
     }
     return (
       <>
-        {userData.sort(function(a,b) {
-          return a.sName.localeCompare(b.sName)
-        }).map((stock) => (
-          <Swipeable
-            key={stock.ticker}
-            renderRightActions={() => RightActions(stock)}
-          >
-            <StockContainer
-              ticker={stock.ticker}
-              sName={stock.sName}
-              percentChange={parseFloat(stock.percentChange).toFixed(2)}
-              score={stock.score}
-            />
-          </Swipeable>
-        ))}
+        {userData
+          .sort(function (a, b) {
+            return a.sName.localeCompare(b.sName);
+          })
+          .map((stock) => (
+            <Swipeable
+              key={stock.ticker}
+              renderRightActions={() => RightActions(stock)}
+            >
+              <StockContainer
+                ticker={stock.ticker}
+                sName={stock.sName}
+                percentChange={parseFloat(stock.percentChange).toFixed(2)}
+                score={stock.score}
+              />
+            </Swipeable>
+          ))}
       </>
     );
     // }
@@ -356,7 +408,6 @@ function Library(props) {
         .then(async function (data) {
           let scoreRef;
 
-
           for (let stock in sData) {
             for (let percentData in data.tickers) {
               scoreRef = doc(db, "score", data.tickers[percentData].ticker);
@@ -424,6 +475,7 @@ function Library(props) {
     <View style={GlobalStyles.homePageContainer}>
       <GraphicUnderlay top={90} />
       <SignOutModal />
+      <PrivacyModal />
 
       <ScrollView
         stickyHeaderIndices={[1]}
@@ -464,12 +516,22 @@ const libraryStyles = StyleSheet.create({
   },
 
   modalContainer: {
-    height: normalize.setNormalize(200),
+    height: normalize.setNormalize(240),
     width: normalize.setNormalize(200),
     backgroundColor: "gray",
     borderRadius: 50,
     justifyContent: "space-between",
     alignItems: "center",
+  },
+
+  privacyModalContainer: {
+    height: normalize.setNormalize(600),
+    width: normalize.setNormalize(400),
+    backgroundColor: "gray",
+    borderRadius: 50,
+    alignItems: "center",
+    justifyContent: "space-evenly",
+    padding: normalize.setNormalize(20),
   },
 
   modalXButtonContainer: {
@@ -491,7 +553,7 @@ const libraryStyles = StyleSheet.create({
     backgroundColor: "#6AB664",
     padding: normalize.setNormalize(20),
     borderRadius: 50,
-    marginBottom: normalize.setNormalize(40),
+    marginBottom: normalize.setNormalize(20),
   },
 
   allGainersLosersBackground: {
@@ -523,7 +585,7 @@ const libraryStyles = StyleSheet.create({
     opacity: 0.5,
   },
 
-  modalText: { color: "white", fontSize: normalize.setNormalize(14) },
+  modalText: { color: "white", fontSize: normalize.setNormalize(16) },
 
   allGainersLosersColumn: { width: "34%", alignItems: "center" },
 });
