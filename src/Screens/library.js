@@ -30,13 +30,14 @@ import { Swipeable } from "react-native-gesture-handler";
 import config from "../utils/Config/envConfig";
 import Constants from "../utils/Constants";
 import { getDoc, doc, arrayUnion, updateDoc } from "firebase/firestore";
-import { signOut } from "firebase/auth";
+import { signOut, deleteUser } from "firebase/auth";
 import { useStockData } from "../utils/hooks/checkStockData";
 
 function Library(props) {
   const { stockData, setStockData } = useStockData();
 
   const [isVisible, setVisible] = useState(false);
+  const [deleteAccountConfirm, setDeleteAccountConfirm] = useState(false);
 
   const [todaysGain, setTodaysGain] = useState(0);
 
@@ -119,11 +120,56 @@ function Library(props) {
 
             <Text style={GlobalStyles.title}>Privacy Policy</Text>
 
-            <Text style = {libraryStyles.modalText}>
+            <Text style={libraryStyles.modalText}>
               {
                 "Hello! My name is Evan and I am the sole developer for Insider Trends. I am dedicated to keeping your data safe.\n\nInformation Collected:\nInsider trends does not require any personal information for you to register for the app. In order to provide you with the option to keep track of your favorite stocks we store stocks added to your library in a database. Data collected from this is not used by anyone and can only be viewed by myself. Further, this data is displayed to you by the stocks score. Throughout the app the only data collected is your username, password, stocks you view - not connected to your account, and what stocks you have in your library.Who Gets to See This Data? \n\nNo one! I am the only person who has access to the database and am adament about keeping your data secure."
               }
             </Text>
+          </View>
+        </View>
+      </Modal>
+    );
+  };
+
+  const Delete = () => {
+    return (
+      <Modal
+        visible={deleteAccountConfirm}
+        presentationStyle="overFullScreen"
+        transparent={true}
+        animationType="slide"
+      >
+        <View style={libraryStyles.modalScreenContainer}>
+          <View style={libraryStyles.deleteAccountContainer}>
+            <View style={libraryStyles.modalXButtonContainer}>
+              <TouchableOpacity
+                style={libraryStyles.modalXButton}
+                onPress={() => {
+                  setDeleteAccountConfirm(false);
+                }}
+              >
+                <AntDesign
+                  name="close"
+                  size={normalize.setNormalize(24)}
+                  color="white"
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View>
+              <TouchableOpacity style={libraryStyles.confirmDeleteButton}
+              onPress = {() => DeleteAccount()}
+              >
+                <Text
+                  style={{
+                    color: "white",
+                    fontSize: normalize.setNormalize(18),
+                  }}
+                >
+                  Confirm
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -165,13 +211,24 @@ function Library(props) {
             </TouchableOpacity>
 
             <TouchableOpacity
-            style = {libraryStyles.modalTextContainer}
+              style={libraryStyles.modalTextContainer}
               onPress={() => {
                 setDisplayPrivacy((privacy) => !privacy);
                 setVisible(false);
               }}
             >
               <Text style={{ color: "white" }}>Privacy Policy</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={libraryStyles.modalTextContainer}
+              onPress={() => {
+                setDeleteAccountConfirm((prev) => !prev);
+
+                setVisible(false);
+              }}
+            >
+              <Text style={{ color: "white" }}>Delete Account</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -371,6 +428,12 @@ function Library(props) {
     }
   }
 
+  async function DeleteAccount() {
+    await deleteUser(auth.currentUser).then(() =>
+      Alert.alert("Account Deleted")
+    );
+  }
+
   async function RemoveStock(removeStock) {
     let temp = [];
     let updatedStock = userData.filter(
@@ -475,6 +538,7 @@ function Library(props) {
     <View style={GlobalStyles.homePageContainer}>
       <GraphicUnderlay top={90} />
       <SignOutModal />
+      <Delete />
       <PrivacyModal />
 
       <ScrollView
@@ -516,7 +580,16 @@ const libraryStyles = StyleSheet.create({
   },
 
   modalContainer: {
-    height: normalize.setNormalize(240),
+    height: normalize.setNormalize(360),
+    width: normalize.setNormalize(200),
+    backgroundColor: "gray",
+    borderRadius: 50,
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  deleteAccountContainer: {
+    height: normalize.setNormalize(150),
     width: normalize.setNormalize(200),
     backgroundColor: "gray",
     borderRadius: 50,
@@ -588,4 +661,11 @@ const libraryStyles = StyleSheet.create({
   modalText: { color: "white", fontSize: normalize.setNormalize(16) },
 
   allGainersLosersColumn: { width: "34%", alignItems: "center" },
+
+  confirmDeleteButton: {
+    backgroundColor: "red",
+    padding: normalize.setNormalize(8),
+    borderRadius: 50,
+    marginBottom: normalize.setNormalize(20),
+  },
 });
