@@ -27,6 +27,7 @@ import Register from "../Screens/register";
 import Stocks from "../Screens/stocks";
 import Library from "../Screens/library";
 import StockDisplay from "../Screens/stockDisplay";
+import Insiders from "../Screens/insiders";
 
 import normalize from "../utils/Style/normalize";
 
@@ -56,6 +57,8 @@ function TabStack() {
             iconName = focused ? "line-graph" : "line-graph";
           } else if (route.name === "Library") {
             iconName = focused ? "archive" : "archive";
+          } else if (route.name === "Insiders") {
+            
           }
 
           return (
@@ -80,6 +83,8 @@ function TabStack() {
       })}
     >
       <Tab.Screen name="Stock" component={Stocks} />
+
+      {/* <Tab.Screen name = "Insiders" component = {Insiders}/> */}
 
       <Tab.Screen name="Library" component={Library} />
     </Tab.Navigator>

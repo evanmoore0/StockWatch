@@ -33,6 +33,7 @@ import Constants from "../utils/Constants";
 import GraphicUnderlay from "../Components/graphicUnderlay";
 
 import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
+import StockBlock from "../Components/stockBlock";
 
 const wait = (timeout) => {
   return new Promise((resolve) => setTimeout(resolve, timeout));
@@ -252,6 +253,21 @@ function Stocks({ navigation }) {
     }
   };
 
+  const getAlpacaTickers = async () => {
+
+    try {
+      await fetch("https://broker-api.sandbox.alpaca.markets" + "/v1/assets").then(function(response) {
+        return response.json();
+      }).then(function(data) {
+        print("DATA")
+        print(data)
+      })
+    } catch (error) {
+      alert(error.error)
+      
+    } 
+  }
+
   const filterTickers = (data) => {
     setSearchData(
       data.filter((value) =>
@@ -322,6 +338,7 @@ function Stocks({ navigation }) {
   useEffect(() => {
     getTrending();
     getTickers();
+    getAlpacaTickers();
   }, []);
 
   useEffect(() => {
@@ -405,6 +422,8 @@ function Stocks({ navigation }) {
         </View>
 
         {trendingData ? <StockComponent /> : <></>}
+
+        <StockBlock/>
 
       </ScrollView>
     </KeyboardAvoidingView>

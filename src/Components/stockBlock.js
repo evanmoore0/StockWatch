@@ -1,10 +1,10 @@
 import React from "react";
 import { StyleSheet, View, Image, Text } from "react-native";
 
-import normalize from "../utils/normalize";
+import normalize from "../utils/Style/normalize";
 import StockContainer from "./stockContainer";
 
-import Constants from "../Constants";
+import Constants from "../utils/Constants";
 
 const StockBlock = (props) => {
   return (
