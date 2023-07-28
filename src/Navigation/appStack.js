@@ -29,6 +29,14 @@ import Library from "../Screens/library";
 import StockDisplay from "../Screens/stockDisplay";
 import Insiders from "../Screens/insiders";
 
+import Email from "../Screens/Register/email";
+import Name from "../Screens/Register/name";
+
+import KYC from "../Screens/KYC/KYC";
+import ACH from "../Screens/KYC/ACH";
+import Transfer from "../Screens/KYC/transfer";
+
+
 import normalize from "../utils/Style/normalize";
 
 //Icons being displayed on tab bar
@@ -107,8 +115,15 @@ function AppStack() {
             <Stack.Screen name="Loading" component={Loading} />
             <Stack.Screen name="Welcome" component={Welcome} />
             <Stack.Screen name="Login" component={Login} />
-            <Stack.Screen name="Register" component={Register} />
+            {/* <Stack.Screen name="Register" component={Register} /> */}
+            <Stack.Screen name = "Email" component={Email}/>
+            <Stack.Screen name = "Name" component={Name}/>
             <Stack.Screen name="TabStack" component={TabStack} />
+
+            <Stack.Screen name="KYC" component={KYC}/>
+            <Stack.Screen name = "ACH" component={ACH}/>
+            <Stack.Screen name = "Transfer" component={Transfer}/>
+
             <Stack.Screen name="StockDisplay" component={StockDisplay} />
           </Stack.Navigator>
         </NavigationContainer>

@@ -14,6 +14,7 @@ function StockContainer(props) {
     stock: {
       fontSize: Constants.STOCK_NAME_FONT.size,
       fontWeight: Constants.STOCK_NAME_FONT.weight,
+      fontFamily: Constants.FONT.family,
       color:
         props.percentChange < 0
           ? Constants.THEME_COLOR.blue
@@ -24,21 +25,29 @@ function StockContainer(props) {
       color: Constants.STOCK_NAME_FONT.tickerColor,
       fontSize: Constants.STOCK_NAME_FONT.tickerSize,
       paddingVertical: normalize.setNormalize(1),
+      fontFamily: Constants.FONT.family
     },
 
     score: {
       color: "white",
       fontSize: normalize.setNormalize(14),
+      fontFamily: Constants.FONT.family
     },
 
     percentChange: {
       fontSize: Constants.STOCK_NAME_FONT.tickerSize,
+      fontFamily: Constants.FONT.family,
       color:
         props.percentChange < 0
           ? Constants.THEME_COLOR.blue
           : Constants.THEME_COLOR.green,
       fontWeight: Constants.STOCK_NAME_FONT.weight,
     },
+
+    buttonContainer: {
+      marginBottom: Constants.STOCK.margin,
+      marginTop: Constants.STOCK.margin
+    }
   });
 
   const handleScore = () => {
@@ -62,9 +71,7 @@ function StockContainer(props) {
 
   return (
     <TouchableOpacity
-      style={{
-        marginBottom: normalize.setNormalize(15),
-      }}
+      style={stockContainerStyles.buttonContainer}
       onPress={() => {
         navigation.push("StockDisplay", {
           stock: {

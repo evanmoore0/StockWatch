@@ -142,7 +142,11 @@ function Register(props) {
           </View>
         </View>
       </Modal>
-      <KeyboardAvoidingView style={{ paddingTop: normalize.setNormalize(20) }}>
+      <KeyboardAvoidingView style={{ paddingTop: normalize.setNormalize(20) }}
+       keyboardVerticalOffset={10}
+       behavior="padding"
+      
+      >
         <TouchableOpacity
           style={{ width: "100%", flexDirection: "row", alignItems: "center" }}
           onPress={() => {
@@ -159,6 +163,7 @@ function Register(props) {
               fontSize: normalize.setNormalize(20),
               color: "white",
               fontWeight: "700",
+              fontFamily: Constants.FONT.family
             }}
           >
             Register
@@ -177,15 +182,17 @@ function Register(props) {
 
         <View style={RegisterStyles.entryContainer}>
           <View style={RegisterStyles.inputContainer}>
-            <Text style={RegisterStyles.textInputHeader}>username</Text>
+            <Text style={RegisterStyles.textInputHeader}>email</Text>
             <TextInput
               style={RegisterStyles.textInput}
-              placeholder="enter username"
-              placeholderTextColor="white"
+              placeholder="...@"
+              placeholderTextColor={Constants.THEME_COLOR.light_gray}
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="default"
-              autoCorrect={false}
+              // autoCorrect={false}
+              autoFocus = {true}
+              selectionColor = {Constants.THEME_COLOR.light_gray}
               onChangeText={(text) => {
                 setEmail(text);
               }}
@@ -253,26 +260,32 @@ const RegisterStyles = StyleSheet.create({
   entryContainer: {
     width: "100%",
     paddingTop: normalize.setNormalize(45),
-    justifyContent: "center",
+    // justifyContent: "s",
+    display: "flex",
     alignItems: "center",
+    justifyContent: "space-evenly",
+    height: "80%"
   },
 
   textInputHeader: {
-    color: Constants.THEME_COLOR.blue,
+    color: "white",
     paddingLeft: normalize.setNormalize(15),
     paddingBottom: normalize.setNormalize(5),
     fontSize: normalize.setNormalize(18),
+    fontFamily: Constants.FONT.family
+
   },
 
   textInput: {
-    backgroundColor: Constants.THEME_COLOR.green,
-    borderRadius: normalize.setNormalize(50),
-    borderWidth: normalize.setNormalize(4),
-    borderColor: Constants.THEME_COLOR.blue,
+    backgroundColor: "rgba(220,220,220, 0.3)",
+    borderRadius: Constants.BORDER_RADIUS.value,
+    // borderWidth: normalize.setNormalize(4),
     height: normalize.setNormalize(40),
+    // borderColor: "rgba(0, 0, 0, 0.67)",
     width: normalize.setNormalize(300),
     paddingLeft: normalize.setNormalize(15),
     fontSize: normalize.setNormalize(14),
+    fontFamily: Constants.FONT.family,
     color: "white",
   },
 
@@ -291,7 +304,8 @@ const RegisterStyles = StyleSheet.create({
 
   buttonText: {
     fontSize: normalize.setNormalize(16),
-    color: "white",
+    fontFamily: Constants.FONT.family,
+    
   },
 
   secretModalContainer: {
@@ -315,11 +329,15 @@ const RegisterStyles = StyleSheet.create({
     fontSize: normalize.setNormalize(20),
     color: "white",
     fontWeight: "900",
+    fontFamily: Constants.FONT.family
+
   },
 
   secretModalSubtitle: {
     fontSize: normalize.setNormalize(16),
     color: "white",
+    fontFamily: Constants.FONT.family
+
   },
 
   allPhraseContainer: {
@@ -342,6 +360,7 @@ const RegisterStyles = StyleSheet.create({
     fontSize: normalize.setNormalize(16),
     color: Constants.THEME_COLOR.green,
     fontWeight: "900",
+    fontFamily: Constants.FONT.family
   },
 
   secretModalAllButtonContainer: {
@@ -361,6 +380,7 @@ const RegisterStyles = StyleSheet.create({
   secretModalButtonText: {
     fontSize: normalize.setNormalize(18),
     color: "white",
+    fontFamily: Constants.FONT.family
   },
 
   modalCloseContainer: {

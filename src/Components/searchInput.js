@@ -16,7 +16,7 @@ const SearchInput = () => {
           spellCheck={false}
           placeholderTextColor="white"
           placeholder={"Search"}
-          selectionColor="white"
+          // Add placeholder style           selectionColor="white"
           clearButtonMode="always"
           value={stockSymbol}
           onFocus={() => {
@@ -42,6 +42,7 @@ const SearchInputStyles = StyleSheet.create({
         fontSize: normalize.setNormalize(18),
         fontWeight: "bold",
         color: "white",
+        fontFamily: Constants.FONT.family
       },
       cancelContainer: {
         alignItems: "flex-end",
@@ -51,6 +52,7 @@ const SearchInputStyles = StyleSheet.create({
       cancel: {
         color: "gray",
         fontSize: normalize.setNormalize(16),
+        fontFamily: Constants.FONT.family
       }
 })
 

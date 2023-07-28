@@ -27,6 +27,10 @@ Graph
     - Same number of data points for each graph
 
 
+NEW TODO:
+
+Make date picker component
+
 
 
 <StockBlock

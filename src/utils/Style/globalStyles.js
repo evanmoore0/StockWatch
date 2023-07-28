@@ -2,6 +2,8 @@ import React from "react";
 import { StyleSheet } from "react-native";
 import normalize from "./normalize";
 
+import Constants from "../Constants";
+
 const GlobalStyles = StyleSheet.create({
   screenContainer: {
     justifyContent: "center",
@@ -39,7 +41,7 @@ const GlobalStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     backgroundColor: "rgba(82,82,82,0.3)",
-    borderRadius: 30,
+    borderRadius: Constants.STOCK.radius,
     paddingHorizontal: normalize.setNormalize(20),
     alignItems: "center",
     paddingVertical: normalize.setNormalize(16),
@@ -49,6 +51,8 @@ const GlobalStyles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     fontSize: normalize.setNormalize(20),
+    fontFamily: Constants.FONT.family
+
   },
 
   fullPageCenterAlign: {

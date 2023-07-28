@@ -465,7 +465,7 @@ function StockDisplay(props) {
                     fill: "#4C4E52",
                     fontWeight: "900",
                     fontSize: normalize.setNormalize(30),
-                    fontFamily:"Arial"                     
+                    fontFamily: Constants.FONT.family
                   },
                 ]}
               />
@@ -494,7 +494,7 @@ function StockDisplay(props) {
                     fill: "#4C4E52",
                     fontWeight: "900",
                     fontSize: normalize.setNormalize(30),
-                    fontFamily:"Arial"                     
+                    fontFamily: Constants.FONT.family
                   },
                 ]}
               />
@@ -538,6 +538,7 @@ function StockDisplay(props) {
                         : Constants.THEME_COLOR.blue,
                     fontSize: normalize.setNormalize(14),
                     fontWeight: "600",
+                    fontFamily: Constants.FONT.family
                   }}
                   flyoutStyle={{ fill: "black", strokeWidth: 0 }}
                   center={{
@@ -633,7 +634,7 @@ function StockDisplay(props) {
           >
             <Text
               numberOfLines={numLines}
-              style={{ color: "white", fontSize: normalize.setNormalize(14) }}
+              style={{ color: "white", fontSize: normalize.setNormalize(14),     fontFamily: Constants.FONT.family            }}
             >
               {infoData[1]}
             </Text>
@@ -874,6 +875,8 @@ const stockDisplayStyles = StyleSheet.create({
     fontSize: normalize.setNormalize(16),
     color: "gray",
     paddingVertical: normalize.setNormalize(10),
+    fontFamily: Constants.FONT.family
+
   },
 
   buttonContainer: {
@@ -888,11 +891,15 @@ const stockDisplayStyles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontSize: normalize.setNormalize(16),
+    fontFamily: Constants.FONT.family
+
   },
 
   title: {
     color: "white",
     fontSize: normalize.setNormalize(18),
+    fontFamily: Constants.FONT.family,
+
     marginVertical: normalize.setNormalize(20),
   },
 
@@ -945,28 +952,37 @@ const stockDisplayStyles = StyleSheet.create({
   infoText: {
     color: "white",
     fontSize: normalize.setNormalize(14),
+    fontFamily: Constants.FONT.family
+
   },
 
   websiteLink: {
     color: "white",
     fontSize: normalize.setNormalize(14),
     textDecorationLine: "underline",
+    fontFamily: Constants.FONT.family
+
   },
   backButtonContainer: { flexDirection: "row", alignItems: "center" },
   backButtonTickerText: {
     fontSize: normalize.setNormalize(20),
     fontWeight: Constants.STOCK_NAME_FONT.weight,
+    fontFamily: Constants.FONT.family,
     color: "gray",
   },
   scoreText: {
     color: Constants.THEME_COLOR.blue,
     fontWeight: "bold",
     fontSize: normalize.setNormalize(16),
+    fontFamily: Constants.FONT.family
+
   },
 
   sName: {
     fontSize: normalize.setNormalize(35),
     color: "white",
+    fontFamily: Constants.FONT.family
+
   },
 
   graphContainer: {
@@ -992,18 +1008,24 @@ const stockDisplayStyles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     fontSize: normalize.setNormalize(18),
+    fontFamily: Constants.FONT.family
+
   },
 
   newsPublished: {
     color: "white",
     fontWeight: "bold",
     fontSize: normalize.setNormalize(16),
+    fontFamily: Constants.FONT.family
+
   },
 
   newsSubtitle: {
     color: "white",
     paddingBottom: normalize.setNormalize(15),
     fontSize: normalize.setNormalize(16),
+    fontFamily: Constants.FONT.family
+
   },
 
   newsImage: {
@@ -1058,6 +1080,8 @@ const stockDisplayStyles = StyleSheet.create({
   tagText: {
     color: "white",
     fontSize: normalize.setNormalize(14),
+    fontFamily: Constants.FONT.family
+
   },
 
   noTags: { paddingTop: normalize.setNormalize(20) },

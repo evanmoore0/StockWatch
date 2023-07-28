@@ -59,6 +59,7 @@ function Library(props) {
       color: color,
       fontSize: normalize.setNormalize(16),
       paddingVertical: normalize.setNormalize(8),
+      fontFamily: Constants.FONT.family,
     },
 
     headerContainer: {
@@ -73,10 +74,30 @@ function Library(props) {
     },
   });
 
+  async function Test() {
+    var myHeaders = new Headers();
+    myHeaders.append(
+      "Authorization",
+      "Basic Q0tBNUFLRFIyTUpNRlgySUdBQ0I6Y2ZlZ0I3MnZMbkE3RWpPY05NOWo1ME5nNllXMnBWajlzdm4zUWhkTw=="
+    );
+
+    var requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+
+    fetch("https://broker-api.sandbox.alpaca.markets//v1/clock", requestOptions)
+      .then((response) => response.text())
+      .then((result) => console.log(result))
+      .catch((error) => console.log("error", error));
+  }
+
   const Header = () => {
     return (
       <View style={headerStyles.headerContainer}>
         <View>
+          {/* HERHEHRHEHHRE */}
           <Text style={GlobalStyles.title}>Library</Text>
           <Text style={headerStyles.todaysGainText}>
             {todaysGain ? todaysGain : " "}
@@ -157,8 +178,9 @@ function Library(props) {
             </View>
 
             <View>
-              <TouchableOpacity style={libraryStyles.confirmDeleteButton}
-              onPress = {() => DeleteAccount()}
+              <TouchableOpacity
+                style={libraryStyles.confirmDeleteButton}
+                onPress={() => DeleteAccount()}
               >
                 <Text
                   style={{
@@ -519,6 +541,7 @@ function Library(props) {
 
   useEffect(() => {
     GetStocks();
+    Test()
     return () => setUserData([]);
   }, []);
 
@@ -645,6 +668,7 @@ const libraryStyles = StyleSheet.create({
     color: "white",
     fontSize: normalize.setNormalize(17),
     paddingRight: normalize.setNormalize(15),
+    fontFamily: Constants.FONT.family,
   },
 
   linePadding: {
@@ -658,7 +682,11 @@ const libraryStyles = StyleSheet.create({
     opacity: 0.5,
   },
 
-  modalText: { color: "white", fontSize: normalize.setNormalize(16) },
+  modalText: {
+    color: "white",
+    fontSize: normalize.setNormalize(16),
+    fontFamily: Constants.FONT.family,
+  },
 
   allGainersLosersColumn: { width: "34%", alignItems: "center" },
 
@@ -667,5 +695,6 @@ const libraryStyles = StyleSheet.create({
     padding: normalize.setNormalize(8),
     borderRadius: 50,
     marginBottom: normalize.setNormalize(20),
+    fontFamily: Constants.FONT.family,
   },
 });

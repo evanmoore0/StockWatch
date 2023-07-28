@@ -1,13 +1,40 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import normalize from "../utils/Style/normalize";
 import Graphic from "../Components/graphic";
+
+import Constants from "../utils/Constants";
 
 //Firebase Auth
 import { SafeAreaView } from "react-native-safe-area-context";
 import GlobalStyles from "../utils/Style/globalStyles";
 
+// import {
+//   Alpaca
+// } from '@alpacahq/alpaca-trade-api'
 function Welcome(props) {
+
+
+  // const alpaca = new Alpaca({
+  //   keyId: 'CKOQCMRUTFASEB8ZR0FV',
+  //   secretKey: 'sdplmAX6hRhVP45qYodRDUQZWKeQTbF1nIOQ2dqv',
+  //   paper: true,
+  // })
+
+  // const assets = alpaca.getAssets({
+  //   status: 'active',
+  //   asset_class: 'us_equity'
+  // })
+
+  // useEffect(() => {
+  //   console.log("assets", assets)
+  //   // console.log(assets)
+  // }, []);
+
+
+
+
+
   return (
     <SafeAreaView style={welcomeStyles.pageContainer}>
       <View
@@ -41,7 +68,7 @@ function Welcome(props) {
         <TouchableOpacity
           style={welcomeStyles.buttonContainer}
           onPress={() => {
-            props.navigation.replace("Register");
+            props.navigation.push("Email");
           }}
         >
           <Text style={welcomeStyles.buttonText}>Register</Text>
@@ -52,7 +79,7 @@ function Welcome(props) {
         <TouchableOpacity
           style={welcomeStyles.buttonSubtitleContainer}
           onPress={() => {
-            props.navigation.replace("Login");
+            props.navigation.push("Login");
           }}
         >
           <Text style={welcomeStyles.buttonSubtitle}>
@@ -77,6 +104,7 @@ const welcomeStyles = StyleSheet.create({
     fontSize: normalize.setNormalize(24),
     color: "white",
     fontWeight: "700",
+    fontFamily: Constants.FONT.family
   },
 
   subTitleContainer: {
@@ -88,6 +116,8 @@ const welcomeStyles = StyleSheet.create({
     fontSize: normalize.setNormalize(12),
     paddingBottom: normalize.setNormalize(3),
     textAlign: "center",
+    fontFamily: Constants.FONT.family
+
   },
 
   graphicContainer: {
@@ -103,6 +133,7 @@ const welcomeStyles = StyleSheet.create({
   buttonSubtitle: {
     fontSize: normalize.setNormalize(13),
     color: "white",
+    fontFamily: Constants.FONT.family
   },
 
   buttonContainer: {
@@ -110,13 +141,14 @@ const welcomeStyles = StyleSheet.create({
     paddingHorizontal: normalize.setNormalize(70),
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: normalize.setNormalize(50),
-    backgroundColor: "#6AB664",
+    borderRadius: Constants.BORDER_RADIUS.value,
+    backgroundColor: Constants.THEME_COLOR.green,
   },
 
   buttonText: {
     fontSize: normalize.setNormalize(20),
     color: "white",
+    fontFamily: Constants.FONT.family
   },
 
   container: {

@@ -83,9 +83,7 @@ function Stocks({ navigation }) {
         presentationStyle="overFullScreen"
         animationType="fade"
       >
-        <View
-          style={stockStyles.infoModalBackground}
-        >
+        <View style={stockStyles.infoModalBackground}>
           <View style={stockStyles.modalScreenContainer}>
             <View
               style={{
@@ -111,9 +109,7 @@ function Stocks({ navigation }) {
               <Graphic scale={0.6} />
             </View>
 
-            <View
-              style={stockStyles.modalTextContainer}
-            >
+            <View style={stockStyles.modalTextContainer}>
               {modalText(
                 "Keep track of the hottest stocks on the Trending page"
               )}
@@ -149,28 +145,41 @@ function Stocks({ navigation }) {
 
   const Header = () => {
     return (
-      <View
-        style={stockStyles.headerContainer}
-      >
- 
-        <Text
-          style={GlobalStyles.title}
+      <View style={stockStyles.headerContainer}>
+        <Text style={GlobalStyles.title}>Trending</Text>
+
+        <View
+        style={{flexDirection: "row"}}
         >
-          Trending
-        </Text>
 
-
-        <TouchableOpacity
-          onPress={() => {
+          <TouchableOpacity
+           onPress={() => {
             setDisplayInfoOne(true);
           }}
-        >
-          <MaterialIcons
+          >
+            <MaterialIcons
             name="info-outline"
             size={normalize.setNormalize(30)}
             color="white"
+            style = {{marginRight: normalize.setNormalize(10)}}
           />
-        </TouchableOpacity>
+          </TouchableOpacity>
+
+
+          <TouchableOpacity
+          onPress={() => {
+            navigation.navigate("KYC");
+          }}
+          >
+            <MaterialIcons
+            name = "account-circle"
+            size = {normalize.setNormalize(30)}
+            color = "white"
+            />
+          </TouchableOpacity>
+
+          
+        </View>
       </View>
     );
   };
@@ -202,20 +211,32 @@ function Stocks({ navigation }) {
     wait(1000).then(() => setRefreshing(false));
   }, []);
 
-
   const StockComponent = () => {
     if (!visible) {
       return (
         <>
-          {trendingData.map((stock) => (
-            <StockContainer
-              key={stock.ticker}
-              sName={stock.sName}
-              ticker={stock.ticker}
-              score={stock.score}
-              percentChange={stock.percentChange.toFixed(2)}
-            />
-          ))}
+          {/* {<FuckMe/>} */}
+
+          {trendingData
+            .filter((_, index) => index % 4 == 0)
+            .map((_, indexTwo) => (
+              // <StockContainer
+              //   key={stock.ticker}
+              //   sName={stock.sName}
+              //   ticker={stock.ticker}
+              //   score={stock.score}
+              //   percentChange={stock.percentChange.toFixed(2)}
+              // />
+
+              <StockBlock
+                key={indexTwo}
+                stock0={trendingData[indexTwo == 0 ? 0 : indexTwo == 1 ? 4 : indexTwo == 2 ? 8 : 0]}
+                stock1={trendingData[indexTwo == 0 ? 1 : indexTwo == 1 ? 5 : indexTwo == 2 ? 9 : 0]}
+                stock2={trendingData[indexTwo == 0 ? 2 : indexTwo == 1 ? 6 : indexTwo == 2 ? 10 : 0]}
+                stock3={trendingData[indexTwo == 0 ? 3 : indexTwo == 1 ? 7 : indexTwo == 2 ? 11 : 0]}
+                switch={true}
+              />
+            ))}
         </>
       );
     } else {
@@ -253,20 +274,20 @@ function Stocks({ navigation }) {
     }
   };
 
-  const getAlpacaTickers = async () => {
-
-    try {
-      await fetch("https://broker-api.sandbox.alpaca.markets" + "/v1/assets").then(function(response) {
-        return response.json();
-      }).then(function(data) {
-        print("DATA")
-        print(data)
-      })
-    } catch (error) {
-      alert(error.error)
-      
-    } 
-  }
+  // const getAlpacaTickers = async () => {
+  //   try {
+  //     await fetch("https://broker-api.sandbox.alpaca.markets" + "/v1/assets")
+  //       .then(function (response) {
+  //         return response.json();
+  //       })
+  //       .then(function (data) {
+  //         print("DATA");
+  //         print(data);
+  //       });
+  //   } catch (error) {
+  //     alert(error.error);
+  //   }
+  // };
 
   const filterTickers = (data) => {
     setSearchData(
@@ -276,14 +297,14 @@ function Stocks({ navigation }) {
     );
   };
 
-  const getTrending = async () => {
+  async function getTrending() {
     let tempTrending = [];
     let listStocks = "";
 
     const trending = query(
       collection(db, "score"),
       orderBy("score", "desc"),
-      limit(10)
+      limit(12)
     );
 
     const trendingDocs = await getDocs(trending);
@@ -301,7 +322,9 @@ function Stocks({ navigation }) {
       });
     });
 
-    setTrendingData(trendingData);
+    // setTrendingData(trendingData);
+    let temp = [];
+    let newsData = []
 
     try {
       await fetch(
@@ -320,10 +343,29 @@ function Stocks({ navigation }) {
               });
             });
           }
-          setTrendingData(tempTrending);
-        });
+          // setTrendingData(tempTrending);
+          return tempTrending;
+        })
+        .then(async function (trending) {
+
+          for(let i = 0; i < trending.length; i++) {
+            await fetch(
+              `https://api.polygon.io/v2/reference/news?ticker=${trending[i]["ticker"]}&apiKey=6m0_ilIBV0jaREW2Jd_YNCnYXwB20uKo`
+            ).then(function(response) {
+              return response.json()
+            }).then(function (data) {
+              trending[i]["newsTitle"] = data.results[0]["title"];
+              trending[i]["imageLink"] = data.results[0]["image_url"];
+              trending[i]["newsLink"] = data.results[0]["article_url"];
+              temp.push(trending[i]);
+              // console.log(data.results.length)
+            })
+          }
+          setTrendingData(temp)
+        })
+
     } catch (error) {
-      Alert.alert("There was an error fetching trening data please try again later");
+      Alert.alert(error.message);
     }
   };
 
@@ -332,13 +374,12 @@ function Stocks({ navigation }) {
     animateIncreaseWidth();
     Keyboard.dismiss();
     setStockSymbol("");
-  }
-
+  };
 
   useEffect(() => {
     getTrending();
     getTickers();
-    getAlpacaTickers();
+    // getAlpacaTickers();
   }, []);
 
   useEffect(() => {
@@ -350,7 +391,6 @@ function Stocks({ navigation }) {
     return unsubscribe;
   }, [navigation]);
 
-
   useEffect(() => {
     filterTickers(allSearchData);
   }, [stockSymbol]);
@@ -361,7 +401,6 @@ function Stocks({ navigation }) {
       keyboardVerticalOffset={10}
       behavior="padding"
     >
-
       <GraphicUnderlay top={60} />
 
       <ScrollView
@@ -379,14 +418,11 @@ function Stocks({ navigation }) {
           />
         }
       >
-
         <InfoModal />
         <Header />
 
         <View>
-          <View
-            style={stockStyles.pageContainer}
-          >
+          <View style={stockStyles.pageContainer}>
             <Animated.View
               style={[GlobalStyles.searchBarContainer, { width: width }]}
             >
@@ -412,19 +448,25 @@ function Stocks({ navigation }) {
               onPress={() => handleCancel()}
               style={stockStyles.cancelContainer}
             >
-              <Text
-                style={stockStyles.cancel}
-              >
-                Cancel
-              </Text>
+              <Text style={stockStyles.cancel}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {trendingData ? <StockComponent /> : <></>}
-
-        <StockBlock/>
-
+        {/*         
+        <StockBlock
+        switch = {false}
+        />
+        <StockBlock
+        switch = {true}
+        />
+        <StockBlock
+        switch = {false}
+        />
+        <StockBlock
+        switch = {true}
+        /> */}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -433,7 +475,6 @@ function Stocks({ navigation }) {
 export default Stocks;
 
 const stockStyles = StyleSheet.create({
-
   pageContainer: {
     paddingTop: normalize.setNormalize(10),
     paddingBottom: normalize.setNormalize(15),
@@ -448,8 +489,8 @@ const stockStyles = StyleSheet.create({
     fontSize: normalize.setNormalize(18),
     paddingLeft: normalize.setNormalize(10),
     fontWeight: "600",
-    textAlign: "left"
-
+    textAlign: "left",
+    fontFamily: Constants.FONT.family,
   },
 
   modalButtonContainer: {
@@ -460,7 +501,7 @@ const stockStyles = StyleSheet.create({
     borderRadius: normalize.setNormalize(30),
     padding: normalize.setNormalize(20),
     width: normalize.setNormalize(80),
-    alignSelf: "center"
+    alignSelf: "center",
   },
 
   infoModalBackground: {
@@ -493,13 +534,13 @@ const stockStyles = StyleSheet.create({
     paddingTop: normalize.setNormalize(100),
   },
 
-  headerContainer : {
+  headerContainer: {
     width: "100%",
     flexDirection: "row",
     justifyContent: "space-between",
   },
 
-  searchInput : {
+  searchInput: {
     backgroundColor: "gray",
     height: normalize.setNormalize(32),
     width: "100%",
@@ -508,6 +549,7 @@ const stockStyles = StyleSheet.create({
     fontSize: normalize.setNormalize(18),
     fontWeight: "bold",
     color: "white",
+    fontFamily: Constants.FONT.family,
   },
 
   cancelContainer: {
@@ -518,5 +560,6 @@ const stockStyles = StyleSheet.create({
   cancel: {
     color: "gray",
     fontSize: normalize.setNormalize(16),
-  }
+    fontFamily: Constants.FONT.family,
+  },
 });
